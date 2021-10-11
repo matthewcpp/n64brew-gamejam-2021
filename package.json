@@ -13,7 +13,8 @@
   "scripts": {
     "prepare-n64-assets": "node lib/framework64/pipeline/Pipeline.js -f assets/manifest.json n64 build_n64/bin/assets",
     "prepare-desktop-assets": "node lib/framework64/pipeline/Pipeline.js -f assets/manifest.json desktop build_desktop/bin/assets",
-    "prepare-desktop-shaders": "node lib/framework64/scripts/PrepareDesktopShaders.js lib/framework64/src/desktop/glsl build_desktop/bin/glsl"
+    "prepare-desktop-shaders": "node lib/framework64/scripts/PrepareDesktopShaders.js lib/framework64/src/desktop/glsl build_desktop/bin/glsl",
+    "windows-desktop-copy-ogg-libs": "node lib/framework64/scripts/WindowsDesktopCopyOggLibs"
   },
   "author": "Terminal Viscosity",
   "license": "MIT",
@@ -27,7 +28,7 @@
     "jimp": "^0.16.1",
     "opentype.js": "^1.3.3",
     "rimraf": "^3.0.2",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^4.2.0",
     "tmp": "^0.2.1"
   }
 }

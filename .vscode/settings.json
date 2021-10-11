@@ -1,26 +1,8 @@
 {
-    "files.associations": {
-        "cstdlib": "c",
-        "typeinfo": "c",
-        "assets.h": "c",
-        "functional": "c",
-        "math.h": "c",
-        "input.h": "c",
-        "matrix.h": "c",
-        "vec2.h": "c",
-        "vec3.h": "c",
-        "quat.h": "c",
-        "sparse_set.h": "c",
-        "arcball_camera.h": "c",
-        "renderer.h": "c",
-        "mesh.h": "c",
-        "controller_button.h": "c",
-        "variant": "c",
-        "texture.h": "c",
-        "color.h": "c",
-        "game.h": "c",
-        "terrain.h": "c",
-        "loader.h": "c",
-        "quad.h": "c"
+    "cmake.buildDirectory": "${workspaceFolder}/build_desktop",
+    "cmake.generator": "CodeBlocks - NMake Makefiles",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_MANIFEST_DIR": "${workspaceFolder}/lib/framework64"
     }
 }
