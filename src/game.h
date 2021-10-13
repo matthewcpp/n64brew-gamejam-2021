@@ -2,11 +2,11 @@
 
 #include "framework64/engine.h"
 #include "framework64/node.h"
+#include "level1.h"
 
 typedef struct {
     fw64Engine* engine;
-    fw64Camera camera;
-    fw64Node n64_logo;
+    Level1 level;
 } Game;
 
 #ifdef __cplusplus
