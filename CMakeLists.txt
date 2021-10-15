@@ -16,3 +16,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(lib/framework64)
 add_subdirectory(src)
+add_subdirectory(test)
