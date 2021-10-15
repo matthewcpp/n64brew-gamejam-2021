@@ -8,6 +8,7 @@
 2. Ensure you have VS Code with the [Remote Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension installed.
 
 ### Environment Setup / Building for N64
+Video Link: [YouTube](https://youtu.be/6HEWm9sHza8) 
 Begin by ensuring the docker is currently running on your system.
 run from git bash / powershell:
 ```shell
@@ -32,6 +33,7 @@ your rom will be located at `build_n64/bin/jam.n64`
 After the initial call to cmake you just need to run `make` to rebuild the ROM.
 
 ### Environment Set / Building for Desktop
+Video Link: [YouTube](https://youtu.be/rD3L2wsHezQ)
 Note: This has been tested with Visual Studio 2019 Community Edition
 
 #### Configure vcpkg
@@ -41,9 +43,12 @@ set environment variable `VCPKG_DIR` to the root of the repo you just cloned.  N
 Open the directory and double click `bootstrap-vcpkg.bat`.
 
 #### Build Assets
+Ensure that you have ran `npm install` in the directory.
 In a terminal run the following commands from the root repo directory:
+```shell
 npm run prepare-desktop-assets
 npm run prepare-desktop-shaders
+```
 
 #### Build the project
 Open the project folder in VSCode, however when it asks you if you want to reopen the folder in the container just close the popup.
