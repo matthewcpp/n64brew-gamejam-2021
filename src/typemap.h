@@ -1,4 +1,3 @@
 #pragma once
 
-#define TYPE_START 0
-#define TYPE_FIRE 1
+#define NODE_TYPE_START 0U
