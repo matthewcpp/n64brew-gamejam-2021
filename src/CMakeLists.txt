@@ -1,8 +1,9 @@
 set(src_files
     chase_camera.h chase_camera.c
     game.h game.c
-    level1.h level1.c
+    level.h level.c
     player.h player.c
+    ui.h ui.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../lib/framework64/examples/common/flame.h ${CMAKE_CURRENT_SOURCE_DIR}/../lib/framework64/examples/common/flame.c
     )
 
