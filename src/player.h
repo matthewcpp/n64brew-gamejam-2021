@@ -4,6 +4,8 @@
 #include "framework64/node.h"
 #include "framework64/scene.h"
 
+#include "sparkle.h"
+
 
 #define PLAYER_DEFAULT_ACCELERATION 9.5f
 #define PLAYER_DEFAULT_DECELERATION 15.0f
@@ -30,6 +32,9 @@ typedef struct {
     fw64Engine* engine;
     fw64Scene* scene;
 
+    int mesh_index;
+    fw64Mesh* meshes[2];
+
     Vec3 previous_position;
 
     float jump_impulse;
@@ -51,18 +56,21 @@ typedef struct {
     int process_input;
     int controller_num;
 
+    Sparkle sparkle;
+
 } Player;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, int mesh_index, Vec3* position);
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* position);
 void player_update(Player* player);
 void player_draw(Player* player);
 
 void player_reset(Player* player, Vec3* position);
 void player_calculate_size(Player* player);
+void player_switch_mesh(Player* player);
 
 #ifdef __cplusplus
 }

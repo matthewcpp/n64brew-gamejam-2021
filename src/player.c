@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include "assets.h"
+
 #include "framework64/n64/controller_button.h"
 
 #include <stdio.h>
@@ -7,7 +9,7 @@
 static void process_input(Player* player);
 static void update_position(Player* player);
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, int mesh_index, Vec3* position) {
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* position) {
     player->engine = engine;
     player->scene = scene;
 
@@ -23,12 +25,17 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, int mesh_
     player->height = PLAYER_DEFAULT_HEIGHT;
     player->radius = PLAYER_DEFAULT_RADIUS;
 
+    player->mesh_index = 0;
+    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin);
+    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad);
 
     fw64_node_init(&player->node);
-    fw64_node_set_mesh(&player->node, fw64_mesh_load(engine->assets, mesh_index));
+    fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
     player_reset(player, position);
+
+    sparkle_init(&player->sparkle, engine);
 }
 
 void player_reset(Player* player, Vec3* position) {
@@ -50,6 +57,17 @@ void player_update(Player* player) {
         process_input(player);
 
     update_position(player);
+
+    player->sparkle.node.transform.position = player->node.transform.position;
+    sparkle_update(&player->sparkle);
+
+    if (player->sparkle.is_active) {
+        float switch_time = SPARKLE_DURARION / 2.0f;
+
+        if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
+            player_switch_mesh(player);
+        }
+    }
 }
 
 void process_input(Player* player) {
@@ -87,6 +105,11 @@ void process_input(Player* player) {
             player->air_velocity = player->jump_impulse;
         }
     }
+
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) {
+        sparkle_start(&player->sparkle);
+    }
+        
 }
 
 static Vec3 calculate_movement_vector(Player* player) {
@@ -151,6 +174,7 @@ void update_position(Player* player) {
 
 void player_draw(Player* player) {
     fw64_renderer_draw_static_mesh(player->engine->renderer, &player->node.transform, player->node.mesh);
+    sparkle_draw(&player->sparkle);
 }
 
 void player_calculate_size(Player* player) {
@@ -158,4 +182,13 @@ void player_calculate_size(Player* player) {
     box_extents(&player->node.collider->bounding, &extents);
     player->height = extents.y * 2.0f;
     player->radius = extents.x > extents.z ? extents.x : extents.z;
+
+    vec3_set_all(&player->sparkle.node.transform.scale, 5);
+}
+
+void player_switch_mesh(Player* player) {
+    player->mesh_index = player->mesh_index == 0 ? 1 : 0;
+    fw64_node_set_mesh(&player->node, player->meshes[player->mesh_index]);
+    fw64_node_update(&player->node);
+    player_calculate_size(player);
 }

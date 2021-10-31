@@ -18,7 +18,7 @@ void level_init(Level* level, fw64Engine* engine) {
 
         if (node->type == NODE_TYPE_START) {
             level->respawn_node = node;
-            player_init(&level->player, level->engine, level->scene, FW64_ASSET_mesh_penguin, NULL);
+            player_init(&level->player, level->engine, level->scene, NULL);
             vec3_set(&level->player.node.transform.scale, 0.01f, 0.01f, 0.01f);
             level->player.node.transform.position = node->transform.position;
             fw64_node_update(&level->player.node);

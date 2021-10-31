@@ -3,6 +3,7 @@ set(src_files
     game.h game.c
     level.h level.c
     player.h player.c
+    sparkle.h sparkle.c
     ui.h ui.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../lib/framework64/examples/common/flame.h ${CMAKE_CURRENT_SOURCE_DIR}/../lib/framework64/examples/common/flame.c
     )
