@@ -36,6 +36,7 @@ typedef struct {
     fw64Mesh* meshes[2];
 
     Vec3 previous_position;
+    Vec3 respawn_position;
 
     float jump_impulse;
     float air_velocity;
@@ -68,7 +69,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* pos
 void player_update(Player* player);
 void player_draw(Player* player);
 
-void player_reset(Player* player, Vec3* position);
+void player_reset(Player* player);
 void player_calculate_size(Player* player);
 void player_switch_mesh(Player* player);
 

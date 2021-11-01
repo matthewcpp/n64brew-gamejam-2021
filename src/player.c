@@ -33,12 +33,13 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* pos
     fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
-    player_reset(player, position);
+    player->respawn_position = *position;
+    player_reset(player);
 
     sparkle_init(&player->sparkle, engine);
 }
 
-void player_reset(Player* player, Vec3* position) {
+void player_reset(Player* player) {
     player->speed = 0.0f;
     player->rotation = 0.0f;
     player->state = PLAYER_STATE_ON_GROUND;
@@ -46,10 +47,8 @@ void player_reset(Player* player, Vec3* position) {
 
     quat_ident(&player->node.transform.rotation);
 
-    if (position) {
-        player->node.transform.position = *position;
-        fw64_node_update(&player->node);
-    }
+    player->node.transform.position = player->respawn_position;
+    fw64_node_update(&player->node);
 }
 
 void player_update(Player* player) {
@@ -130,6 +129,7 @@ static Vec3 calculate_movement_vector(Player* player) {
 #define LAYER_WALL 4U
 
 void update_position(Player* player) {
+    player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
 
     Vec3 movement = calculate_movement_vector(player);
