@@ -14,9 +14,16 @@
         {
             "src": "penguin/penguin.gltf"
         },
-                {
+        {
             "src": "toad/toad.gltf"
+        },
+        {
+            "src": "boo/boo.gltf"
+        },
+        {
+            "src": "jack_o_lantern/jack_o_lantern.gltf"
         }
+        
     ],
     "fonts": [
         {
@@ -32,6 +39,11 @@
     "scenes": [
         {
             "src": "simple_scene/simple_scene.gltf",
+            "typeMap": 0,
+            "layerMap": 0
+        },
+        {
+            "src": "haunted_tunnel/haunted_tunnel.gltf",
             "typeMap": 0,
             "layerMap": 0
         }
