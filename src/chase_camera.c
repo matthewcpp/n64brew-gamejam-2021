@@ -41,7 +41,7 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
 
     vec3_scale(&forward, &forward, chase_cam->target_forward_dist);
     vec3_add(&camera_target, &chase_cam->target->position, &forward);
-    forward.y += chase_cam->target_forward_height;
+    camera_target.y += chase_cam->target_forward_height;
 
     chase_cam->camera.transform.position = camera_pos;
     fw64_transform_look_at(&chase_cam->camera.transform, &camera_target, &up);

@@ -4,7 +4,7 @@
 #include "framework64/node.h"
 #include "framework64/util/quad.h"
 
-#define SPARKLE_DURARION 1.0f
+#define SPARKLE_DURARION 0.5f
 #define SPARKLE_FRAME_COUNT 16
 #define SPARKLE_FRAME_DURATION  (SPARKLE_DURARION / (float)SPARKLE_FRAME_COUNT)
 
