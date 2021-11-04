@@ -7,7 +7,7 @@ float spawn_x[3] = {-5.0, 0.0, 5.0};
 static void respawn_enemies(TunnelLevel* level);
 
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
-    level_base_init(&level->base, engine, FW64_ASSET_scene_haunted_tunnel);
+    level_base_init(&level->base, engine, FW64_ASSET_scene_hallway);
     level->base.chase_cam.target_follow_height = 5.0f;
     level->base.chase_cam.target_forward_height = 6.0f;
     level->base.chase_cam.target_follow_dist = 13.0f;
@@ -49,7 +49,7 @@ void tunnel_level_update(TunnelLevel* level){
             enemy_update(&level->enemy[i]);
         }
 
-        if (level->enemy[0].collider.bounding.min.z > level->base.player.collider.bounding.min.z + 10.0f) {
+        if (level->enemy[0].collider.bounding.min.z > level->base.player.collider.bounding.min.z + 10.0f && level->base.player.state == PLAYER_STATE_ON_GROUND) {
             respawn_enemies(level);
         }
     }

@@ -7,8 +7,9 @@
                 "/usr/include/n64/nusys",
                 "/usr/include/n64/nustd",
                 "${workspaceFolder}/lib/framework64/include",
-                "${workspaceFolder}/src/**",
-                "${workspaceFolder}/build_n64/bin/assets"
+                "${workspaceFolder}/build_n64/bin/assets/include",
+                "${workspaceFolder}/src/**"
+                
             ],
             "defines": [
                 "_LANGUAGE_C",

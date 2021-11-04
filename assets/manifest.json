@@ -36,7 +36,7 @@
     ],
     "musicBanks": [
     ],
-    "scenes": [
+    "levels": [
         {
             "src": "simple_scene/simple_scene.gltf",
             "typeMap": 0,
@@ -53,7 +53,7 @@
     "typeMaps": [
         {
             "start": 0,
-            "fire": 1
+            "nextscene": 1
         }
     ],
     "layerMaps": [
