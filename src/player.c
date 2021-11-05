@@ -1,5 +1,7 @@
 #include "player.h"
 
+#include "assets.h"
+
 #include "framework64/n64/controller_button.h"
 
 #include <stdio.h>
@@ -7,12 +9,13 @@
 static void process_input(Player* player);
 static void update_position(Player* player);
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, int mesh_index, Vec3* position) {
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* position) {
     player->engine = engine;
     player->scene = scene;
 
     player->jump_impulse = PLAYER_DEFAULT_JUMP_VELOCITY;
     player->gravity = PLAYER_DEFAULT_GRAVITY;
+    player->dash_speed = PLAYER_DEFAULT_MAX_SPEED * 3.5;
     player->max_speed = PLAYER_DEFAULT_MAX_SPEED;
     player->acceleration = PLAYER_DEFAULT_ACCELERATION;
     player->deceleration = PLAYER_DEFAULT_DECELERATION;
@@ -23,15 +26,25 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, int mesh_
     player->height = PLAYER_DEFAULT_HEIGHT;
     player->radius = PLAYER_DEFAULT_RADIUS;
 
+    player->double_jumps = 0;
+    player->dashes = 0;
+    player->is_dashing = 0;
+
+    player->mesh_index = 0;
+    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin);
+    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad);
 
     fw64_node_init(&player->node);
-    fw64_node_set_mesh(&player->node, fw64_mesh_load(engine->assets, mesh_index));
+    fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
-    player_reset(player, position);
+    player->respawn_position = *position;
+    player_reset(player);
+
+    sparkle_init(&player->sparkle, engine);
 }
 
-void player_reset(Player* player, Vec3* position) {
+void player_reset(Player* player) {
     player->speed = 0.0f;
     player->rotation = 0.0f;
     player->state = PLAYER_STATE_ON_GROUND;
@@ -39,10 +52,8 @@ void player_reset(Player* player, Vec3* position) {
 
     quat_ident(&player->node.transform.rotation);
 
-    if (position) {
-        player->node.transform.position = *position;
-        fw64_node_update(&player->node);
-    }
+    player->node.transform.position = player->respawn_position;
+    fw64_node_update(&player->node);
 }
 
 void player_update(Player* player) {
@@ -50,43 +61,93 @@ void player_update(Player* player) {
         process_input(player);
 
     update_position(player);
+
+    player->sparkle.node.transform.position = player->node.transform.position;
+    sparkle_update(&player->sparkle);
+
+    if (player->sparkle.is_active) {
+        float switch_time = SPARKLE_DURARION / 2.0f;
+
+        if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
+            player_switch_mesh(player);
+
+            if(player->mesh_index == 0) {
+                player->dashes = 1;
+                player->double_jumps = 0;
+            }
+            else {
+                player->dashes = 0;
+                player->double_jumps = 1;
+            }
+
+        }
+    }
 }
 
 void process_input(Player* player) {
     Vec2 stick;
     fw64_input_stick(player->engine->input, 0, &stick);
-    if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) {
-        float rotation_delta = PLAYER_DEFAULT_ROTATION_SPEED * player->engine->time->time_delta;
 
-        if (stick.x >= PLAYER_STICK_THRESHOLD) {
-            player->rotation -= rotation_delta;
-        }
-        else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
-            player->rotation += rotation_delta;
-        }
-
-        quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
-    }
-
-    if (stick.y >= PLAYER_STICK_THRESHOLD ) {
-        player->speed = fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed);
-    }
-    else if (stick.y <= -PLAYER_STICK_THRESHOLD) {
-        player->speed = fmaxf(player->speed - player->acceleration * player->engine->time->time_delta, -player->max_speed);
-    }
-    else {
+    if(player->is_dashing)
+    {
         float decel = player->deceleration * player->engine->time->time_delta;
-        if (player->speed > 0.0f)
-            player->speed = fmaxf(player->speed - decel, 0.0f);
-        else if (player->speed < 0.0f)
-            player->speed = fminf(player->speed + decel, 0.0f);
+        player->speed = fmaxf((player->speed - decel), 0.0f);
+        if(player->speed <= player->max_speed)
+            player->is_dashing = 0;
     }
+    else
+    {
+        if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) {
+            float rotation_delta = PLAYER_DEFAULT_ROTATION_SPEED * player->engine->time->time_delta;
 
+            if (stick.x >= PLAYER_STICK_THRESHOLD) {
+                player->rotation -= rotation_delta;
+            }
+            else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
+                player->rotation += rotation_delta;
+            }
+            quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
+        }
+
+        if (stick.y >= PLAYER_STICK_THRESHOLD ) {
+            player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
+        }
+        else if (stick.y <= -PLAYER_STICK_THRESHOLD) {
+            player->speed = fminf(fmaxf(player->speed - player->acceleration * player->engine->time->time_delta, -player->max_speed), player->max_speed * -0.5f);
+        }
+        else {
+            float decel = player->deceleration * player->engine->time->time_delta;
+            if (player->speed > 0.0f)
+                player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
+            else if (player->speed < 0.0f)
+                player->speed = fmaxf(fminf(player->speed + decel, 0.0f), player->max_speed * -0.5f);
+        }
+    }
+    
     if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) {
         if (player->state == PLAYER_STATE_ON_GROUND) {
             player->air_velocity = player->jump_impulse;
         }
+        else if (player->double_jumps > 0) {
+            player->air_velocity = player->jump_impulse * (0.85f * player->double_jumps);
+            player->double_jumps -= 1;
+        }
     }
+    else if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) {
+        if (player->state == PLAYER_STATE_FALLING) {
+            player->air_velocity = fminf(fmaxf(player->air_velocity - 2.0f, 0.0f), player->air_velocity);
+        }
+    }
+
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B) && player->dashes > 0) {
+        player->speed = player->dash_speed;
+        player->is_dashing = 1;
+    }
+
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) {
+        sparkle_start(&player->sparkle);
+    }
+        
 }
 
 static Vec3 calculate_movement_vector(Player* player) {
@@ -107,6 +168,7 @@ static Vec3 calculate_movement_vector(Player* player) {
 #define LAYER_WALL 4U
 
 void update_position(Player* player) {
+    player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
 
     Vec3 movement = calculate_movement_vector(player);
@@ -131,6 +193,13 @@ void update_position(Player* player) {
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
                 new_state = PLAYER_STATE_ON_GROUND;
+                
+                //reset our double jump or dash counter
+                if(player->mesh_index == 1)
+                    player->double_jumps = 1;
+                else if(player->is_dashing == 0)
+                    player->dashes = 1;
+                
                 player->air_velocity = 0;
                 float hit_distance = vec3_distance(&query_center, &hit->point);
                 vec3_add_and_scale(position, position, &direction, height_radius - hit_distance);
@@ -151,6 +220,7 @@ void update_position(Player* player) {
 
 void player_draw(Player* player) {
     fw64_renderer_draw_static_mesh(player->engine->renderer, &player->node.transform, player->node.mesh);
+    sparkle_draw(&player->sparkle);
 }
 
 void player_calculate_size(Player* player) {
@@ -158,4 +228,13 @@ void player_calculate_size(Player* player) {
     box_extents(&player->node.collider->bounding, &extents);
     player->height = extents.y * 2.0f;
     player->radius = extents.x > extents.z ? extents.x : extents.z;
+
+    vec3_set_all(&player->sparkle.node.transform.scale, 5);
+}
+
+void player_switch_mesh(Player* player) {
+    player->mesh_index = player->mesh_index == 0 ? 1 : 0;
+    fw64_node_set_mesh(&player->node, player->meshes[player->mesh_index]);
+    fw64_node_update(&player->node);
+    player_calculate_size(player);
 }

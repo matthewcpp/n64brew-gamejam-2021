@@ -1,5 +1,10 @@
 {
     "images": [
+        {
+            "src": "sparkle.png",
+            "hslices": 4,
+            "vslices": 4
+        }
         
     ],
     "meshes": [
@@ -8,7 +13,17 @@
         },
         {
             "src": "penguin/penguin.gltf"
+        },
+        {
+            "src": "toad/toad.gltf"
+        },
+        {
+            "src": "boo/boo.gltf"
+        },
+        {
+            "src": "jack_o_lantern/jack_o_lantern.gltf"
         }
+        
     ],
     "fonts": [
         {
@@ -21,9 +36,14 @@
     ],
     "musicBanks": [
     ],
-    "scenes": [
+    "levels": [
         {
             "src": "simple_scene/simple_scene.gltf",
+            "typeMap": 0,
+            "layerMap": 0
+        },
+        {
+            "src": "haunted_tunnel/haunted_tunnel.gltf",
             "typeMap": 0,
             "layerMap": 0
         }
@@ -33,14 +53,17 @@
     "typeMaps": [
         {
             "start": 0,
-            "fire": 1
+            "nextscene": 100,
+            "key": 200
         }
     ],
     "layerMaps": [
         {
+            "none": 0,
             "default": 1,
             "ground": 2,
-            "wall": 4
+            "ceiling": 4,
+            "wall": 8
         }
     ]
 }
