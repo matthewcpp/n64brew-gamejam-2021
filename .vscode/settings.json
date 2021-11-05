@@ -5,9 +5,17 @@
         "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake",
         "VCPKG_MANIFEST_DIR": "${workspaceFolder}/lib/framework64"
     },
+    "cmake.debugConfig": {
+        "externalConsole": true
+    },
     "files.associations": {
         "level1.h": "c",
         "player.h": "c",
-        "assets.h": "c"
+        "assets.h": "c",
+        "trigger_box.h": "c",
+        "scene_hallway.h": "c",
+        "scene_atrium.h": "c",
+        "tunnel_level.h": "c",
+        "algorithm": "c"
     }
 }

@@ -53,14 +53,17 @@
     "typeMaps": [
         {
             "start": 0,
-            "nextscene": 1
+            "nextscene": 100,
+            "key": 200
         }
     ],
     "layerMaps": [
         {
+            "none": 0,
             "default": 1,
             "ground": 2,
-            "wall": 4
+            "ceiling": 4,
+            "wall": 8
         }
     ]
 }

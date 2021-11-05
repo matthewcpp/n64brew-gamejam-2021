@@ -5,7 +5,7 @@
 #include "scene_playground.h"
 
 void level_init(Level* level, fw64Engine* engine) {
-    level_base_init(&level->base, engine, FW64_ASSET_scene_playground);
+    level_base_init(&level->base, engine);
     level_base_setup_player(&level->base, FW64_scene_playground_node_Player_Start);
 }
 

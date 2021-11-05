@@ -7,7 +7,7 @@ void game_init(Game* game, fw64Engine* engine) {
     game->state = GAME_STATE_PLAYING;
     game->currentLevel = LEVEL_NONE;
 
-    game_set_current_level(game, LEVEL_SIMPLE_SCENE);
+    game_set_current_level(game, LEVEL_TUNNEL);
 }
 
 void game_update(Game* game){

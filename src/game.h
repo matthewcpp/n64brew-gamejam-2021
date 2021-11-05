@@ -1,8 +1,8 @@
 #pragma once
 
 #include "framework64/engine.h"
-#include "level.h"
-#include "tunnel_level.h"
+#include "initial/level.h"
+#include "tunnel/tunnel_level.h"
 
 typedef union {
     Level level;
