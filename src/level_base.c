@@ -113,15 +113,10 @@ void level_base_load_current_scene(LevelBase* level, uint32_t index, SceneInitFu
     set_scene_ref(level, level->current_scene, index, init_func, update_func, uninit_func, arg);
 }
 
-#include <stdio.h>
-
 void level_base_load_next_scene(LevelBase* level, uint32_t index, SceneInitFunc init_func, SceneFunc update_func, SceneFunc uninit_func, void* arg) {
     SceneRef* next_scene_ref = NEXT_SCENE_REF(level);
     
     if (next_scene_ref->index != index) {
         set_scene_ref(level, level->current_scene == 1 ? 0 : 1, index, init_func, update_func, uninit_func, arg);
-    }
-    else {
-        puts("already loaded");
     }
 }
