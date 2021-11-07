@@ -7,6 +7,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#ifdef PLATFORM_N64
+    #include <malloc.h>
+#endif
+
 #define CURRENT_SCENE_REF(scene_manager) (&(scene_manager)->scene_refs[(scene_manager)->current_scene])
 #define NEXT_SCENE_INDEX(scene_manager) (scene_manager)->current_scene == 1 ? 0 : 1
 #define NEXT_SCENE_REF(scene_manager) (&(scene_manager)->scene_refs[NEXT_SCENE_INDEX((scene_manager))])
@@ -38,7 +42,6 @@ void scene_manager_update(SceneManager* scene_manager){
             scene_manager->current_scene = NEXT_SCENE_INDEX(scene_manager);
             current_scene = next_scene;
             scene_manager->swap_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
-            fw64_renderer_set_clear_color(scene_manager->engine->renderer, 0, 255, 0);
         }
     }
 
