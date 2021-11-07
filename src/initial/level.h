@@ -1,9 +1,9 @@
 #pragma once
 
-#include "level_base.h"
+#include "scene_manager.h"
 
 typedef struct {
-    LevelBase base;
+    SceneManager scene_manager;
 } Level;
 
 #ifdef __cplusplus

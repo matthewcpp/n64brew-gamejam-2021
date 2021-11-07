@@ -5,17 +5,16 @@
 #include "assets.h"
 #include "scene_hallway.h"
 
-static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene);
+static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     level->engine = engine;
-    scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData));
 
     player_init(&level->player, level->engine, NULL);
     vec3_set_all(&level->player.node.transform.scale, 0.01f);
     level->player.jump_impulse = 16.0f;
     level->player.gravity = -38.0f;
-    level->player.max_speed = 15.0f;
+    level->player.max_speed = 30.0f;
     level->player.acceleration = 14.0f;
     fw64_node_update(&level->player.node);
     player_calculate_size(&level->player);
@@ -28,15 +27,20 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     ui_init(&level->ui, engine, &level->player);
 
+    scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
     tunnel_hallway_description(&desc);
     level_base_load_current_scene(&level->scene_manager, &desc);
+    fw64Scene* scene = scene_manager_get_current_scene(&level->scene_manager);
+    fw64Node *node = fw64_scene_get_node(scene, FW64_scene_hallway_node_Player_Start);
+    level->player.scene = scene;
+    level->player.node.transform.position = node->transform.position;
+
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
 
     level->debug = 1;
 }
-
 
 
 void tunnel_level_update(TunnelLevel* level){
@@ -63,8 +67,15 @@ void tunnel_level_draw(TunnelLevel* level) {
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_SWAP);
 }
 
+// when the scene manager swaps a scene the player's scene needs to be updated (for collisions)
+void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data) {
+    TunnelLevel* level = (TunnelLevel*)level_arg;
+    
+    level->player.scene = scene;
+}
+
 void tunnel_level_uninit(TunnelLevel* level) {
-    fw64_renderer_set_light_enabled(level->base.engine->renderer, 1, 0);
+    fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
 }
 
 void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
@@ -73,7 +84,7 @@ void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
         case FW64_ASSET_scene_hallway: {
             SceneDescription desc;
             tunnel_atrium_description(&desc);
-            level_base_load_current_scene(&level->scene_manager, &desc);
+            level_base_load_next_scene(&level->scene_manager, &desc);
             break;
         }
         

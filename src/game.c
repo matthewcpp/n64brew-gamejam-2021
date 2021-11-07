@@ -28,9 +28,6 @@ void game_draw(Game* game) {
 
 void game_set_current_level(Game* game, LevelId levelId) {
     switch(game->currentLevel) {
-        case LEVEL_SIMPLE_SCENE:
-            level_uninit(&game->levels.level);
-        break;
 
         case LEVEL_TUNNEL:
             tunnel_level_uninit(&game->levels.tunnel_level);
@@ -40,9 +37,6 @@ void game_set_current_level(Game* game, LevelId levelId) {
     game->currentLevel = levelId;
 
     switch(game->currentLevel) {
-        case LEVEL_SIMPLE_SCENE:
-            level_init(&game->levels.level, game->engine);
-        break;
 
         case LEVEL_TUNNEL:
             tunnel_level_init(&game->levels.tunnel_level, game->engine);
@@ -52,9 +46,7 @@ void game_set_current_level(Game* game, LevelId levelId) {
 
 void game_update_playing(Game* game) {
     switch(game->currentLevel) {
-        case LEVEL_SIMPLE_SCENE:
-            level_update(&game->levels.level);
-        break;
+
 
         case LEVEL_TUNNEL:
             tunnel_level_update(&game->levels.tunnel_level);
@@ -64,9 +56,7 @@ void game_update_playing(Game* game) {
 
 void game_draw_playing(Game* game) {
     switch(game->currentLevel) {
-        case LEVEL_SIMPLE_SCENE:
-            level_draw(&game->levels.level);
-        break;
+
 
         case LEVEL_TUNNEL:
             tunnel_level_draw(&game->levels.tunnel_level);

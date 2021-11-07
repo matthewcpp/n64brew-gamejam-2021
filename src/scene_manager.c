@@ -1,47 +1,50 @@
-#include "level_base.h"
+#include "scene_manager.h"
 
 #include "typemap.h"
 
 #include "framework64/matrix.h"
 
 #include <string.h>
+#include <stdlib.h>
 
-#define CURRENT_SCENE_REF(level) (&(level)->scenes[(level)->current_scene])
-#define NEXT_SCENE_INDEX(level) (level)->current_scene == 1 ? 0 : 1
-#define NEXT_SCENE_REF(level) (&(level)->scenes[NEXT_SCENE_INDEX((level))])
+#define CURRENT_SCENE_REF(scene_manager) (&(scene_manager)->scene_refs[(scene_manager)->current_scene])
+#define NEXT_SCENE_INDEX(scene_manager) (scene_manager)->current_scene == 1 ? 0 : 1
+#define NEXT_SCENE_REF(scene_manager) (&(scene_manager)->scene_refs[NEXT_SCENE_INDEX((scene_manager))])
 
 
-void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneActivatedFunc scene_activated_func) {
+void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneFunc swap_func, fw64Transform* target) {
     scene_manager->engine = engine;
     scene_manager->level_arg = level_arg;
     scene_manager->data_size = data_size;
-    scene_manager->scene_activated_func = scene_activated_func
     scene_manager->current_scene = 0;
+    scene_manager->swap_func = swap_func;
+    scene_manager->target = target;
     
     memset(&scene_manager->scene_refs, 0, sizeof(SceneRef) * 2);
 }
 
+void scene_manager_uninit(SceneManager* scene_manager) {
 
-static void level_swap_scenes(LevelBase* level) {
-    level->current_scene = level->current_scene == 1 ? 0 : 1;
-    level->player.scene = CURRENT_SCENE_REF(level)->scene;
 }
 
 
-void scene_manager_update(SceneManager* level){
-    SceneRef* current_scene = CURRENT_SCENE_REF(level);
-    SceneRef* next_scene = NEXT_SCENE_REF(level);
+void scene_manager_update(SceneManager* scene_manager){
+    SceneRef* current_scene = CURRENT_SCENE_REF(scene_manager);
+    SceneRef* next_scene = NEXT_SCENE_REF(scene_manager);
 
     // check to see if the player has moved to the next scene
     if (next_scene->scene) {
-
-        if (box_contains_point(fw64_scene_get_initial_bounds(next_scene->scene), &level->player.node.transform.position)) {
-            level_swap_scenes(level);
+        if (box_contains_point(fw64_scene_get_initial_bounds(next_scene->scene), &scene_manager->target->position)) {
+            scene_manager->current_scene = NEXT_SCENE_INDEX(scene_manager);
+            current_scene = next_scene;
+            scene_manager->swap_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+            fw64_renderer_set_clear_color(scene_manager->engine->renderer, 0, 255, 0);
         }
     }
 
-    if (current_scene->scene) {
-        current_scene->update_func(level->level_arg, level->data_args[level->current_scene]);
+    // we only update the current scene
+    if (current_scene->scene && current_scene->desc.update_func) {
+        current_scene->desc.update_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
     }
 }
 
@@ -52,37 +55,54 @@ void scene_manager_draw(SceneManager* scene_manager) {
 
     if (current_scene->scene) {
         fw64_scene_draw_all(current_scene->scene, renderer);
-        current_scene->draw_func(current_scene->scene, scene_manager->level_arg, current_scene->data);
+
+        if (current_scene->desc.draw_func) {
+            current_scene->desc.draw_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+        }
     }
         
-
     if (next_scene->scene) {
         fw64_scene_draw_all(next_scene->scene, renderer);
-        next_scene->draw_func(next_scene->scene, scene_manager->level_arg, next_scene->data);
+
+        if (next_scene->desc.draw_func) {
+            next_scene->desc.draw_func(scene_manager->level_arg, next_scene->scene, next_scene->data);
+        }
     }
-    
 }
 
 static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescription* description) {
-    SceneRef* scene_ref = &level->scenes[ref_index];
+    SceneRef* scene_ref = &scene_manager->scene_refs[ref_index];
 
     if (scene_ref->scene) {
-        scene_ref->uninit_func(level->level_arg, scene_ref->data);
+        if (scene_ref->desc.uninit_func) {
+            scene_ref->desc.uninit_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
+        }
+        
+        free(scene_ref->data); // note this will be replaced by bump allocator reset
     }
 
-    memcpy(&scene_ref->description, description, sizeof(SceneDescription));
+    // set up the new scene
+    memcpy(&scene_ref->desc, description, sizeof(SceneDescription));
+    scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index);
+    scene_ref->data = malloc(scene_manager->data_size); // note this will be replaced by bump allocator
 
-    scene_ref->init_func(scene_ref->scene, level->level_arg, level->data_args[ref_index]);
+    if (scene_ref->desc.init_func) {
+        scene_ref->desc.init_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
+    }
 }
 
-void level_base_load_current_scene(LevelBase* level, uint32_t index, SceneInitFunc init_func, SceneFunc update_func, SceneFunc draw_func,SceneFunc uninit_func, void* arg) {
-    set_scene_ref(level, level->current_scene, index, init_func, update_func, draw_func, uninit_func, arg);
+void level_base_load_current_scene(SceneManager* scene_manager, SceneDescription* description) {
+    set_scene_ref(scene_manager, scene_manager->current_scene, description);
 }
 
-void level_base_load_next_scene(LevelBase* level, uint32_t index, SceneInitFunc init_func, SceneFunc update_func, SceneFunc draw_func, SceneFunc uninit_func, void* arg) {
-    SceneRef* next_scene_ref = NEXT_SCENE_REF(level);
+void level_base_load_next_scene(SceneManager* scene_manager, SceneDescription* description) {
+    SceneRef* next_scene_ref = NEXT_SCENE_REF(scene_manager);
     
-    if (next_scene_ref->index != index) {
-        set_scene_ref(level, level->current_scene == 1 ? 0 : 1, index, init_func, update_func, draw_func, uninit_func, arg);
+    if (next_scene_ref->desc.index != description->index) {
+        set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description);
     }
+}
+
+fw64Scene* scene_manager_get_current_scene(SceneManager* scene_manager) {
+    return CURRENT_SCENE_REF(scene_manager)->scene;
 }

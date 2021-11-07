@@ -5,10 +5,8 @@ set(src_files
     player.h player.c
     sparkle.h sparkle.c
     scene_manager.h scene_manager.c
-    ui.h ui.c
     trigger_box.h trigger_box.c
-
-    initial/level.h initial/level.c
+    ui.h ui.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/key.h tunnel/key.c
