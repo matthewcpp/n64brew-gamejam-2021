@@ -1,6 +1,6 @@
 #pragma once
 
-#include "level_base.h"
+#include "scene_manager.h"
 #include "enemy.h"
 
 #include "hallway.h"
@@ -12,8 +12,11 @@ typedef union {
 } SceneData;
 
 typedef struct {
-    LevelBase base;
-    SceneData sceneData[2];
+    fw64Engine* engine;
+    Player player;
+    UI ui;
+    ChaseCamera chase_cam;
+    SceneManager scene_manager;
     int debug;
 } TunnelLevel;
 

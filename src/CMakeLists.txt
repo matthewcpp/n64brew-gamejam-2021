@@ -4,7 +4,7 @@ set(src_files
     game.h game.c
     player.h player.c
     sparkle.h sparkle.c
-    level_base.h level_base.c
+    scene_manager.h scene_manager.c
     ui.h ui.c
     trigger_box.h trigger_box.c
 
