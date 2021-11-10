@@ -1,5 +1,6 @@
 #pragma once
 
+#include "framework64/util/bump_allocator.h"
 #include "framework64/engine.h"
 #include "framework64/scene.h"
 #include "player.h"
@@ -22,6 +23,7 @@ typedef struct {
 
 typedef struct {
     SceneDescription desc;
+    fw64BumpAllocator allocator;
     fw64Scene* scene;
     void* data;
 } SceneRef;

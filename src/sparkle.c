@@ -9,8 +9,8 @@ void sparkle_init(Sparkle* sparkle, fw64Engine* engine) {
     sparkle->engine = engine;
     fw64_node_init(&sparkle->node);
 
-    fw64Image* spritesheet = fw64_image_load(engine->assets, FW64_ASSET_image_sparkle);
-    sparkle->quad = textured_quad_create_with_image(engine, spritesheet, 0);
+    fw64Image* spritesheet = fw64_image_load(engine->assets, FW64_ASSET_image_sparkle, NULL);
+    sparkle->quad = textured_quad_create_with_image(engine, spritesheet, 0, NULL);
 
     sparkle_reset_time(sparkle);
     sparkle->is_active = 0;

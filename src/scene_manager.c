@@ -15,6 +15,8 @@
 #define NEXT_SCENE_INDEX(scene_manager) (scene_manager)->current_scene == 1 ? 0 : 1
 #define NEXT_SCENE_REF(scene_manager) (&(scene_manager)->scene_refs[NEXT_SCENE_INDEX((scene_manager))])
 
+#define BUMP_ALLOCATOR_SIZE (64 * 1024)
+
 
 void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneFunc swap_func, fw64Transform* target) {
     scene_manager->engine = engine;
@@ -25,10 +27,14 @@ void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* l
     scene_manager->target = target;
     
     memset(&scene_manager->scene_refs, 0, sizeof(SceneRef) * 2);
+
+    fw64_bump_allocator_init(&scene_manager->scene_refs[0].allocator, BUMP_ALLOCATOR_SIZE);
+    fw64_bump_allocator_init(&scene_manager->scene_refs[1].allocator, BUMP_ALLOCATOR_SIZE);
 }
 
 void scene_manager_uninit(SceneManager* scene_manager) {
-
+    fw64_bump_allocator_uninit(&scene_manager->scene_refs[0].allocator);
+    fw64_bump_allocator_uninit(&scene_manager->scene_refs[1].allocator);
 }
 
 
@@ -81,24 +87,26 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
             scene_ref->desc.uninit_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
         }
         
-        free(scene_ref->data); // note this will be replaced by bump allocator reset
+        fw64_bump_allocator_reset(&scene_ref->allocator);
     }
 
     // set up the new scene
     memcpy(&scene_ref->desc, description, sizeof(SceneDescription));
-    scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index);
-    scene_ref->data = malloc(scene_manager->data_size); // note this will be replaced by bump allocator
+
+
+    scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index, &scene_ref->allocator.interface);
+    scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_manager->data_size);
 
     if (scene_ref->desc.init_func) {
         scene_ref->desc.init_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
     }
 }
 
-void level_base_load_current_scene(SceneManager* scene_manager, SceneDescription* description) {
+void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description) {
     set_scene_ref(scene_manager, scene_manager->current_scene, description);
 }
 
-void level_base_load_next_scene(SceneManager* scene_manager, SceneDescription* description) {
+void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description) {
     SceneRef* next_scene_ref = NEXT_SCENE_REF(scene_manager);
     
     if (next_scene_ref->desc.index != description->index) {

@@ -31,8 +31,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->is_dashing = 0;
 
     player->mesh_index = 0;
-    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin);
-    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad);
+    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin, NULL);
+    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad, NULL);
 
     fw64_node_init(&player->node);
     fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);

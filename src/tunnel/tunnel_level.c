@@ -30,7 +30,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
     tunnel_hallway_description(&desc);
-    level_base_load_current_scene(&level->scene_manager, &desc);
+    scene_manager_load_current_scene(&level->scene_manager, &desc);
     fw64Scene* scene = scene_manager_get_current_scene(&level->scene_manager);
     fw64Node *node = fw64_scene_get_node(scene, FW64_scene_hallway_node_Player_Start);
     level->player.scene = scene;
@@ -84,7 +84,7 @@ void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
         case FW64_ASSET_scene_hallway: {
             SceneDescription desc;
             tunnel_atrium_description(&desc);
-            level_base_load_next_scene(&level->scene_manager, &desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc);
             break;
         }
         
