@@ -70,7 +70,7 @@ typedef struct {
 extern "C" {
 #endif
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* position);
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene);
 void player_update(Player* player);
 void player_draw(Player* player);
 

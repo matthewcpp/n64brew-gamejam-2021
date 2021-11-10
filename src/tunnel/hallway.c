@@ -4,15 +4,15 @@
 #include "scene_hallway.h"
 #include "assets.h"
 
-void tunnel_hallway_init(fw64Scene* scene, void* level_arg, void* data_arg) {
+void tunnel_hallway_init(void* level_arg, fw64Scene* scene, void* data_arg) {
     TunnelLevel* level = (TunnelLevel*)level_arg;
     SceneData* data = (SceneData*)data_arg;
 
     fw64Node* trigger_node = fw64_scene_get_node(scene, FW64_scene_hallway_node_Load_Next_Scene);
-    trigger_box_init(&data->hallway.load_next_scene, trigger_node, &level->base.player.collider);
+    trigger_box_init(&data->hallway.load_next_scene, trigger_node, &level->player.collider);
 }
 
-void tunnel_hallway_update(void* level_arg, void* data_arg) {
+void tunnel_hallway_update(void* level_arg, fw64Scene* scene, void* data_arg) {
     TunnelLevel* level = (TunnelLevel*)level_arg;
     SceneData* data = (SceneData*)data_arg;
 
@@ -23,6 +23,10 @@ void tunnel_hallway_update(void* level_arg, void* data_arg) {
     }
 }
 
-void tunnel_hallway_uninit(void* level_arg, void* data_arg) {
-
+void tunnel_hallway_description(SceneDescription* desc) {
+    desc->index = FW64_ASSET_scene_hallway;
+    desc->init_func = tunnel_hallway_init;
+    desc->update_func = tunnel_hallway_update;
+    desc->draw_func = NULL;
+    desc->uninit_func = NULL;
 }

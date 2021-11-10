@@ -1,17 +1,14 @@
 #pragma once
 
 #include "framework64/engine.h"
-#include "initial/level.h"
 #include "tunnel/tunnel_level.h"
 
 typedef union {
-    Level level;
     TunnelLevel tunnel_level;
 } Levels;
 
 typedef enum {
     LEVEL_NONE,
-    LEVEL_SIMPLE_SCENE,
     LEVEL_TUNNEL
 } LevelId;
 

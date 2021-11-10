@@ -4,11 +4,9 @@ set(src_files
     game.h game.c
     player.h player.c
     sparkle.h sparkle.c
-    level_base.h level_base.c
-    ui.h ui.c
+    scene_manager.h scene_manager.c
     trigger_box.h trigger_box.c
-
-    initial/level.h initial/level.c
+    ui.h ui.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/key.h tunnel/key.c

@@ -9,7 +9,7 @@
 static void process_input(Player* player);
 static void update_position(Player* player);
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* position) {
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->engine = engine;
     player->scene = scene;
 
@@ -31,14 +31,13 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, Vec3* pos
     player->is_dashing = 0;
 
     player->mesh_index = 0;
-    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin);
-    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad);
+    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin, NULL);
+    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad, NULL);
 
     fw64_node_init(&player->node);
     fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
-    player->respawn_position = *position;
     player_reset(player);
 
     sparkle_init(&player->sparkle, engine);
@@ -52,7 +51,6 @@ void player_reset(Player* player) {
 
     quat_ident(&player->node.transform.rotation);
 
-    player->node.transform.position = player->respawn_position;
     fw64_node_update(&player->node);
 }
 
