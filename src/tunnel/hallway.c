@@ -24,9 +24,9 @@ void tunnel_hallway_update(void* level_arg, fw64Scene* scene, void* data_arg) {
 }
 
 void tunnel_hallway_description(SceneDescription* desc) {
+    memset(desc, 0, sizeof(SceneDescription));
+
     desc->index = FW64_ASSET_scene_hallway;
     desc->init_func = tunnel_hallway_init;
     desc->update_func = tunnel_hallway_update;
-    desc->draw_func = NULL;
-    desc->uninit_func = NULL;
 }

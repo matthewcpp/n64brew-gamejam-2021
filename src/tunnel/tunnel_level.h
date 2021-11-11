@@ -5,6 +5,7 @@
 
 #include "hallway.h"
 #include "atrium.h"
+#include "lavapit.h"
 
 typedef union {
     Hallway hallway;

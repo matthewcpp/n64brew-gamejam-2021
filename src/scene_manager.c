@@ -106,11 +106,30 @@ void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescript
     set_scene_ref(scene_manager, scene_manager->current_scene, description);
 }
 
-void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description) {
+static void apply_offset_to_scene(fw64Transform* offset, fw64Scene* scene) {
+    uint32_t node_count = fw64_scene_get_node_count(scene);
+
+    for (uint32_t i = 0; i < node_count; i++) {
+        fw64Node* node = fw64_scene_get_node(scene, i);
+
+        vec3_add(&node->transform.position, &node->transform.position, &offset->position);
+        fw64_node_update(node);
+    }
+
+    fw64_scene_update_bounding(scene);
+}
+
+void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset) {
     SceneRef* next_scene_ref = NEXT_SCENE_REF(scene_manager);
     
-    if (next_scene_ref->desc.index != description->index) {
-        set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description);
+    if (next_scene_ref->desc.index == description->index) {
+        return;
+    }
+
+    set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description);
+
+    if (offset) {
+        apply_offset_to_scene(offset, next_scene_ref->scene);
     }
 }
 

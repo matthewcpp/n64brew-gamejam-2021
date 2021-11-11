@@ -54,7 +54,8 @@
         {
             "start": 0,
             "nextscene": 100,
-            "key": 200
+            "key": 200,
+            "connector": 50
         }
     ],
     "layerMaps": [

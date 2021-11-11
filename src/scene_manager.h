@@ -47,7 +47,7 @@ void scene_manager_uninit(SceneManager* scene_manager);
 void scene_manager_update(SceneManager* scene_manager);
 void scene_manager_draw(SceneManager* scene_manager);
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description);
-void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description);
+void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset);
 
 fw64Scene* scene_manager_get_current_scene(SceneManager* scene_manager);
 

@@ -1,9 +1,8 @@
 #include "tunnel_level.h"
 
-#include "hallway.h"
-
 #include "assets.h"
 #include "scene_hallway.h"
+#include "typemap.h"
 
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 
@@ -79,12 +78,17 @@ void tunnel_level_uninit(TunnelLevel* level) {
 }
 
 void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
+    fw64Scene* current_scene = scene_manager_get_current_scene(&level->scene_manager);
+    fw64Node* connector = NULL;
+    fw64_scene_find_nodes_with_type(current_scene, NODE_TYPE_CONNECTOR, &connector, 1);
+
     switch (current_index)
     {
         case FW64_ASSET_scene_hallway: {
             SceneDescription desc;
-            tunnel_atrium_description(&desc);
-            scene_manager_load_next_scene(&level->scene_manager, &desc);
+            //tunnel_atrium_description(&desc);
+            tunnel_lavapit_description(&desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
         }
         
