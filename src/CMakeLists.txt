@@ -2,6 +2,7 @@ set(src_files
     chase_camera.h chase_camera.c
     enemy.h enemy.c
     game.h game.c
+    moving_platform.h moving_platform.c
     player.h player.c
     sparkle.h sparkle.c
     scene_manager.h scene_manager.c

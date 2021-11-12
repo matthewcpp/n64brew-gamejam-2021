@@ -2,6 +2,14 @@
 
 #include "scene_manager.h"
 
+#include "moving_platform.h"
+
+#define LAVAPIT_PLATFORM_COUNT 4
+
+typedef struct {
+    MovingPlatform platforms[LAVAPIT_PLATFORM_COUNT];
+} LavaPit;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

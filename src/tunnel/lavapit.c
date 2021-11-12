@@ -1,6 +1,11 @@
 #include "lavapit.h"
 
+#include "scene_lavapit.h"
+#include "tunnel_level.h"
+
 #include "assets.h"
+
+#include <string.h>
 
 void tunnel_lavapit_description(SceneDescription* desc) {
     memset(desc, 0, sizeof(SceneDescription));
@@ -11,9 +16,38 @@ void tunnel_lavapit_description(SceneDescription* desc) {
 }
 
 void tunnel_lavapit_init(void* level_arg, fw64Scene* scene, void* data_arg) {
+    TunnelLevel* level = (TunnelLevel*)level_arg;
+    LavaPit* lava_pit = (LavaPit*)data_arg;
 
+    Vec3 right = {1.0f, 0.0f, 0.0f};
+    Vec3 left = {-1.0f, 0.0f, 0.0f};
+    Vec3 up = {0.0f, 1.0f, 0.0f};
+
+    const float travel_dist = 32.0f;
+    const float speed = travel_dist / 2.2f;
+
+    fw64Node* node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform1);
+    moving_platform_init(&lava_pit->platforms[0], node, &right, travel_dist, speed, &level->player);
+
+    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform2);
+    moving_platform_init(&lava_pit->platforms[1], node, &left, travel_dist, speed, &level->player);
+
+    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform3);
+    moving_platform_init(&lava_pit->platforms[2], node, &right, travel_dist, speed, &level->player);
+
+    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Vertical_Moving_Platform_1);
+    moving_platform_init(&lava_pit->platforms[3], node, &up, travel_dist, speed, &level->player);
 }
 
 void tunnel_lavapit_update(void* level_arg, fw64Scene* scene, void* data_arg) {
+    TunnelLevel* level = (TunnelLevel*)level_arg;
+    LavaPit* lava_pit = (LavaPit*)data_arg;
 
+    for (int i = 0; i < LAVAPIT_PLATFORM_COUNT; i++) {
+        moving_platform_update(&lava_pit->platforms[i], level->engine->time->time_delta);
+    }
+
+    if (level->player.node.transform.position.y < -30.0f) {
+        tunnel_level_kill_player(level);
+    }
 }

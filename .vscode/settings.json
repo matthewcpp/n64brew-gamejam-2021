@@ -16,6 +16,7 @@
         "scene_hallway.h": "c",
         "scene_atrium.h": "c",
         "tunnel_level.h": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "scene_lavapit.h": "c"
     }
 }

@@ -5,6 +5,8 @@
 
 #include "tunnel_level.h"
 
+#include <string.h>
+
 void tunnel_atrium_description(SceneDescription* desc) {
     memset(desc, 0, sizeof(SceneDescription));
 

@@ -86,7 +86,6 @@ void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
     {
         case FW64_ASSET_scene_hallway: {
             SceneDescription desc;
-            //tunnel_atrium_description(&desc);
             tunnel_lavapit_description(&desc);
             scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
@@ -95,5 +94,14 @@ void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
     
     default:
         break;
+    }
+}
+
+void tunnel_level_kill_player(TunnelLevel* level) {
+    fw64Scene* scene = scene_manager_get_current_scene(&level->scene_manager);
+    fw64Node* start_node;
+
+    if (fw64_scene_find_nodes_with_type(scene, NODE_TYPE_START, &start_node, 1)) {
+        player_reset_at_position(&level->player, &start_node->transform.position);
     }
 }

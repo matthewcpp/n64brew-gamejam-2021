@@ -53,9 +53,11 @@
     "typeMaps": [
         {
             "start": 0,
+            "movingplatform": 25,
+            "platformtarget": 26,
             "nextscene": 100,
-            "key": 200,
-            "connector": 50
+            "connector": 101,
+            "key": 200
         }
     ],
     "layerMaps": [

@@ -9,6 +9,7 @@
 
 typedef union {
     Hallway hallway;
+    LavaPit lava_pit;
     Atrium atrium;
 } SceneData;
 
@@ -31,7 +32,7 @@ void tunnel_level_update(TunnelLevel* level);
 void tunnel_level_draw(TunnelLevel* level);
 
 void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index);
-
+void tunnel_level_kill_player(TunnelLevel* level);
 #ifdef __cplusplus
 }
 #endif

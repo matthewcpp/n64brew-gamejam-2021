@@ -4,6 +4,8 @@
 #include "scene_hallway.h"
 #include "assets.h"
 
+#include <string.h>
+
 void tunnel_hallway_init(void* level_arg, fw64Scene* scene, void* data_arg) {
     TunnelLevel* level = (TunnelLevel*)level_arg;
     SceneData* data = (SceneData*)data_arg;
