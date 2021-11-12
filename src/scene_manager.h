@@ -3,13 +3,6 @@
 #include "framework64/util/bump_allocator.h"
 #include "framework64/engine.h"
 #include "framework64/scene.h"
-#include "player.h"
-#include "chase_camera.h"
-#include "ui.h"
-
-#include <limits.h>
-
-#define INVALID_SCENE_INDEX INT_MAX
 
 typedef void(*SceneFunc)(void* level_arg, fw64Scene* scene, void* data_arg);
 
@@ -47,9 +40,9 @@ void scene_manager_uninit(SceneManager* scene_manager);
 void scene_manager_update(SceneManager* scene_manager);
 void scene_manager_draw(SceneManager* scene_manager);
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description);
-void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description);
+void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset);
 
-fw64Scene* scene_manager_get_current_scene(SceneManager* scene_manager);
+SceneRef* scene_manager_get_current(SceneManager* scene_manager);
 
 
 #ifdef __cplusplus

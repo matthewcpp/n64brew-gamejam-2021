@@ -5,12 +5,14 @@
 
 #include "tunnel_level.h"
 
+#include <string.h>
+
 void tunnel_atrium_description(SceneDescription* desc) {
+    memset(desc, 0, sizeof(SceneDescription));
+
     desc->index = FW64_ASSET_scene_atrium;
     desc->init_func = tunnel_atrium_init;
     desc->update_func = tunnel_atrium_update;
-    desc->draw_func = NULL;
-    desc->uninit_func = NULL;
 }
 
 void tunnel_atrium_init(void* level_arg, fw64Scene* scene, void* data_arg) {

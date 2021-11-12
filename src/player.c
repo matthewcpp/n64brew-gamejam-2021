@@ -20,6 +20,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->acceleration = PLAYER_DEFAULT_ACCELERATION;
     player->deceleration = PLAYER_DEFAULT_DECELERATION;
 
+    player->ground_node = NULL;
+
     player->process_input = 1;
     player->controller_num = 0;
 
@@ -52,6 +54,13 @@ void player_reset(Player* player) {
     quat_ident(&player->node.transform.rotation);
 
     fw64_node_update(&player->node);
+}
+
+void player_reset_at_position(Player* player, Vec3* position) {
+    player->node.transform.position = *position;
+    player->previous_position = *position;
+    
+    player_reset(player);
 }
 
 void player_update(Player* player) {
@@ -191,6 +200,8 @@ void update_position(Player* player) {
     Vec3 query_center = *position;
     query_center.y += height_radius;
 
+    player->ground_node = NULL;
+
     fw64OverlapSphereQueryResult result;
     if (fw64_scene_overlap_sphere(player->scene, &query_center, height_radius, 0xFFFFFFFF, &result)) {
         for (int i = 0; i < result.count; i++) {
@@ -205,6 +216,7 @@ void update_position(Player* player) {
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
                 new_state = PLAYER_STATE_ON_GROUND;
+                player->ground_node = hit->node;
                 
                 //reset our double jump or dash counter
                 if(player->mesh_index == 1)

@@ -1,13 +1,18 @@
 #pragma once
 
-#include "scene_manager.h"
-#include "enemy.h"
+
 
 #include "hallway.h"
 #include "atrium.h"
+#include "lavapit.h"
+
+#include "ui.h"
+#include "chase_camera.h"
+#include "scene_manager.h"
 
 typedef union {
     Hallway hallway;
+    LavaPit lava_pit;
     Atrium atrium;
 } SceneData;
 
@@ -17,6 +22,7 @@ typedef struct {
     UI ui;
     ChaseCamera chase_cam;
     SceneManager scene_manager;
+    TriggerBox next_scene_trigger;
     int debug;
 } TunnelLevel;
 
@@ -29,8 +35,8 @@ void tunnel_level_uninit(TunnelLevel* level);
 void tunnel_level_update(TunnelLevel* level);
 void tunnel_level_draw(TunnelLevel* level);
 
-void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index);
-
+void tunnel_level_load_next(TunnelLevel* level);
+void tunnel_level_kill_player(TunnelLevel* level);
 #ifdef __cplusplus
 }
 #endif
