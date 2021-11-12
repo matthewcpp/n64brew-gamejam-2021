@@ -18,6 +18,7 @@
         "tunnel_level.h": "c",
         "algorithm": "c",
         "scene_lavapit.h": "c",
-        "vec3.h": "c"
+        "vec3.h": "c",
+        "scene_manager.h": "c"
     }
 }

@@ -121,6 +121,9 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
 
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description) {
     set_scene_ref(scene_manager, scene_manager->current_scene, description, NULL);
+    
+    SceneRef* current_scene =  CURRENT_SCENE_REF(scene_manager);
+    scene_manager->swap_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
 }
 
 void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset) {
@@ -133,6 +136,6 @@ void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription
     set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description, offset);
 }
 
-fw64Scene* scene_manager_get_current_scene(SceneManager* scene_manager) {
-    return CURRENT_SCENE_REF(scene_manager)->scene;
+SceneRef* scene_manager_get_current(SceneManager* scene_manager) {
+    return CURRENT_SCENE_REF(scene_manager);
 }
