@@ -15,7 +15,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     player->jump_impulse = PLAYER_DEFAULT_JUMP_VELOCITY;
     player->gravity = PLAYER_DEFAULT_GRAVITY;
-    player->dash_speed = PLAYER_DEFAULT_MAX_SPEED * 3.5;
+    player->dash_speed = PLAYER_DEFAULT_MAX_SPEED * 3.0f;
     player->max_speed = PLAYER_DEFAULT_MAX_SPEED;
     player->acceleration = PLAYER_DEFAULT_ACCELERATION;
     player->deceleration = PLAYER_DEFAULT_DECELERATION;
@@ -73,7 +73,7 @@ void player_update(Player* player) {
     sparkle_update(&player->sparkle);
 
     if (player->sparkle.is_active) {
-        float switch_time = SPARKLE_DURARION / 2.0f;
+        float switch_time = SPARKLE_DURATION / 2.0f;
 
         if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
             player_switch_mesh(player);
@@ -95,16 +95,25 @@ void process_input(Player* player) {
     Vec2 stick;
     fw64_input_stick(player->engine->input, 0, &stick);
 
-    if(player->is_dashing)
+    if(player->is_dashing) //dashing mechanic
     {
-        float decel = player->deceleration * player->engine->time->time_delta;
-        player->speed = fmaxf((player->speed - decel), 0.0f);
+        if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) {
+            if(player->speed > player->max_speed)
+                player->speed = fmaxf(player->speed * 0.75f, player->max_speed); //cap speed on release, also cancels out of dashing
+        }
+        else
+        {
+            float decel = player->state == PLAYER_STATE_ON_GROUND ? player->deceleration : player->deceleration * 2.5f;
+            decel *= player->engine->time->time_delta;
+            player->speed = fmaxf((player->speed - decel), player->max_speed);
+        }
+        
         if(player->speed <= player->max_speed)
             player->is_dashing = 0;
     }
     else
     {
-        if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) {
+        if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick x axis, rotate camera
             float rotation_delta = PLAYER_DEFAULT_ROTATION_SPEED * player->engine->time->time_delta;
 
             if (stick.x >= PLAYER_STICK_THRESHOLD) {
@@ -116,13 +125,13 @@ void process_input(Player* player) {
             quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
         }
 
-        if (stick.y >= PLAYER_STICK_THRESHOLD ) {
+        if (stick.y >= PLAYER_STICK_THRESHOLD ) { //joystick y axis, move forward/backward
             player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
         }
         else if (stick.y <= -PLAYER_STICK_THRESHOLD) {
             player->speed = fminf(fmaxf(player->speed - player->acceleration * player->engine->time->time_delta, -player->max_speed), player->max_speed * -0.5f);
         }
-        else {
+        else { //apply friction
             float decel = player->deceleration * player->engine->time->time_delta;
             if (player->speed > 0.0f)
                 player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
@@ -131,27 +140,29 @@ void process_input(Player* player) {
         }
     }
     
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) {
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //jump
         if (player->state == PLAYER_STATE_ON_GROUND) {
             player->air_velocity = player->jump_impulse;
         }
-        else if (player->double_jumps > 0) {
-            player->air_velocity = player->jump_impulse * (0.85f * player->double_jumps);
+        else if (player->double_jumps > 0) { //double jump
+            player->air_velocity = player->jump_impulse;// * (0.85f * player->double_jumps);
             player->double_jumps -= 1;
         }
     }
-    else if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) {
-        if (player->state == PLAYER_STATE_FALLING) {
-            player->air_velocity = fminf(fmaxf(player->air_velocity - 2.0f, 0.0f), player->air_velocity);
+    else if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //shorten jump on release
+        if (player->state == PLAYER_STATE_FALLING && player->air_velocity > 0) {
+            player->air_velocity *= 0.5f;//player->air_velocity = fminf(fmaxf(player->air_velocity - 2.0f, 0.0f), player->air_velocity);
         }
     }
 
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B) && player->dashes > 0) {
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B) && player->dashes > 0) { //dash
         player->speed = player->dash_speed;
         player->is_dashing = 1;
+        player->air_velocity = 0;
+        player->dashes -= 1;
     }
 
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) {
+    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
         sparkle_start(&player->sparkle);
     }
         
@@ -164,8 +175,11 @@ static Vec3 calculate_movement_vector(Player* player) {
     fw64_transform_forward(&player->node.transform, &movement);
     vec3_scale(&movement, &movement, player->speed * time_delta);
 
-    movement.y += (player->air_velocity * time_delta) + (player->gravity * time_delta * time_delta / 2.0f);
-    player->air_velocity += player->gravity * time_delta;
+    if(!(player->is_dashing)) //cancel gravity while dashing
+    {
+        movement.y += (player->air_velocity * time_delta) + (player->gravity * time_delta * time_delta / 2.0f);
+        player->air_velocity = fmaxf(-60.0,(player->air_velocity+(player->gravity * time_delta))); //pengy terminal velocity
+    }
 
     return movement;
 }
