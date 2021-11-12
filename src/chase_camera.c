@@ -13,7 +13,7 @@
 void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
     fw64_camera_init(&chase_cam->camera);
     chase_cam->camera.near = 1.0f;
-    chase_cam->camera.far = 100.0f;
+    chase_cam->camera.far = 200.0f;
     fw64_camera_update_projection_matrix(&chase_cam->camera);
 
     chase_cam->engine = engine;

@@ -12,18 +12,18 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     player_init(&level->player, level->engine, NULL);
     vec3_set_all(&level->player.node.transform.scale, 0.01f);
-    level->player.jump_impulse = 16.0f;
-    level->player.gravity = -38.0f;
-    level->player.max_speed = 30.0f;
-    level->player.acceleration = 14.0f;
+  //level->player.jump_impulse = 16.0f;
+  //level->player.gravity = -38.0f;
+  //level->player.max_speed = 30.0f;
+  //level->player.acceleration = 14.0f;
     fw64_node_update(&level->player.node);
     player_calculate_size(&level->player);
     
     chase_camera_init(&level->chase_cam, engine);
     level->chase_cam.target = &level->player.node.transform;
-    level->chase_cam.target_follow_height = 5.0f;
+    level->chase_cam.target_follow_height = 6.0f;
     level->chase_cam.target_forward_height = 6.0f;
-    level->chase_cam.target_follow_dist = 13.0f;
+    level->chase_cam.target_follow_dist = 16.0f;
 
     ui_init(&level->ui, engine, &level->player);
 
@@ -51,6 +51,21 @@ void tunnel_level_update(TunnelLevel* level){
 
     player_update(&level->player);
     scene_manager_update(&level->scene_manager);
+
+    //this is just a little FOV trick to make dashing look "fast"
+    //todo: this is hacky and should go somewhere else for better consistency
+    //      but i couldn't figure out how to shove it into player update
+    if(level->player.is_dashing)
+    {
+        level->chase_cam.camera.fovy = ((level->chase_cam.camera.fovy + (45.0f + (2.0f * (level->player.speed / level->player.max_speed)))) / 2.0f );
+        fw64_camera_update_projection_matrix(&level->chase_cam.camera);
+    }
+    else
+    {
+        level->chase_cam.camera.fovy = 45.0f;
+        fw64_camera_update_projection_matrix(&level->chase_cam.camera);
+    }
+
     chase_camera_update(&level->chase_cam);
     ui_update(&level->ui);
 }
