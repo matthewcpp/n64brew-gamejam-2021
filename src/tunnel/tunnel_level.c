@@ -1,9 +1,8 @@
 #include "tunnel_level.h"
 
-#include "hallway.h"
-
 #include "assets.h"
 #include "scene_hallway.h"
+#include "typemap.h"
 
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 
@@ -30,11 +29,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
     tunnel_hallway_description(&desc);
-    scene_manager_load_current_scene(&level->scene_manager, &desc);
-    fw64Scene* scene = scene_manager_get_current_scene(&level->scene_manager);
-    fw64Node *node = fw64_scene_get_node(scene, FW64_scene_hallway_node_Player_Start);
-    level->player.scene = scene;
-    level->player.node.transform.position = node->transform.position;
+    scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
 
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
@@ -49,8 +44,14 @@ void tunnel_level_update(TunnelLevel* level){
         return;
     }
 
-    player_update(&level->player);
+    trigger_box_update(&level->next_scene_trigger);
+
+    if (trigger_box_was_triggered(&level->next_scene_trigger)) {
+        tunnel_level_load_next(level);
+    }
+
     scene_manager_update(&level->scene_manager);
+    player_update(&level->player);
     chase_camera_update(&level->chase_cam);
     ui_update(&level->ui);
 }
@@ -68,28 +69,59 @@ void tunnel_level_draw(TunnelLevel* level) {
 }
 
 // when the scene manager swaps a scene the player's scene needs to be updated (for collisions)
+// if the player's scene is NULL, then we are loading the first level
+// We will also update the triggerbox that is responsible for loading the next level
 void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data) {
     TunnelLevel* level = (TunnelLevel*)level_arg;
+    fw64Node* search_node = NULL;
+
+    if (level->player.scene == NULL) {
+        fw64_scene_find_nodes_with_type(scene, NODE_TYPE_START, &search_node, 1);
+        level->player.node.transform.position = search_node->transform.position;
+    }
     
     level->player.scene = scene;
+
+    search_node = NULL;
+    fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
+    trigger_box_init(&level->next_scene_trigger, search_node, &level->player.collider);
 }
 
 void tunnel_level_uninit(TunnelLevel* level) {
     fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
 }
 
-void tunnel_level_load_next(TunnelLevel* level, uint32_t current_index) {
-    switch (current_index)
+void tunnel_level_load_next(TunnelLevel* level) {
+    SceneRef* current_scene = scene_manager_get_current(&level->scene_manager);
+    fw64Node* connector = NULL;
+    fw64_scene_find_nodes_with_type(current_scene->scene, NODE_TYPE_CONNECTOR, &connector, 1);
+
+    switch (current_scene->desc.index)
     {
         case FW64_ASSET_scene_hallway: {
             SceneDescription desc;
-            tunnel_atrium_description(&desc);
-            scene_manager_load_next_scene(&level->scene_manager, &desc);
+            tunnel_lavapit_description(&desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
         }
         
+        case FW64_ASSET_scene_lavapit: {
+            SceneDescription desc;
+            tunnel_atrium_description(&desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
+            break;
+        }
     
     default:
         break;
+    }
+}
+
+void tunnel_level_kill_player(TunnelLevel* level) {
+    SceneRef* current = scene_manager_get_current(&level->scene_manager);
+    fw64Node* start_node;
+
+    if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
+        player_reset_at_position(&level->player, &start_node->transform.position);
     }
 }
