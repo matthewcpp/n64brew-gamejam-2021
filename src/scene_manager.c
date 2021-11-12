@@ -79,7 +79,20 @@ void scene_manager_draw(SceneManager* scene_manager) {
     }
 }
 
-static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescription* description) {
+static void apply_offset_to_scene(fw64Transform* offset, fw64Scene* scene) {
+    uint32_t node_count = fw64_scene_get_node_count(scene);
+
+    for (uint32_t i = 0; i < node_count; i++) {
+        fw64Node* node = fw64_scene_get_node(scene, i);
+
+        vec3_add(&node->transform.position, &node->transform.position, &offset->position);
+        fw64_node_update(node);
+    }
+
+    fw64_scene_update_bounding(scene);
+}
+
+static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescription* description, fw64Transform* offset) {
     SceneRef* scene_ref = &scene_manager->scene_refs[ref_index];
 
     if (scene_ref->scene) {
@@ -97,26 +110,17 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
     scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index, &scene_ref->allocator.interface);
     scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_manager->data_size);
 
+    if (offset) {
+        apply_offset_to_scene(offset, scene_ref->scene);
+    }
+
     if (scene_ref->desc.init_func) {
         scene_ref->desc.init_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
     }
 }
 
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description) {
-    set_scene_ref(scene_manager, scene_manager->current_scene, description);
-}
-
-static void apply_offset_to_scene(fw64Transform* offset, fw64Scene* scene) {
-    uint32_t node_count = fw64_scene_get_node_count(scene);
-
-    for (uint32_t i = 0; i < node_count; i++) {
-        fw64Node* node = fw64_scene_get_node(scene, i);
-
-        vec3_add(&node->transform.position, &node->transform.position, &offset->position);
-        fw64_node_update(node);
-    }
-
-    fw64_scene_update_bounding(scene);
+    set_scene_ref(scene_manager, scene_manager->current_scene, description, NULL);
 }
 
 void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset) {
@@ -126,11 +130,7 @@ void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription
         return;
     }
 
-    set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description);
-
-    if (offset) {
-        apply_offset_to_scene(offset, next_scene_ref->scene);
-    }
+    set_scene_ref(scene_manager, NEXT_SCENE_INDEX(scene_manager), description, offset);
 }
 
 fw64Scene* scene_manager_get_current_scene(SceneManager* scene_manager) {

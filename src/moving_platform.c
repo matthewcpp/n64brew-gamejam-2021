@@ -12,7 +12,6 @@ void moving_platform_init(MovingPlatform* platform, fw64Node* platform_node, fw6
     platform->current_dist = 0.0f;
 }
 
-
 void moving_platform_update(MovingPlatform* platform, float time_delta) {
     platform->current_dist += platform->speed * time_delta;
     Vec3 previous_pos = platform->platform_node->transform.position;
@@ -38,6 +37,5 @@ void moving_platform_update(MovingPlatform* platform, float time_delta) {
         vec3_subtract(&delta, &platform->platform_node->transform.position, &previous_pos);
 
         vec3_add(&platform->player->node.transform.position, &platform->player->node.transform.position, &delta);
-        platform->player->previous_position = platform->player->node.transform.position;
     }
 }

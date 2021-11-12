@@ -19,24 +19,24 @@ void tunnel_lavapit_init(void* level_arg, fw64Scene* scene, void* data_arg) {
     TunnelLevel* level = (TunnelLevel*)level_arg;
     LavaPit* lava_pit = (LavaPit*)data_arg;
 
-    Vec3 right = {1.0f, 0.0f, 0.0f};
-    Vec3 left = {-1.0f, 0.0f, 0.0f};
-    Vec3 up = {0.0f, 1.0f, 0.0f};
 
-    const float travel_dist = 32.0f;
-    const float speed = travel_dist / 2.2f;
+    const float speed = 15.0f;
 
-    fw64Node* node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform1);
-    moving_platform_init(&lava_pit->platforms[0], node, &right, travel_dist, speed, &level->player);
+    fw64Node* platform_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform1);
+    fw64Node* platform_target_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Platform1_Target);
+    moving_platform_init(&lava_pit->platforms[0], platform_node, platform_target_node, speed, &level->player);
 
-    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform2);
-    moving_platform_init(&lava_pit->platforms[1], node, &left, travel_dist, speed, &level->player);
+    platform_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform2);
+    platform_target_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Platform2_Target);
+    moving_platform_init(&lava_pit->platforms[1], platform_node, platform_target_node, speed, &level->player);
 
-    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform3);
-    moving_platform_init(&lava_pit->platforms[2], node, &right, travel_dist, speed, &level->player);
+    platform_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Moving_Platform3);
+    platform_target_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Platform3_Target);
+    moving_platform_init(&lava_pit->platforms[2], platform_node, platform_target_node, speed, &level->player);
 
-    node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Vertical_Moving_Platform_1);
-    moving_platform_init(&lava_pit->platforms[3], node, &up, travel_dist, speed, &level->player);
+    platform_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Vertical_Moving_Platform_1);
+    platform_target_node = fw64_scene_get_node(scene, FW64_scene_lavapit_node_Vertical_Platform_Target);
+    moving_platform_init(&lava_pit->platforms[3], platform_node, platform_target_node, speed, &level->player);
 }
 
 void tunnel_lavapit_update(void* level_arg, fw64Scene* scene, void* data_arg) {

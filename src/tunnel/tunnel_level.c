@@ -48,8 +48,8 @@ void tunnel_level_update(TunnelLevel* level){
         return;
     }
 
-    player_update(&level->player);
     scene_manager_update(&level->scene_manager);
+    player_update(&level->player);
     chase_camera_update(&level->chase_cam);
     ui_update(&level->ui);
 }
