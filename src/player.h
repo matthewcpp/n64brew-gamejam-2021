@@ -5,6 +5,7 @@
 #include "framework64/scene.h"
 
 #include "sparkle.h"
+#include "shadow.h"
 
 
 #define PLAYER_DEFAULT_ACCELERATION 50.0f
@@ -62,6 +63,7 @@ typedef struct {
     int controller_num;
 
     Sparkle sparkle;
+    Shadow shadow;
     fw64Node* ground_node;
 
 } Player;

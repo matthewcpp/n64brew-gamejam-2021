@@ -4,6 +4,11 @@
             "src": "sparkle.png",
             "hslices": 4,
             "vslices": 4
+        },
+        {
+            "src": "shadow.png",
+            "hslices": 1,
+            "vslices": 1
         }
         
     ],
