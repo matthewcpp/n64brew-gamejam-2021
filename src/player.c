@@ -82,7 +82,7 @@ void player_update(Player* player) {
     if(ray_hit.distance < max_shadow_dist) {
         player->shadow.is_active = 1;
         player->shadow.node.transform.position = player->node.transform.position;
-        player->shadow.node.transform.position.y -= ray_hit.distance - 0.1;
+        player->shadow.node.transform.position.y -= ray_hit.distance;
         player->shadow.node.transform.scale.x = 1.0f;
         player->shadow.node.transform.scale.y = 1.0f;
         player->shadow.node.transform.scale.z = 1.0f;

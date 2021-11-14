@@ -22,7 +22,6 @@ void shadow_draw(Shadow* shadow) {
     fw64_node_billboard(&shadow->node, fw64_renderer_get_camera(shadow->engine->renderer));
     quat_from_euler(&shadow->node.transform.rotation, 90.0, 0, 0);
     fw64_node_update(&shadow->node);
-    //fw64_renderer_set_depth_testing_enabled(shadow->engine->renderer, 0);
-    fw64_renderer_draw_static_mesh(shadow->engine->renderer, &shadow->node.transform, shadow->quad);
+    fw64_renderer_draw_decal(shadow->engine->renderer, &shadow->node.transform, shadow->quad);
     fw64_renderer_set_depth_testing_enabled(shadow->engine->renderer, 1);
 }
