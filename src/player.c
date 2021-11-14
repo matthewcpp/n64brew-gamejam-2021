@@ -2,6 +2,8 @@
 
 #include "assets.h"
 
+#include "layermap.h"
+
 #include "framework64/n64/controller_button.h"
 
 #include <stdio.h>
@@ -43,6 +45,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player_reset(player);
 
     sparkle_init(&player->sparkle, engine);
+
+    shadow_init(&player->shadow, engine);
 }
 
 void player_reset(Player* player) {
@@ -71,6 +75,27 @@ void player_update(Player* player) {
 
     player->sparkle.node.transform.position = player->node.transform.position;
     sparkle_update(&player->sparkle);
+    Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
+    fw64RaycastHit ray_hit;
+    float max_shadow_dist = 20.0f;
+    fw64_scene_raycast(player->scene, &player->node.transform.position, &vec_down, NODE_LAYER_GROUND, &ray_hit);
+    if(ray_hit.distance < max_shadow_dist) {
+        player->shadow.is_active = 1;
+        player->shadow.node.transform.position = player->node.transform.position;
+        player->shadow.node.transform.position.y -= ray_hit.distance - 0.1;
+        player->shadow.node.transform.scale.x = 1.0f;
+        player->shadow.node.transform.scale.y = 1.0f;
+        player->shadow.node.transform.scale.z = 1.0f;
+        float shadow_scalar = (ray_hit.distance / max_shadow_dist);
+        shadow_scalar *= shadow_scalar;
+        shadow_scalar = 1.0f - shadow_scalar;
+        vec3_scale(&player->shadow.node.transform.scale, &player->shadow.node.transform.scale, shadow_scalar);
+    }
+    else {
+        player->shadow.is_active = 0;
+    }
+
+    
 
     if (player->sparkle.is_active) {
         float switch_time = SPARKLE_DURATION / 2.0f;
@@ -184,10 +209,6 @@ static Vec3 calculate_movement_vector(Player* player) {
     return movement;
 }
 
-#define LAYER_DEFAULT 1U
-#define LAYER_GROUND 2U
-#define LAYER_WALL 4U
-
 void update_position(Player* player) {
     player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
@@ -210,8 +231,8 @@ void update_position(Player* player) {
             Vec3 direction;
             vec3_subtract(&direction, &query_center, &hit->point);
             vec3_normalize(&direction);
-
-            int is_grounded = (hit->node->layer_mask & LAYER_GROUND) || direction.y > 0.9f;
+            
+            int is_grounded = (hit->node->layer_mask & NODE_LAYER_GROUND) || direction.y > 0.9f;
 
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
@@ -244,6 +265,7 @@ void update_position(Player* player) {
 
 void player_draw(Player* player) {
     fw64_renderer_draw_static_mesh(player->engine->renderer, &player->node.transform, player->node.mesh);
+    shadow_draw(&player->shadow);
     sparkle_draw(&player->sparkle);
 }
 

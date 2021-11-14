@@ -4,6 +4,7 @@ set(src_files
     game.h game.c
     moving_platform.h moving_platform.c
     player.h player.c
+    shadow.h shadow.c
     sparkle.h sparkle.c
     scene_manager.h scene_manager.c
     trigger_box.h trigger_box.c
