@@ -28,20 +28,21 @@ void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
 
 static void chase_camera_update_position(ChaseCamera* chase_cam) {
     if (!chase_cam->target) return;
-
-    Vec3 back, forward, camera_pos, camera_target;
     Vec3 up = {0.0f, 1.0f, 0.0f};
-    fw64_transform_back(chase_cam->target, &back);
-    vec3_copy(&forward, &back);
-    vec3_negate(&forward);
+    Vec3 back = {0.0f, 0.0f, 1.0f};
+    Vec3 forward = {0.0f, 0.0f, -1.0f};
+    Vec3 camera_pos, camera_target;
+    
 
     vec3_scale(&back, &back, chase_cam->target_follow_dist);
+    vec3_scale(&forward, &forward, chase_cam->target_forward_dist);
     vec3_add(&camera_pos, &chase_cam->target->position, &back);
     camera_pos.y += chase_cam->target_follow_height;
 
-    vec3_scale(&forward, &forward, chase_cam->target_forward_dist);
-    vec3_add(&camera_target, &chase_cam->target->position, &forward);
+    camera_target = camera_pos;
+    camera_target.y -= chase_cam->target_follow_height;
     camera_target.y += chase_cam->target_forward_height;
+    camera_target.z += (forward.z - back.z);
 
     chase_cam->camera.transform.position = camera_pos;
     fw64_transform_look_at(&chase_cam->camera.transform, &camera_target, &up);
