@@ -58,7 +58,10 @@ typedef struct {
     int double_jumps;
     int dashes;
     int is_dashing; //just to die for
-
+    int is_rolling; //they hating
+    float roll_timer, roll_timer_max;
+    Vec3 roll_direction;
+    float roll_height;
     int process_input;
     int controller_num;
 

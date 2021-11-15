@@ -20,9 +20,9 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     
     chase_camera_init(&level->chase_cam, engine);
     level->chase_cam.target = &level->player.node.transform;
-    level->chase_cam.target_follow_height = 6.0f;
-    level->chase_cam.target_forward_height = 6.0f;
-    level->chase_cam.target_follow_dist = 16.0f;
+    level->chase_cam.target_follow_height = 14.5f;
+    level->chase_cam.target_forward_height = 5.0f;
+    level->chase_cam.target_follow_dist = 26.0f;
 
     ui_init(&level->ui, engine, &level->player);
 

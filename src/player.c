@@ -34,6 +34,10 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->dashes = 0;
     player->is_dashing = 0;
 
+    player->is_rolling = 0;
+    player->roll_timer = 0.0f;
+    player->roll_timer_max = 1.0f;
+
     player->mesh_index = 0;
     player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin, NULL);
     player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad, NULL);
@@ -43,6 +47,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     fw64_node_set_box_collider(&player->node, &player->collider);
 
     player_reset(player);
+
+    player->roll_height = player->node.transform.position.y;
 
     sparkle_init(&player->sparkle, engine);
 
@@ -75,6 +81,9 @@ void player_update(Player* player) {
 
     player->sparkle.node.transform.position = player->node.transform.position;
     sparkle_update(&player->sparkle);
+    
+    
+    //update shadow
     Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
     fw64RaycastHit ray_hit;
     float max_shadow_dist = 20.0f;
@@ -95,8 +104,34 @@ void player_update(Player* player) {
         player->shadow.is_active = 0;
     }
 
-    
+    //roll character model
+    if(player->is_rolling) {
 
+        Quat rotation;
+        quat_from_euler(&rotation, player->engine->time->time_delta * (-360.0f / player->roll_timer_max), 0, 0);
+
+        float ax,ay,az,aw,bx,by,bz,bw,rx,ry,rz,rw;
+
+        ax = player->node.transform.rotation.x;
+        ay = player->node.transform.rotation.y;
+        az = player->node.transform.rotation.z;
+        aw = player->node.transform.rotation.w;
+
+        bx = rotation.x;
+        by = rotation.y;
+        bz = rotation.z;
+        bw = rotation.w;
+
+        rx = ax * bw + aw * bx + ay * bz - az * by;
+        ry = ay * bw + aw * by + az * bx - ax * bz;
+        rz = az * bw + aw * bz + ax * by - ay * bx;
+        rw = aw * bw - ax * bx - ay * by - az * bz;
+
+        quat_set(&player->node.transform.rotation, rx, ry, rz, rw);
+        
+    }    
+    
+    //update player swap
     if (player->sparkle.is_active) {
         float switch_time = SPARKLE_DURATION / 2.0f;
 
@@ -136,6 +171,18 @@ void process_input(Player* player) {
         if(player->speed <= player->max_speed)
             player->is_dashing = 0;
     }
+    else if(player->is_rolling) //rolling mechanic
+    {
+        player->speed = player->max_speed;
+
+        player->roll_timer -= player->engine->time->time_delta;
+
+        if(player->roll_timer <= 0.0f)
+        {
+            player->roll_timer = 0.0f;
+            player->is_rolling = 0;
+        }
+    }
     else
     {
         if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick x axis, rotate camera
@@ -146,9 +193,10 @@ void process_input(Player* player) {
             }
             else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
                 player->rotation += rotation_delta;
-            }
-            quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
+            }            
         }
+
+        quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
 
         if (stick.y >= PLAYER_STICK_THRESHOLD ) { //joystick y axis, move forward/backward
             player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
@@ -163,33 +211,49 @@ void process_input(Player* player) {
             else if (player->speed < 0.0f)
                 player->speed = fmaxf(fminf(player->speed + decel, 0.0f), player->max_speed * -0.5f);
         }
+
+        if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //jump
+            if (player->state == PLAYER_STATE_ON_GROUND) {
+                player->air_velocity = player->jump_impulse;
+            }
+            else if (player->double_jumps > 0) { //double jump
+                player->air_velocity = player->jump_impulse;// * (0.85f * player->double_jumps);
+                player->double_jumps -= 1;
+            }
+        }
+        else if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //shorten jump on release
+            if (player->state == PLAYER_STATE_FALLING && player->air_velocity > 0) {
+                player->air_velocity *= 0.5f;//player->air_velocity = fminf(fmaxf(player->air_velocity - 2.0f, 0.0f), player->air_velocity);
+            }
+        }
+
+        if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) { //dash or roll
+            if(player->dashes > 0) {
+                player->speed = player->dash_speed;
+                player->is_dashing = 1;
+                player->air_velocity = 0;
+                player->dashes -= 1;
+            }
+            else if(player->state == PLAYER_STATE_ON_GROUND && player->mesh_index == 1 && !player->is_rolling) //roll
+            {
+                player->is_rolling = 1;
+                player->roll_timer = player->roll_timer_max; //roll time in seconds
+                fw64_transform_forward(&player->node.transform, &player->roll_direction);
+                player->roll_direction.y = 0;
+                player->roll_height = player->node.transform.position.y;
+            }
+        }
+
+        if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
+            sparkle_start(&player->sparkle);
+        }
+
     }
     
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //jump
-        if (player->state == PLAYER_STATE_ON_GROUND) {
-            player->air_velocity = player->jump_impulse;
-        }
-        else if (player->double_jumps > 0) { //double jump
-            player->air_velocity = player->jump_impulse;// * (0.85f * player->double_jumps);
-            player->double_jumps -= 1;
-        }
-    }
-    else if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //shorten jump on release
-        if (player->state == PLAYER_STATE_FALLING && player->air_velocity > 0) {
-            player->air_velocity *= 0.5f;//player->air_velocity = fminf(fmaxf(player->air_velocity - 2.0f, 0.0f), player->air_velocity);
-        }
-    }
+    
+    
 
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B) && player->dashes > 0) { //dash
-        player->speed = player->dash_speed;
-        player->is_dashing = 1;
-        player->air_velocity = 0;
-        player->dashes -= 1;
-    }
 
-    if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
-        sparkle_start(&player->sparkle);
-    }
         
 }
 
@@ -197,7 +261,12 @@ static Vec3 calculate_movement_vector(Player* player) {
     float time_delta = player->engine->time->time_delta;
 
     Vec3 movement;
-    fw64_transform_forward(&player->node.transform, &movement);
+    if(player->is_rolling) {
+        vec3_copy(&movement, &player->roll_direction);
+    }
+    else {
+        fw64_transform_forward(&player->node.transform, &movement);
+    }
     vec3_scale(&movement, &movement, player->speed * time_delta);
 
     if(!(player->is_dashing)) //cancel gravity while dashing
@@ -212,6 +281,10 @@ static Vec3 calculate_movement_vector(Player* player) {
 void update_position(Player* player) {
     player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
+
+    // if(player->is_rolling) {
+    //     position->y = player->roll_height;
+    // }
 
     Vec3 movement = calculate_movement_vector(player);
     vec3_add(position, position, &movement);
