@@ -181,6 +181,11 @@ void process_input(Player* player) {
         {
             player->roll_timer = 0.0f;
             player->is_rolling = 0;
+            Vec3 extents;
+            &player->node.collider->bounding.max.y *= 2.0f; //not sure this is right tbh
+            box_extents(&player->node.collider->bounding, &extents);                
+            player->height = extents.y * 2.0f;
+            player->radius = extents.x > extents.z ? extents.x : extents.z;
         }
     }
     else
@@ -241,6 +246,12 @@ void process_input(Player* player) {
                 fw64_transform_forward(&player->node.transform, &player->roll_direction);
                 player->roll_direction.y = 0;
                 player->roll_height = player->node.transform.position.y;
+
+                Vec3 extents;
+                &player->node.collider->bounding.max.y *= 0.5f; //not sure this is right tbh
+                box_extents(&player->node.collider->bounding, &extents);                
+                player->height = extents.y * 2.0f;
+                player->radius = extents.x > extents.z ? extents.x : extents.z;
             }
         }
 
@@ -249,11 +260,6 @@ void process_input(Player* player) {
         }
 
     }
-    
-    
-    
-
-
         
 }
 
