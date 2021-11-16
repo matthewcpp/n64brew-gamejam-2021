@@ -11,6 +11,7 @@ void shadow_init(Shadow* shadow, fw64Engine* engine) {
     shadow->quad = textured_quad_create_with_image(engine, spritesheet, 0, NULL);
     fw64Material* material = fw64_mesh_get_material_for_primitive(shadow->quad, 0);
     fw64_material_set_texture_frame(material, 0);
+    fw64_material_set_shading_mode(material, FW64_SHADING_MODE_DECAL_TEXTURE);
     
     shadow->is_active = 1;
 }
@@ -22,6 +23,6 @@ void shadow_draw(Shadow* shadow) {
     fw64_node_billboard(&shadow->node, fw64_renderer_get_camera(shadow->engine->renderer));
     quat_from_euler(&shadow->node.transform.rotation, 90.0, 0, 0);
     fw64_node_update(&shadow->node);
-    fw64_renderer_draw_decal(shadow->engine->renderer, &shadow->node.transform, shadow->quad);
+    fw64_renderer_draw_static_mesh(shadow->engine->renderer, &shadow->node.transform, shadow->quad);
     fw64_renderer_set_depth_testing_enabled(shadow->engine->renderer, 1);
 }
