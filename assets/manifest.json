@@ -30,6 +30,16 @@
         }
         
     ],
+    "skinnedMeshes": [
+        {
+            "src": "catherine/catherine.gltf",
+            "animations": [
+                "Idle",
+                "Run",
+                "Walk"
+            ]
+        }
+    ],
     "fonts": [
         {
             "src": "Consolas.ttf",
