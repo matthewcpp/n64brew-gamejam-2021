@@ -73,40 +73,24 @@ void player_reset_at_position(Player* player, Vec3* position) {
     player_reset(player);
 }
 
-void player_update(Player* player) {
-    if (player->process_input)
-        process_input(player);
+static void update_player_swap(Player* player) {
+    float switch_time = SPARKLE_DURATION / 2.0f;
 
-    update_position(player);
+    if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
+        player->mesh_index = player->mesh_index == 0 ? 1 : 0;
 
-    player->sparkle.node.transform.position = player->node.transform.position;
-    sparkle_update(&player->sparkle);
-    
-    
-    //update shadow
-    Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
-    fw64RaycastHit ray_hit;
-    float max_shadow_dist = 20.0f;
-    fw64_scene_raycast(player->scene, &player->node.transform.position, &vec_down, NODE_LAYER_GROUND, &ray_hit);
-    if(ray_hit.distance < max_shadow_dist) {
-        player->shadow.is_active = 1;
-        player->shadow.node.transform.position = player->node.transform.position;
-        player->shadow.node.transform.position.y -= ray_hit.distance;
-        player->shadow.node.transform.scale.x = 1.0f;
-        player->shadow.node.transform.scale.y = 1.0f;
-        player->shadow.node.transform.scale.z = 1.0f;
-        float shadow_scalar = (ray_hit.distance / max_shadow_dist);
-        shadow_scalar *= shadow_scalar;
-        shadow_scalar = 1.0f - shadow_scalar;
-        vec3_scale(&player->shadow.node.transform.scale, &player->shadow.node.transform.scale, shadow_scalar);
+        if(player->mesh_index == 0) {
+            player->dashes = 1;
+            player->double_jumps = 0;
+        }
+        else {
+            player->dashes = 0;
+            player->double_jumps = 1;
+        }
     }
-    else {
-        player->shadow.is_active = 0;
-    }
+}
 
-    //roll character model
-    if(player->is_rolling) {
-
+static void update_roll(Player* player) {
         Quat rotation;
         quat_from_euler(&rotation, player->engine->time->time_delta * (-360.0f / player->roll_timer_max), 0, 0);
 
@@ -128,26 +112,51 @@ void player_update(Player* player) {
         rw = aw * bw - ax * bx - ay * by - az * bz;
 
         quat_set(&player->node.transform.rotation, rx, ry, rz, rw);
-        
+}
+
+static void update_shadow(Player* player) {
+    Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
+    fw64RaycastHit ray_hit;
+    float max_shadow_dist = 20.0f;
+    fw64_scene_raycast(player->scene, &player->node.transform.position, &vec_down, NODE_LAYER_GROUND, &ray_hit);
+    if(ray_hit.distance < max_shadow_dist) {
+        player->shadow.is_active = 1;
+        player->shadow.node.transform.position = player->node.transform.position;
+        player->shadow.node.transform.position.y -= ray_hit.distance;
+        player->shadow.node.transform.scale.x = 1.0f;
+        player->shadow.node.transform.scale.y = 1.0f;
+        player->shadow.node.transform.scale.z = 1.0f;
+        float shadow_scalar = (ray_hit.distance / max_shadow_dist);
+        shadow_scalar *= shadow_scalar;
+        shadow_scalar = 1.0f - shadow_scalar;
+        vec3_scale(&player->shadow.node.transform.scale, &player->shadow.node.transform.scale, shadow_scalar);
+    }
+    else {
+        player->shadow.is_active = 0;
+    }
+}
+
+
+    fw64_animation_controller_update(&player->animation_controller, player->engine->time->time_delta);
+}
+
+void player_update(Player* player) {
+    if (player->process_input)
+        process_input(player);
+
+    update_position(player);
+
+    player->sparkle.node.transform.position = player->node.transform.position;
+    sparkle_update(&player->sparkle);
+    
+    update_shadow(player);
+
+    if(player->is_rolling) {
+        update_roll(player);
     }    
     
-    //update player swap
     if (player->sparkle.is_active) {
-        float switch_time = SPARKLE_DURATION / 2.0f;
-
-        if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
-            player_switch_mesh(player);
-
-            if(player->mesh_index == 0) {
-                player->dashes = 1;
-                player->double_jumps = 0;
-            }
-            else {
-                player->dashes = 0;
-                player->double_jumps = 1;
-            }
-
-        }
+        update_player_swap(player);
     }
 }
 
@@ -182,7 +191,7 @@ void process_input(Player* player) {
             player->roll_timer = 0.0f;
             player->is_rolling = 0;
             Vec3 extents;
-            &player->node.collider->bounding.max.y *= 2.0f; //not sure this is right tbh
+            player->node.collider->bounding.max.y *= 2.0f; //not sure this is right tbh
             box_extents(&player->node.collider->bounding, &extents);                
             player->height = extents.y * 2.0f;
             player->radius = extents.x > extents.z ? extents.x : extents.z;
@@ -248,7 +257,7 @@ void process_input(Player* player) {
                 player->roll_height = player->node.transform.position.y;
 
                 Vec3 extents;
-                &player->node.collider->bounding.max.y *= 0.5f; //not sure this is right tbh
+                player->node.collider->bounding.max.y *= 0.5f; //not sure this is right tbh
                 box_extents(&player->node.collider->bounding, &extents);                
                 player->height = extents.y * 2.0f;
                 player->radius = extents.x > extents.z ? extents.x : extents.z;
@@ -258,9 +267,7 @@ void process_input(Player* player) {
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
             sparkle_start(&player->sparkle);
         }
-
     }
-        
 }
 
 static Vec3 calculate_movement_vector(Player* player) {
