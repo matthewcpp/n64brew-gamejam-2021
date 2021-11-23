@@ -10,7 +10,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     level->engine = engine;
 
     player_init(&level->player, level->engine, NULL);
-    vec3_set_all(&level->player.node.transform.scale, 0.01f);
+    vec3_set_all(&level->player.node.transform.scale, 0.02f);
   //level->player.jump_impulse = 16.0f;
   //level->player.gravity = -38.0f;
   //level->player.max_speed = 30.0f;
