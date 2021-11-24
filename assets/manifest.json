@@ -48,8 +48,16 @@
         }
     ],
     "soundBanks": [
+        {
+            "name": "sound_effects",
+            "dir": "sound_effects"
+        }
     ],
     "musicBanks": [
+        {
+            "name": "music",
+            "dir": "music"
+        }
     ],
     "levels": [
         {

@@ -26,6 +26,8 @@ typedef struct {
     TriggerBox next_scene_trigger;
     FadeEffect fade_effect;
     int debug;
+    fw64SoundBank* sound_bank;
+    fw64MusicBank* music_bank;
 } TunnelLevel;
 
 #ifdef __cplusplus

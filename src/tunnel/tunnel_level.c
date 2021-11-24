@@ -1,6 +1,8 @@
 #include "tunnel_level.h"
 
 #include "assets.h"
+#include "music_bank_music.h"
+#include "sound_bank_sound_effects.h"
 #include "scene_hallway.h"
 #include "typemap.h"
 
@@ -37,6 +39,14 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     fade_effect_init(&level->fade_effect);
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
+
+    level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects);
+    level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music);
+
+    fw64_audio_set_sound_bank(engine->audio, level->sound_bank);
+    fw64_audio_set_music_bank(engine->audio, level->music_bank);
+
+    fw64_audio_play_music(engine->audio, music_bank_music_runnyeye);
 
     level->debug = 1;
 }
@@ -148,7 +158,8 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
                 player_reset_at_position(&level->player, &start_node->transform.position);
             }
 
-            fade_effect_start(&level->fade_effect, FADE_OUT, 1.0f);
+            fade_effect_start(&level->fade_effect, FADE_OUT, 2.0f);
+            fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_woosh);
     }
     if (direction == FADE_OUT) {
         level->player.process_input = 1;
@@ -157,7 +168,7 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
 
 void tunnel_level_kill_player(TunnelLevel* level) {
     level->player.process_input = 0;
-    fade_effect_start(&level->fade_effect, FADE_IN, 1.0f);
+    fade_effect_start(&level->fade_effect, FADE_IN, 0.35f);
 }
 
 int tunnel_level_player_is_dying(TunnelLevel* level) {
