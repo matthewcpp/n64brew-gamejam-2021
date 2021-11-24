@@ -6,11 +6,15 @@
 #include "layermap.h"
 
 #include "framework64/n64/controller_button.h"
+#include "framework64/matrix.h"
 
 #include <stdio.h>
+#include <string.h>
 
 static void process_input(Player* player);
 static void update_position(Player* player);
+
+static void player_tweak_root_animation_rotation(Player* player);
 
 void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->engine = engine;
@@ -45,6 +49,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, NULL);
     player->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine, NULL);
     fw64_animation_controller_init(&player->animation_controller, player->animation_data, -1, NULL);
+    player_tweak_root_animation_rotation(player);
     fw64_node_set_mesh(&player->node,  player_mesh);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
@@ -384,4 +389,25 @@ void player_calculate_size(Player* player) {
     player->radius = extents.x > extents.z ? extents.x : extents.z;
 
     vec3_set_all(&player->sparkle.node.transform.scale, 5);
+}
+
+#ifdef PLATFORM_N64
+#include <nusys.h>
+#endif
+
+// This is not ideal, however the model as authored is oriented looking down +z, however in framework64 forward is -z
+// no luck fixing it in blender without messing up the rig so We apply a base rotation to the root of the node hierarchy to fix this
+void player_tweak_root_animation_rotation(Player* player) {
+    float fix_matrix[16];
+    Quat q;
+    quat_set_axis_angle(&q, 0.0f, 1.0f, 0.0f, M_PI);
+    matrix_from_quat(&fix_matrix[0], &q);
+
+    fw64Matrix* root_matrix = player->animation_controller.matrices;
+
+    #ifdef PLATFORM_N64
+        guMtxF2L((float (*)[4])fix_matrix, root_matrix);
+    #else
+        memcpy(&root_matrix->m[0], fix_matrix, sizeof(float) * 16);
+    #endif
 }
