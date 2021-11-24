@@ -5,6 +5,7 @@
 #include "typemap.h"
 
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
+static void on_fade_effect_complete(FadeDirection direction, void* arg);
 
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     level->engine = engine;
@@ -33,6 +34,9 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
+
+    fade_effect_init(&level->fade_effect);
+    fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
 
     level->debug = 1;
 }
@@ -67,6 +71,7 @@ void tunnel_level_update(TunnelLevel* level){
     }
     player_update(&level->player);
     chase_camera_update(&level->chase_cam);
+    fade_effect_update(&level->fade_effect, level->engine->time->time_delta);
     ui_update(&level->ui);
 }
 
@@ -75,6 +80,7 @@ void tunnel_level_draw(TunnelLevel* level) {
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_TRIANGLES, FW64_RENDERER_FLAG_CLEAR);
     scene_manager_draw(&level->scene_manager);
     player_draw(&level->player); // player is drawn last due to sparkle effect ignoring depth buffer
+    fade_effect_draw(&level->fade_effect, level->engine->renderer);
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_NOSWAP);
 
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
@@ -131,11 +137,29 @@ void tunnel_level_load_next(TunnelLevel* level) {
     }
 }
 
-void tunnel_level_kill_player(TunnelLevel* level) {
-    SceneRef* current = scene_manager_get_current(&level->scene_manager);
-    fw64Node* start_node;
+void on_fade_effect_complete(FadeDirection direction, void* arg) {
+    TunnelLevel* level = (TunnelLevel*)arg;
 
-    if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
-        player_reset_at_position(&level->player, &start_node->transform.position);
+    if (direction == FADE_IN) {
+            SceneRef* current = scene_manager_get_current(&level->scene_manager);
+            fw64Node* start_node;
+
+            if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
+                player_reset_at_position(&level->player, &start_node->transform.position);
+            }
+
+            fade_effect_start(&level->fade_effect, FADE_OUT, 1.0f);
     }
+    if (direction == FADE_OUT) {
+        level->player.process_input = 1;
+    }
+}
+
+void tunnel_level_kill_player(TunnelLevel* level) {
+    level->player.process_input = 0;
+    fade_effect_start(&level->fade_effect, FADE_IN, 1.0f);
+}
+
+int tunnel_level_player_is_dying(TunnelLevel* level) {
+    return fade_effect_is_active(&level->fade_effect);
 }

@@ -47,7 +47,8 @@ void tunnel_lavapit_update(void* level_arg, fw64Scene* scene, void* data_arg) {
         moving_platform_update(&lava_pit->platforms[i], level->engine->time->time_delta);
     }
 
-    if (level->player.node.transform.position.y < -30.0f) {
+    // TODO: this should be more general
+    if (level->player.node.transform.position.y < -30.0f && !tunnel_level_player_is_dying(level)) {
         tunnel_level_kill_player(level);
     }
 }

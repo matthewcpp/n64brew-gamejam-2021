@@ -9,6 +9,7 @@
 #include "ui.h"
 #include "chase_camera.h"
 #include "scene_manager.h"
+#include "fade_effect.h"
 
 typedef union {
     Hallway hallway;
@@ -23,6 +24,7 @@ typedef struct {
     ChaseCamera chase_cam;
     SceneManager scene_manager;
     TriggerBox next_scene_trigger;
+    FadeEffect fade_effect;
     int debug;
 } TunnelLevel;
 
@@ -36,6 +38,7 @@ void tunnel_level_update(TunnelLevel* level);
 void tunnel_level_draw(TunnelLevel* level);
 
 void tunnel_level_load_next(TunnelLevel* level);
+int tunnel_level_player_is_dying(TunnelLevel* level);
 void tunnel_level_kill_player(TunnelLevel* level);
 #ifdef __cplusplus
 }

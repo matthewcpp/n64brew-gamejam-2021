@@ -2,11 +2,15 @@
 
 #include "framework64/util/renderer_util.h"
 
+#include <string.h>
+
 void fade_effect_init(FadeEffect* fade) {
-    fade->current_time = 0.0f;
-    fade->duration = 0.0f;
-    fade->direction = FADE_NONE;
-    fade->callback = NULL;
+    memset(fade, 0, sizeof(FadeEffect));
+}
+
+void fade_effect_set_callback(FadeEffect* fade, FadeEffectFunc func, void* arg) {
+    fade->callback = func;
+    fade->callback_arg = arg;
 }
 
 void fade_effect_start(FadeEffect* fade, FadeDirection direction, float duration) {
@@ -29,7 +33,7 @@ void fade_effect_update(FadeEffect* fade, float time_delta) {
         fade->current_time = fade->duration;
 
         if (fade->callback) {
-            fade->callback(fade->direction);
+            fade->callback(fade->direction, fade->callback_arg);
         }
     }
 }
