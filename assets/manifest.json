@@ -9,6 +9,25 @@
             "src": "shadow.png",
             "hslices": 1,
             "vslices": 1
+        },
+        {
+            "name": "lava_sprite",
+            "frames": [
+                "lava/lava_02.png",
+                "lava/lava_03.png",
+                "lava/lava_04.png",
+                "lava/lava_05.png",
+                "lava/lava_06.png",
+                "lava/lava_07.png",
+                "lava/lava_08.png",
+                "lava/lava_09.png",
+                "lava/lava_10.png",
+                "lava/lava_11.png"
+            ],
+            "hslices": 10,
+            "vslices": 1,
+            "frameSize": "128x128",
+            "resize": "320x32"
         }
         
     ],

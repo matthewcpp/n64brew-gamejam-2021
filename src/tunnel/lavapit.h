@@ -2,12 +2,15 @@
 
 #include "scene_manager.h"
 
+#include "animated_material_texture.h"
 #include "moving_platform.h"
 
 #define LAVAPIT_PLATFORM_COUNT 4
 
 typedef struct {
     MovingPlatform platforms[LAVAPIT_PLATFORM_COUNT];
+    fw64Texture* lava_texture;
+    AnimatedMaterialTexture animated_lava;
 } LavaPit;
 
 #ifdef __cplusplus

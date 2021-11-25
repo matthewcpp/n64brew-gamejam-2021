@@ -20,6 +20,8 @@
         "scene_lavapit.h": "c",
         "vec3.h": "c",
         "scene_manager.h": "c",
-        "shadow.h": "c"
+        "shadow.h": "c",
+        "image.h": "c",
+        "stdlib.h": "c"
     }
 }
