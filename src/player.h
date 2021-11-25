@@ -71,7 +71,6 @@ typedef struct {
     Sparkle sparkle;
     Shadow shadow;
     fw64Node* ground_node;
-
 } Player;
 
 #ifdef __cplusplus

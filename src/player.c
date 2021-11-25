@@ -234,7 +234,7 @@ void process_input(Player* player) {
             }
             else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
                 player->rotation += rotation_delta;
-            }            
+            }  
         }
 
         quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
@@ -345,7 +345,7 @@ void update_position(Player* player) {
             vec3_subtract(&direction, &query_center, &hit->point);
             vec3_normalize(&direction);
             
-            int is_grounded = (hit->node->layer_mask & NODE_LAYER_GROUND) || direction.y > 0.9f;
+            int is_grounded = (direction.y > direction.x && direction.y > direction.z);
 
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
