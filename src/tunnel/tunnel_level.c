@@ -159,7 +159,7 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
             }
 
             fade_effect_start(&level->fade_effect, FADE_OUT, 2.0f);
-            fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_woosh);
+            fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_respawn);
     }
     if (direction == FADE_OUT) {
         level->player.process_input = 1;

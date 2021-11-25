@@ -1,12 +1,15 @@
 #include "player.h"
 
 #include "assets.h"
+#include "sound_bank_sound_effects.h"
 #include "catherine_animation.h"
 
 #include "layermap.h"
 
 #include "framework64/n64/controller_button.h"
 #include "framework64/matrix.h"
+
+
 
 #include <stdio.h>
 #include <string.h>
@@ -263,6 +266,7 @@ void process_input(Player* player) {
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) { //dash or roll
             if(player->dashes > 0) {
+                fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_dash);
                 player->speed = player->dash_speed;
                 player->is_dashing = 1;
                 player->air_velocity = 0;
@@ -285,6 +289,7 @@ void process_input(Player* player) {
         }
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
+            fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_swap);
             sparkle_start(&player->sparkle);
         }
     }
