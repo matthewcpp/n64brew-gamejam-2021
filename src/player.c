@@ -187,9 +187,27 @@ void player_update(Player* player) {
     update_animation(player);
 }
 
-void process_input(Player* player) {
+static void player_update_stick(Player* player) {
     Vec2 stick;
     fw64_input_stick(player->engine->input, 0, &stick);
+
+    if (stick.y >= PLAYER_STICK_THRESHOLD || stick.y <= -PLAYER_STICK_THRESHOLD ||
+        stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick y axis, move forward/backward
+            player->rotation = atan2(stick.y, stick.x) * (180.0f / M_PI) - 90.0f;
+
+    quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
+
+        player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
+    }
+    else { //apply friction
+        float decel = player->deceleration * player->engine->time->time_delta;
+        if (player->speed > 0.0f)
+            player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
+    }
+}
+
+void process_input(Player* player) {
+
 
     if(player->is_dashing) //dashing mechanic
     {
@@ -226,32 +244,7 @@ void process_input(Player* player) {
     }
     else
     {
-        if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick x axis, rotate camera
-            float rotation_delta = PLAYER_DEFAULT_ROTATION_SPEED * player->engine->time->time_delta;
-
-            if (stick.x >= PLAYER_STICK_THRESHOLD) {
-                player->rotation -= rotation_delta;
-            }
-            else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
-                player->rotation += rotation_delta;
-            }  
-        }
-
-        quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
-
-        if (stick.y >= PLAYER_STICK_THRESHOLD ) { //joystick y axis, move forward/backward
-            player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
-        }
-        else if (stick.y <= -PLAYER_STICK_THRESHOLD) {
-            player->speed = fminf(fmaxf(player->speed - player->acceleration * player->engine->time->time_delta, -player->max_speed), player->max_speed * -0.5f);
-        }
-        else { //apply friction
-            float decel = player->deceleration * player->engine->time->time_delta;
-            if (player->speed > 0.0f)
-                player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
-            else if (player->speed < 0.0f)
-                player->speed = fmaxf(fminf(player->speed + decel, 0.0f), player->max_speed * -0.5f);
-        }
+        player_update_stick(player);
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //jump
             if (player->state == PLAYER_STATE_ON_GROUND) {
