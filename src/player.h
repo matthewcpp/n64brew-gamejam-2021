@@ -82,6 +82,7 @@ void player_update(Player* player);
 void player_draw(Player* player);
 
 void player_reset(Player* player);
+void player_set_scene(Player* player, fw64Scene* scene);
 void player_reset_at_position(Player* player, Vec3* position);
 void player_calculate_size(Player* player);
 void player_switch_mesh(Player* player);

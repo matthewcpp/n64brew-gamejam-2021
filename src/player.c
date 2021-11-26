@@ -62,7 +62,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     sparkle_init(&player->sparkle, engine);
 
-    shadow_init(&player->shadow, engine);
+    shadow_init(&player->shadow, engine, NULL, &player->node.transform);
 }
 
 void player_reset(Player* player) {
@@ -85,6 +85,11 @@ void player_reset_at_position(Player* player, Vec3* position) {
     player->previous_position = *position;
     
     player_reset(player);
+}
+
+void player_set_scene(Player* player, fw64Scene* scene) {
+    player->scene = scene;
+    player->shadow.scene = scene;
 }
 
 static void update_player_swap(Player* player) {
@@ -128,28 +133,6 @@ static void update_roll(Player* player) {
         quat_set(&player->node.transform.rotation, rx, ry, rz, rw);
 }
 
-static void update_shadow(Player* player) {
-    Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
-    fw64RaycastHit ray_hit;
-    float max_shadow_dist = 20.0f;
-    fw64_scene_raycast(player->scene, &player->node.transform.position, &vec_down, NODE_LAYER_GROUND, &ray_hit);
-    if(ray_hit.distance < max_shadow_dist) {
-        player->shadow.is_active = 1;
-        player->shadow.node.transform.position = player->node.transform.position;
-        player->shadow.node.transform.position.y -= ray_hit.distance;
-        player->shadow.node.transform.scale.x = 1.0f;
-        player->shadow.node.transform.scale.y = 1.0f;
-        player->shadow.node.transform.scale.z = 1.0f;
-        float shadow_scalar = (ray_hit.distance / max_shadow_dist);
-        shadow_scalar *= shadow_scalar;
-        shadow_scalar = 1.0f - shadow_scalar;
-        vec3_scale(&player->shadow.node.transform.scale, &player->shadow.node.transform.scale, shadow_scalar);
-    }
-    else {
-        player->shadow.is_active = 0;
-    }
-}
-
 static void update_animation(Player* player) {
     if (player->speed == 0.0f) {
         if (player->animation_controller.current_animation != fw64_animation_data_get_animation(player->animation_data, catherine_animation_Idle)) {
@@ -177,7 +160,7 @@ void player_update(Player* player) {
     player->sparkle.node.transform.position = player->node.transform.position;
     sparkle_update(&player->sparkle);
     
-    update_shadow(player);
+    shadow_update(&player->shadow);
 
     if(player->is_rolling) {
         update_roll(player);
@@ -210,8 +193,6 @@ static void player_update_stick(Player* player) {
 }
 
 void process_input(Player* player) {
-
-
     if(player->is_dashing) //dashing mechanic
     {
         if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) {

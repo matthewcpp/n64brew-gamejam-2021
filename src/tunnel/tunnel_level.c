@@ -110,7 +110,7 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
         level->player.node.transform.position = search_node->transform.position;
     }
     
-    level->player.scene = scene;
+    player_set_scene(&level->player, scene);
 
     search_node = NULL;
     fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
