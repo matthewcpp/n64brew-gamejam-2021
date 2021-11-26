@@ -16,6 +16,7 @@ set(src_files
     tunnel/key.h tunnel/key.c
     tunnel/lavapit.h tunnel/lavapit.c
     tunnel/hallway.h tunnel/hallway.c
+    tunnel/firewall.h tunnel/firewall.c
     tunnel/atrium.h tunnel/atrium.c
     )
 

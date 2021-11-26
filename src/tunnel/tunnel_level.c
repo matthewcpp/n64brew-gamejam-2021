@@ -137,6 +137,13 @@ void tunnel_level_load_next(TunnelLevel* level) {
         
         case FW64_ASSET_scene_lavapit: {
             SceneDescription desc;
+            tunnel_firewall_description(&desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
+            break;
+        }
+
+        case FW64_ASSET_scene_firewall: {
+            SceneDescription desc;
             tunnel_atrium_description(&desc);
             scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
