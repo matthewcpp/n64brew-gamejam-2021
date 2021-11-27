@@ -13,7 +13,7 @@
                 22,
                 25,
                 42,
-                52
+                57
             ]
         }
     ],
@@ -306,7 +306,7 @@
             "translation" : [
                 0,
                 -1,
-                -351
+                -445
             ]
         },
         {
@@ -574,42 +574,77 @@
             ]
         },
         {
+            "extras" : {
+                "layers" : "ground"
+            },
             "mesh" : 19,
-            "name" : "Chunk1",
-            "translation" : [
-                -15,
+            "name" : "Ceilling1",
+            "rotation" : [
                 0,
-                0
-            ]
-        },
-        {
-            "mesh" : 19,
-            "name" : "Chunk1.001",
-            "scale" : [
+                0,
                 -1,
+                -4.371138828673793e-08
+            ],
+            "scale" : [
                 1,
-                1
+                1,
+                1.6923466920852661
             ],
             "translation" : [
-                15,
                 0,
-                0
+                16,
+                0.00244140625
             ]
         },
         {
             "extras" : {
-                "type" : "fire"
+                "layers" : "ground"
             },
-            "name" : "Fire1",
+            "mesh" : 20,
+            "name" : "Ceilling1.001",
+            "rotation" : [
+                0,
+                0,
+                -1,
+                -4.371138828673793e-08
+            ],
             "scale" : [
-                13.956378936767578,
-                5.7571024894714355,
-                1
+                1,
+                1,
+                1.6923466920852661
             ],
             "translation" : [
                 0,
-                8.644508361816406,
-                -19.849748611450195
+                16,
+                -67.69140625
+            ]
+        },
+        {
+            "mesh" : 21,
+            "name" : "Chunk1",
+            "scale" : [
+                1,
+                1,
+                1.6923466920852661
+            ],
+            "translation" : [
+                -15,
+                0,
+                0.00244140625
+            ]
+        },
+        {
+            "mesh" : 21,
+            "name" : "Chunk1.001",
+            "scale" : [
+                -1,
+                1,
+                1.6923466920852661
+            ],
+            "translation" : [
+                15,
+                0,
+                0.00244140625
             ]
         },
         {
@@ -620,7 +655,7 @@
             "translation" : [
                 0,
                 0,
-                -39
+                -132.00057983398438
             ]
         },
         {
@@ -643,12 +678,17 @@
             "extras" : {
                 "layers" : "ground"
             },
-            "mesh" : 20,
-            "name" : "Ground.001",
+            "mesh" : 19,
+            "name" : "Floor1",
+            "scale" : [
+                1,
+                1,
+                1.6923466920852661
+            ],
             "translation" : [
                 0,
                 -1,
-                0
+                0.00244140625
             ]
         },
         {
@@ -656,17 +696,46 @@
                 "layers" : "ground"
             },
             "mesh" : 20,
-            "name" : "Ground.002",
-            "rotation" : [
-                0,
-                0,
-                -1,
-                -4.371138828673793e-08
+            "name" : "Floor1.001",
+            "scale" : [
+                1,
+                1,
+                1.6923466920852661
             ],
             "translation" : [
                 0,
-                16,
-                0
+                -1,
+                -67.69140625
+            ]
+        },
+        {
+            "extras" : {
+                "type" : "fire"
+            },
+            "name" : "Jump1",
+            "scale" : [
+                12.79538345336914,
+                1,
+                1
+            ],
+            "translation" : [
+                0,
+                1,
+                -60
+            ]
+        },
+        {
+            "mesh" : 22,
+            "name" : "Left Wall.004",
+            "scale" : [
+                1,
+                1,
+                1.6923466920852661
+            ],
+            "translation" : [
+                -13.809208869934082,
+                7.908814430236816,
+                -104.8132095336914
             ]
         },
         {
@@ -682,7 +751,37 @@
             "translation" : [
                 0,
                 7,
-                -19.999998092651367
+                -97
+            ]
+        },
+        {
+            "extras" : {
+                "type" : "fire"
+            },
+            "name" : "Roll1",
+            "scale" : [
+                13.956378936767578,
+                5.7571024894714355,
+                1
+            ],
+            "translation" : [
+                0,
+                8.644508361816406,
+                -26.99998664855957
+            ]
+        },
+        {
+            "mesh" : 23,
+            "name" : "Wall Chunk 2",
+            "scale" : [
+                -1,
+                1,
+                1.6923466920852661
+            ],
+            "translation" : [
+                13.820699691772461,
+                7.908814430236816,
+                -104.8132095336914
             ]
         },
         {
@@ -694,13 +793,18 @@
                 47,
                 48,
                 49,
-                50
+                50,
+                51,
+                52,
+                53,
+                54,
+                55
             ],
             "name" : "Scene"
         },
         {
             "children" : [
-                51
+                56
             ],
             "name" : "Firewall",
             "translation" : [
@@ -873,7 +977,7 @@
         },
         {
             "doubleSided" : true,
-            "name" : "Dirt.004",
+            "name" : "Dirt.007",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 12
@@ -884,10 +988,43 @@
         },
         {
             "doubleSided" : true,
-            "name" : "Dirt.007",
+            "name" : "Dirt.014",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 13
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Dirt.004",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 14
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Dirt.011",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 15
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Dirt.012",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 16
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.5
@@ -1171,7 +1308,7 @@
             ]
         },
         {
-            "name" : "Wall Chunk 1",
+            "name" : "Floor Chunk",
             "primitives" : [
                 {
                     "attributes" : {
@@ -1179,22 +1316,64 @@
                         "NORMAL" : 78,
                         "TEXCOORD_0" : 79
                     },
-                    "indices" : 80,
+                    "indices" : 3,
                     "material" : 14
                 }
             ]
         },
         {
-            "name" : "Floor Chunk",
+            "name" : "Floor Chunk.001",
             "primitives" : [
                 {
                     "attributes" : {
-                        "POSITION" : 81,
-                        "NORMAL" : 82,
-                        "TEXCOORD_0" : 83
+                        "POSITION" : 80,
+                        "NORMAL" : 81,
+                        "TEXCOORD_0" : 82
                     },
                     "indices" : 3,
                     "material" : 15
+                }
+            ]
+        },
+        {
+            "name" : "Wall Chunk 1",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 83,
+                        "NORMAL" : 84,
+                        "TEXCOORD_0" : 85
+                    },
+                    "indices" : 86,
+                    "material" : 16
+                }
+            ]
+        },
+        {
+            "name" : "Wall.004",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 87,
+                        "NORMAL" : 88,
+                        "TEXCOORD_0" : 89
+                    },
+                    "indices" : 90,
+                    "material" : 17
+                }
+            ]
+        },
+        {
+            "name" : "Wall.005",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 91,
+                        "NORMAL" : 92,
+                        "TEXCOORD_0" : 93
+                    },
+                    "indices" : 90,
+                    "material" : 18
                 }
             ]
         }
@@ -1247,6 +1426,18 @@
         {
             "sampler" : 0,
             "source" : 2
+        },
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 0
         },
         {
             "sampler" : 0,
@@ -1940,39 +2131,33 @@
         {
             "bufferView" : 77,
             "componentType" : 5126,
-            "count" : 108,
+            "count" : 8,
             "max" : [
-                4,
-                17,
-                1
+                14,
+                1,
+                0
             ],
             "min" : [
-                -1,
+                -14,
                 0,
-                -41
+                -40
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 78,
             "componentType" : 5126,
-            "count" : 108,
+            "count" : 8,
             "type" : "VEC3"
         },
         {
             "bufferView" : 79,
             "componentType" : 5126,
-            "count" : 108,
+            "count" : 8,
             "type" : "VEC2"
         },
         {
             "bufferView" : 80,
-            "componentType" : 5123,
-            "count" : 168,
-            "type" : "SCALAR"
-        },
-        {
-            "bufferView" : 81,
             "componentType" : 5126,
             "count" : 8,
             "max" : [
@@ -1988,15 +2173,111 @@
             "type" : "VEC3"
         },
         {
-            "bufferView" : 82,
+            "bufferView" : 81,
             "componentType" : 5126,
             "count" : 8,
             "type" : "VEC3"
         },
         {
-            "bufferView" : 83,
+            "bufferView" : 82,
             "componentType" : 5126,
             "count" : 8,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 83,
+            "componentType" : 5126,
+            "count" : 108,
+            "max" : [
+                4,
+                17,
+                1
+            ],
+            "min" : [
+                -1,
+                0,
+                -41
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 84,
+            "componentType" : 5126,
+            "count" : 108,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 85,
+            "componentType" : 5126,
+            "count" : 108,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 86,
+            "componentType" : 5123,
+            "count" : 168,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 87,
+            "componentType" : 5126,
+            "count" : 100,
+            "max" : [
+                2.8187334537506104,
+                8.5,
+                21.00000762939453
+            ],
+            "min" : [
+                -3.1812660694122314,
+                -8.5,
+                -21.00000762939453
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 88,
+            "componentType" : 5126,
+            "count" : 100,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 89,
+            "componentType" : 5126,
+            "count" : 100,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 90,
+            "componentType" : 5123,
+            "count" : 150,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 91,
+            "componentType" : 5126,
+            "count" : 100,
+            "max" : [
+                2.8187334537506104,
+                8.5,
+                21.00000762939453
+            ],
+            "min" : [
+                -3.1812660694122314,
+                -8.5,
+                -21.00000762939453
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 92,
+            "componentType" : 5126,
+            "count" : 100,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 93,
+            "componentType" : 5126,
+            "count" : 100,
             "type" : "VEC2"
         }
     ],
@@ -2388,38 +2669,88 @@
         },
         {
             "buffer" : 0,
-            "byteLength" : 1296,
+            "byteLength" : 96,
             "byteOffset" : 48240
         },
         {
             "buffer" : 0,
-            "byteLength" : 1296,
-            "byteOffset" : 49536
-        },
-        {
-            "buffer" : 0,
-            "byteLength" : 864,
-            "byteOffset" : 50832
-        },
-        {
-            "buffer" : 0,
-            "byteLength" : 336,
-            "byteOffset" : 51696
-        },
-        {
-            "buffer" : 0,
             "byteLength" : 96,
-            "byteOffset" : 52032
-        },
-        {
-            "buffer" : 0,
-            "byteLength" : 96,
-            "byteOffset" : 52128
+            "byteOffset" : 48336
         },
         {
             "buffer" : 0,
             "byteLength" : 64,
-            "byteOffset" : 52224
+            "byteOffset" : 48432
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 96,
+            "byteOffset" : 48496
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 96,
+            "byteOffset" : 48592
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 64,
+            "byteOffset" : 48688
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1296,
+            "byteOffset" : 48752
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1296,
+            "byteOffset" : 50048
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 864,
+            "byteOffset" : 51344
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 336,
+            "byteOffset" : 52208
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1200,
+            "byteOffset" : 52544
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1200,
+            "byteOffset" : 53744
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 800,
+            "byteOffset" : 54944
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 300,
+            "byteOffset" : 55744
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1200,
+            "byteOffset" : 56044
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1200,
+            "byteOffset" : 57244
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 800,
+            "byteOffset" : 58444
         }
     ],
     "samplers" : [
@@ -2430,7 +2761,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 52288,
+            "byteLength" : 59244,
             "uri" : "haunted_tunnel.bin"
         }
     ]

@@ -2,11 +2,6 @@
 
 #include "player.h"
 
-typedef enum  {
-    FIRE_OBSTACLE_DEFAULT,
-    FIRE_OBSTACLE_ROLL
-}FireObstacleType;
-
 
 #define FIRE_OBSTACLE_POOL_SIZE 10
 typedef struct {
@@ -24,18 +19,27 @@ void fire_obstacle_node_pool_return(FireObstacleNodePool* pool, fw64Node* node);
 
 typedef struct {
     Player* player;
-    FireObstacleType type;
-    fw64Node* nodes[ROLL_OBSTACLE_NODE_COUNT];
+    fw64Node nodes[ROLL_OBSTACLE_NODE_COUNT];
     Box box;
-} FireObstacle;
+} FireRollingObstacle;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void fire_obstacle_init(FireObstacle* obstacle, FireObstacleType type, fw64Node* reference, Player* player, FireObstacleNodePool* pool);
-int fire_obstacle_update(FireObstacle* obstacle, float time_delta);
-void fire_obstacle_draw(FireObstacle* obstacle, fw64Renderer* renderer);
+void fire_rolling_obstacle_init(FireRollingObstacle* obstacle, fw64Node* reference, Player* player, fw64Mesh* flame_mesh);
+int fire_rolling_obstacle_update(FireRollingObstacle* obstacle, float time_delta);
+void fire_rolling_obstacle_draw(FireRollingObstacle* obstacle, fw64Renderer* renderer);
+
+typedef struct {
+    Player* player;
+    fw64Node nodes[ROLL_OBSTACLE_NODE_COUNT];
+    Box box;
+}
+
+void fire_jumping_obstacle_init(FireRollingObstacle* obstacle, fw64Node* reference, Player* player, fw64Mesh* flame_mesh);
+int fire_jumping_obstacle_update(FireRollingObstacle* obstacle, float time_delta);
+void fire_jumping_obstacle_draw(FireRollingObstacle* obstacle, fw64Renderer* renderer);
 
 #ifdef __cplusplus
 }
