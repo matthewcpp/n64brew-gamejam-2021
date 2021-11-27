@@ -6,13 +6,14 @@
 #include "animated_material_texture.h"
 
 #define ROLL_OBSTACLE_COUNT 1
+#define JUMP_OBSTACLE_COUNT 1
 
 typedef struct {
     fw64Image* flame_image;
     fw64Mesh* flame_mesh;
     AnimatedMaterialTexture animated_material;
-    FireRollingObstacle roll_obstacles[ROLL_OBSTACLE_COUNT];
-    FireObstacleNodePool node_pool;
+    StaticFireObstacle roll_obstacles[ROLL_OBSTACLE_COUNT];
+    StaticFireObstacle jump_obstacles[JUMP_OBSTACLE_COUNT];
 } Firewall;
 
 #ifdef __cplusplus
