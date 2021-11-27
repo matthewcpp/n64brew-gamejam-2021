@@ -10,6 +10,8 @@ void animated_material_texture_update(AnimatedMaterialTexture* animated_material
     animated_material->current_frame_time += time_delta;
 
     if (animated_material->current_frame_time >= animated_material->frame_duration) {
+        animated_material->current_frame_time -= animated_material->frame_duration;
+        
         fw64Texture* texture = fw64_material_get_texture(animated_material->material);
         int current_frame = fw64_material_get_texture_frame(animated_material->material);
         int total_frame_count = fw64_texture_hslices(texture) * fw64_texture_vslices(texture);

@@ -14,10 +14,6 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     player_init(&level->player, level->engine, NULL);
     vec3_set_all(&level->player.node.transform.scale, 0.02f);
-  //level->player.jump_impulse = 16.0f;
-  //level->player.gravity = -38.0f;
-  //level->player.max_speed = 30.0f;
-  //level->player.acceleration = 14.0f;
     fw64_node_update(&level->player.node);
     player_calculate_size(&level->player);
     
@@ -31,7 +27,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
-    tunnel_hallway_description(&desc);
+    tunnel_firewall_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
 
 
@@ -80,6 +76,11 @@ void tunnel_level_update(TunnelLevel* level){
         fw64_camera_update_projection_matrix(&level->chase_cam.camera);
     }
     player_update(&level->player);
+
+    if (level->player.node.transform.position.y < -30.0f) {
+        tunnel_level_kill_player(level);
+    }
+
     chase_camera_update(&level->chase_cam);
     fade_effect_update(&level->fade_effect, level->engine->time->time_delta);
     ui_update(&level->ui);
@@ -174,6 +175,10 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
 }
 
 void tunnel_level_kill_player(TunnelLevel* level) {
+    if (tunnel_level_player_is_dying(level)) {
+        return;
+    }
+
     level->player.process_input = 0;
     fade_effect_start(&level->fade_effect, FADE_IN, 0.35f);
 }

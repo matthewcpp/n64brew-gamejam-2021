@@ -44,7 +44,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     player->is_rolling = 0;
     player->roll_timer = 0.0f;
-    player->roll_timer_max = 1.0f;
+    player->roll_timer_max = 0.5f;
 
     player->mesh_index = 0;
 
