@@ -38,13 +38,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->height = PLAYER_DEFAULT_HEIGHT;
     player->radius = PLAYER_DEFAULT_RADIUS;
 
-    player->double_jumps = 0;
-    player->dashes = 0;
-    player->is_dashing = 0;
-
-    player->is_rolling = 0;
-    player->roll_timer = 0.0f;
-    player->roll_timer_max = 0.5f;
+    player->roll_timer_max = PLAYER_DEFAULT_ROLL_TIME;
 
     player->mesh_index = 0;
 
@@ -58,8 +52,6 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     player_reset(player);
 
-    player->roll_height = player->node.transform.position.y;
-
     sparkle_init(&player->sparkle, engine);
 
     shadow_init(&player->shadow, engine, NULL, &player->node.transform);
@@ -70,6 +62,13 @@ void player_reset(Player* player) {
     player->rotation = 0.0f;
     player->state = PLAYER_STATE_ON_GROUND;
     player->air_velocity = 0.0f;
+
+    // reset player abilities
+    player->double_jumps = 0;
+    player->dashes = 0;
+    player->is_dashing = 0;
+    player->is_rolling = 0;
+    player->roll_timer = 0.0f;
 
     quat_ident(&player->node.transform.rotation);
 
@@ -254,7 +253,6 @@ void process_input(Player* player) {
                 player->roll_timer = player->roll_timer_max; //roll time in seconds
                 fw64_transform_forward(&player->node.transform, &player->roll_direction);
                 player->roll_direction.y = 0;
-                player->roll_height = player->node.transform.position.y;
             }
         }
 
@@ -289,10 +287,6 @@ static Vec3 calculate_movement_vector(Player* player) {
 void update_position(Player* player) {
     player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
-
-    // if(player->is_rolling) {
-    //     position->y = player->roll_height;
-    // }
 
     Vec3 movement = calculate_movement_vector(player);
     vec3_add(position, position, &movement);
@@ -364,7 +358,7 @@ void player_calculate_size(Player* player) {
 #endif
 
 // This is not ideal, however the model as authored is oriented looking down +z, however in framework64 forward is -z
-// no luck fixing it in blender without messing up the rig so We apply a base rotation to the root of the node hierarchy to fix this
+// no luck fixing it in blender without messing up the rig so We apply a base rotation to the root of the joint hierarchy to fix this
 void player_tweak_root_animation_rotation(Player* player) {
     float fix_matrix[16];
     Quat q;

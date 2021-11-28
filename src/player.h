@@ -23,6 +23,8 @@
 #define PLAYER_DEFAULT_HEIGHT 10.0f
 #define PLAYER_DEFAULT_RADIUS 3.0f;
 
+#define PLAYER_DEFAULT_ROLL_TIME 0.5f
+
 typedef enum {
     PLAYER_STATE_ON_GROUND,
     PLAYER_STATE_FALLING
@@ -64,7 +66,6 @@ typedef struct {
     int is_rolling; //they hating
     float roll_timer, roll_timer_max;
     Vec3 roll_direction;
-    float roll_height;
     int process_input;
     int controller_num;
 
