@@ -5,6 +5,7 @@
 #include "hallway.h"
 #include "atrium.h"
 #include "lavapit.h"
+#include "firewall.h"
 
 #include "ui.h"
 #include "chase_camera.h"
@@ -15,6 +16,7 @@ typedef union {
     Hallway hallway;
     LavaPit lava_pit;
     Atrium atrium;
+    Firewall firewall;
 } SceneData;
 
 typedef struct {

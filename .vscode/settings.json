@@ -22,6 +22,8 @@
         "scene_manager.h": "c",
         "shadow.h": "c",
         "image.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "scene_firewall.h": "c",
+        "box.h": "c"
     }
 }

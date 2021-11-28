@@ -9,11 +9,9 @@ void shadow_init(Shadow* shadow, fw64Engine* engine, fw64Scene* scene, fw64Trans
     shadow->scene = scene;
     shadow->target = target;
     fw64_node_init(&shadow->node);
-
-    fw64Image* spritesheet = fw64_image_load(engine->assets, FW64_ASSET_image_shadow, NULL);
-    shadow->quad = textured_quad_create_with_image(engine, spritesheet, 0, NULL);
+    
+    shadow->quad = fw64_textured_quad_create(engine, FW64_ASSET_image_shadow, NULL);
     fw64Material* material = fw64_mesh_get_material_for_primitive(shadow->quad, 0);
-    fw64_material_set_texture_frame(material, 0);
     fw64_material_set_shading_mode(material, FW64_SHADING_MODE_DECAL_TEXTURE);
     
     shadow->is_active = 1;
