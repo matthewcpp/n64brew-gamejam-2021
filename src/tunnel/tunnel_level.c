@@ -27,7 +27,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
-    tunnel_firewall_description(&desc);
+    tunnel_hallway_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
 
 
