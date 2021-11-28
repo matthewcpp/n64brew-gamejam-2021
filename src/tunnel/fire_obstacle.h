@@ -4,23 +4,26 @@
 
 #define STATIC_FIRE_OBSTACLE_NODE_COUNT 4
 
+typedef enum  {
+    STATIC_FIRE_OBSTACLE_ROLL,
+    STATIC_FIRE_OBSTACLE_JUMP
+} StaticFireObstacleType;
+
 typedef struct {
+    StaticFireObstacleType type;
     Player* player;
     fw64Node nodes[STATIC_FIRE_OBSTACLE_NODE_COUNT];
     Box box;
+    int active;
 } StaticFireObstacle;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void fire_rolling_obstacle_init(StaticFireObstacle* obstacle, fw64Node* reference, Player* player, fw64Mesh* flame_mesh);
-int fire_rolling_obstacle_update(StaticFireObstacle* obstacle, float time_delta);
-
-void fire_jumping_obstacle_init(StaticFireObstacle* obstacle, fw64Node* reference, Player* player, fw64Mesh* flame_mesh);
-int fire_jumping_obstacle_update(StaticFireObstacle* obstacle, float time_delta);
-
-void draw_static_fire_obstacles(fw64Renderer* renderer, StaticFireObstacle* obstacles, int count);
+void static_fire_obstacle_init(StaticFireObstacle* obstacle, StaticFireObstacleType type, fw64Node* reference, Player* player, fw64Mesh* flame_mesh);
+int static_fire_obstacle_update(StaticFireObstacle* obstacle, float time_delta);
+void static_fire_obstacle_draw(StaticFireObstacle* obstacle, fw64Renderer* renderer);
 
 #ifdef __cplusplus
 }
