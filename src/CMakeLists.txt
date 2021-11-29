@@ -12,6 +12,9 @@ set(src_files
     trigger_box.h trigger_box.c
     ui.h ui.c
 
+    states/playing.h states/playing.c
+    states/title.h states/title.c
+
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/key.h tunnel/key.c
     tunnel/lavapit.h tunnel/lavapit.c
