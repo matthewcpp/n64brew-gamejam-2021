@@ -5,13 +5,22 @@
 void game_init(Game* game, fw64Engine* engine) {
     game->engine = engine;
     game->current_state = GAME_STATE_NONE;
+
+    game_state_data_init(&game->state_data);
+
     game_set_current_state(game, GAME_STATE_TITLE);
 }
 
 void game_update(Game* game){
+    if (game->state_data.transition_state != GAME_STATE_NONE) {
+        game_set_current_state(game, game->state_data.transition_state);
+        game->state_data.transition_state = GAME_STATE_NONE;
+    }
+
     switch(game->current_state) {
         case GAME_STATE_TITLE:
             title_screen_update(&game->states.title_screen);
+            break;
 
         case GAME_STATE_PLAYING:
             playing_state_update(&game->states.playing);
@@ -45,11 +54,11 @@ void game_set_current_state(Game* game, GameState next_state) {
 
         switch (game->current_state) {
         case GAME_STATE_TITLE:
-            title_screen_init(&game->states.title_screen, game->engine);
+            title_screen_init(&game->states.title_screen, game->engine, &game->state_data);
         break;
 
         case GAME_STATE_PLAYING:
-            playing_state_init(&game->states.playing, game->engine);
+            playing_state_init(&game->states.playing, game->engine, &game->state_data);
         break;
     }
 }

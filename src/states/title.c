@@ -4,8 +4,11 @@
 
 #include "framework64/n64/controller_button.h"
 
-void title_screen_init(TitleScreen* title_screen, fw64Engine* engine){
+void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateData* game_state){
         title_screen->engine = engine;
+        title_screen->game_state = game_state;
+
+        ui_navigation_init(&title_screen->ui_navigation, engine->input);
 
         title_screen->title_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_font, NULL);
         title_screen->menu_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_menu_font, NULL);
@@ -22,14 +25,19 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine){
         title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, NULL), NULL);
 }
 
-
-
 void title_screen_update(TitleScreen* title_screen){
-    if (title_screen->menu_selection == 0 && fw64_input_button_pressed(title_screen->engine->input, 0, FW64_N64_CONTROLLER_BUTTON_DPAD_DOWN)) {
+    ui_navigation_update(&title_screen->ui_navigation);
+
+    if (title_screen->menu_selection == 0 && ui_navigation_moved_down(&title_screen->ui_navigation)) {
         title_screen->menu_selection = 1;
     }
-    else if (fw64_input_button_pressed(title_screen->engine->input, 0, FW64_N64_CONTROLLER_BUTTON_DPAD_UP)) {
+    else if (ui_navigation_moved_up(&title_screen->ui_navigation)) {
         title_screen->menu_selection = 0;
+    }
+
+    if (ui_navigation_acceped(&title_screen->ui_navigation)) {
+        title_screen->game_state->transition_state = GAME_STATE_PLAYING;
+        title_screen->game_state->transition_level = LEVEL_TUNNEL;
     }
 }
 
@@ -65,8 +73,11 @@ void title_screen_draw(TitleScreen* title_screen){
 }
 
 void title_screen_uninit(TitleScreen* title_screen) {
+    fw64Image* indicators = fw64_texture_get_image(title_screen->indicator_texture);
+
     fw64_font_delete(title_screen->engine->assets, title_screen->title_font, NULL);
     fw64_font_delete(title_screen->engine->assets, title_screen->menu_font, NULL);
-    //fw64_image_delete(title_screen->engine->assets, title_screen->indicators, NULL);
+    fw64_image_delete(title_screen->engine->assets, indicators, NULL);
+    fw64_texture_delete(title_screen->indicator_texture, NULL);
 }
 

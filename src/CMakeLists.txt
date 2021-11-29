@@ -11,9 +11,11 @@ set(src_files
     scene_manager.h scene_manager.c
     trigger_box.h trigger_box.c
     ui.h ui.c
+    ui_navigation.h ui_navigation.c
 
     states/playing.h states/playing.c
     states/title.h states/title.c
+    states/gamestates.h states/gamestates.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/key.h tunnel/key.c

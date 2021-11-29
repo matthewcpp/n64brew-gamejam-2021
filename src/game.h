@@ -2,6 +2,7 @@
 
 #include "framework64/engine.h"
 
+#include "states/gamestates.h"
 #include "states/playing.h"
 #include "states/title.h"
 
@@ -11,16 +12,12 @@ typedef union {
     PlayingState playing;
 } States;
 
-typedef enum {
-    GAME_STATE_NONE,
-    GAME_STATE_TITLE,
-    GAME_STATE_PLAYING
-} GameState;
 
 typedef struct {
     fw64Engine* engine;
     GameState current_state;
     States states;
+    GameStateData state_data;
 } Game;
 
 #ifdef __cplusplus
