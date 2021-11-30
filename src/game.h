@@ -1,26 +1,23 @@
 #pragma once
 
 #include "framework64/engine.h"
-#include "tunnel/tunnel_level.h"
+
+#include "states/gamestates.h"
+#include "states/playing.h"
+#include "states/title.h"
+
 
 typedef union {
-    TunnelLevel tunnel_level;
-} Levels;
+    TitleScreen title_screen;
+    PlayingState playing;
+} States;
 
-typedef enum {
-    LEVEL_NONE,
-    LEVEL_TUNNEL
-} LevelId;
-
-typedef enum {
-    GAME_STATE_PLAYING
-} GameState;
 
 typedef struct {
     fw64Engine* engine;
-    GameState state;
-    Levels levels;
-    LevelId currentLevel;
+    GameState current_state;
+    States states;
+    GameStateData state_data;
 } Game;
 
 #ifdef __cplusplus
@@ -30,6 +27,8 @@ extern "C" {
 void game_init(Game* game, fw64Engine* engine);
 void game_update(Game* game);
 void game_draw(Game* game);
+
+void game_set_current_state(Game* game, GameState next_state);
 
 void game_set_current_level(Game* game, LevelId levelId);
 void game_update_playing(Game* game);
