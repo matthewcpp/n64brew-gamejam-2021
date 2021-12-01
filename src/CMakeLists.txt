@@ -18,7 +18,7 @@ set(src_files
     states/gamestates.h states/gamestates.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
-    tunnel/key.h tunnel/key.c
+    tunnel/girl.h tunnel/girl.c
     tunnel/lavapit.h tunnel/lavapit.c
     tunnel/hallway.h tunnel/hallway.c
     tunnel/firewall.h tunnel/firewall.c

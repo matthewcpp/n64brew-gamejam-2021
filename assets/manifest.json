@@ -60,16 +60,7 @@
             "src": "n64_logo_model/n64_logo.gltf"
         },
         {
-            "src": "penguin/penguin.gltf"
-        },
-        {
-            "src": "toad/toad.gltf"
-        },
-        {
-            "src": "boo/boo.gltf"
-        },
-        {
-            "src": "jack_o_lantern/jack_o_lantern.gltf"
+            "src": "girl/girl.gltf"
         }
         
     ],
@@ -179,7 +170,8 @@
             "nextscene": 100,
             "connector": 101,
             "key": 200,
-            "fire": 300
+            "fire": 300,
+            "girl": 400
         }
     ],
     "layerMaps": [
