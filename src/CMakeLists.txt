@@ -1,6 +1,8 @@
 set(src_files
+    animated_material_texture.h animated_material_texture.c
     chase_camera.h chase_camera.c
     enemy.h enemy.c
+    fade_effect.h fade_effect.c
     game.h game.c
     moving_platform.h moving_platform.c
     player.h player.c
@@ -9,11 +11,18 @@ set(src_files
     scene_manager.h scene_manager.c
     trigger_box.h trigger_box.c
     ui.h ui.c
+    ui_navigation.h ui_navigation.c
+
+    states/playing.h states/playing.c
+    states/title.h states/title.c
+    states/gamestates.h states/gamestates.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/key.h tunnel/key.c
     tunnel/lavapit.h tunnel/lavapit.c
     tunnel/hallway.h tunnel/hallway.c
+    tunnel/firewall.h tunnel/firewall.c
+    tunnel/fire_obstacle.h tunnel/fire_obstacle.c
     tunnel/atrium.h tunnel/atrium.c
     )
 

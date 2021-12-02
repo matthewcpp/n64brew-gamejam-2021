@@ -1,20 +1,19 @@
 #include "tunnel_level.h"
 
 #include "assets.h"
+#include "music_bank_music.h"
+#include "sound_bank_sound_effects.h"
 #include "scene_hallway.h"
 #include "typemap.h"
 
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
+static void on_fade_effect_complete(FadeDirection direction, void* arg);
 
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     level->engine = engine;
 
     player_init(&level->player, level->engine, NULL);
-    vec3_set_all(&level->player.node.transform.scale, 0.01f);
-  //level->player.jump_impulse = 16.0f;
-  //level->player.gravity = -38.0f;
-  //level->player.max_speed = 30.0f;
-  //level->player.acceleration = 14.0f;
+    vec3_set_all(&level->player.node.transform.scale, 0.02f);
     fw64_node_update(&level->player.node);
     player_calculate_size(&level->player);
     
@@ -33,6 +32,17 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
+
+    fade_effect_init(&level->fade_effect);
+    fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
+
+    level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects);
+    level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music);
+
+    fw64_audio_set_sound_bank(engine->audio, level->sound_bank);
+    fw64_audio_set_music_bank(engine->audio, level->music_bank);
+
+    fw64_audio_play_music(engine->audio, music_bank_music_runnyeye);
 
     level->debug = 1;
 }
@@ -66,7 +76,13 @@ void tunnel_level_update(TunnelLevel* level){
         fw64_camera_update_projection_matrix(&level->chase_cam.camera);
     }
     player_update(&level->player);
+
+    if (level->player.node.transform.position.y < -30.0f) {
+        tunnel_level_kill_player(level);
+    }
+
     chase_camera_update(&level->chase_cam);
+    fade_effect_update(&level->fade_effect, level->engine->time->time_delta);
     ui_update(&level->ui);
 }
 
@@ -75,6 +91,7 @@ void tunnel_level_draw(TunnelLevel* level) {
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_TRIANGLES, FW64_RENDERER_FLAG_CLEAR);
     scene_manager_draw(&level->scene_manager);
     player_draw(&level->player); // player is drawn last due to sparkle effect ignoring depth buffer
+    fade_effect_draw(&level->fade_effect, level->engine->renderer);
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_NOSWAP);
 
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
@@ -94,7 +111,7 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
         level->player.node.transform.position = search_node->transform.position;
     }
     
-    level->player.scene = scene;
+    player_set_scene(&level->player, scene);
 
     search_node = NULL;
     fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
@@ -121,6 +138,13 @@ void tunnel_level_load_next(TunnelLevel* level) {
         
         case FW64_ASSET_scene_lavapit: {
             SceneDescription desc;
+            tunnel_firewall_description(&desc);
+            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
+            break;
+        }
+
+        case FW64_ASSET_scene_firewall: {
+            SceneDescription desc;
             tunnel_atrium_description(&desc);
             scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
@@ -131,11 +155,34 @@ void tunnel_level_load_next(TunnelLevel* level) {
     }
 }
 
-void tunnel_level_kill_player(TunnelLevel* level) {
-    SceneRef* current = scene_manager_get_current(&level->scene_manager);
-    fw64Node* start_node;
+void on_fade_effect_complete(FadeDirection direction, void* arg) {
+    TunnelLevel* level = (TunnelLevel*)arg;
 
-    if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
-        player_reset_at_position(&level->player, &start_node->transform.position);
+    if (direction == FADE_IN) {
+            SceneRef* current = scene_manager_get_current(&level->scene_manager);
+            fw64Node* start_node;
+
+            if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
+                player_reset_at_position(&level->player, &start_node->transform.position);
+            }
+
+            fade_effect_start(&level->fade_effect, FADE_OUT, 2.0f);
+            fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_respawn);
     }
+    if (direction == FADE_OUT) {
+        level->player.process_input = 1;
+    }
+}
+
+void tunnel_level_kill_player(TunnelLevel* level) {
+    if (tunnel_level_player_is_dying(level)) {
+        return;
+    }
+
+    level->player.process_input = 0;
+    fade_effect_start(&level->fade_effect, FADE_IN, 0.35f);
+}
+
+int tunnel_level_player_is_dying(TunnelLevel* level) {
+    return fade_effect_is_active(&level->fade_effect);
 }

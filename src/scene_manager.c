@@ -62,19 +62,26 @@ void scene_manager_draw(SceneManager* scene_manager) {
     SceneRef* current_scene = CURRENT_SCENE_REF(scene_manager);
     SceneRef* next_scene = NEXT_SCENE_REF(scene_manager);
 
-    if (current_scene->scene) {
-        fw64_scene_draw_all(current_scene->scene, renderer);
+    fw64Frustum frustum;
+    fw64_camera_extract_frustum_planes(fw64_renderer_get_camera(renderer), &frustum);
 
-        if (current_scene->desc.draw_func) {
-            current_scene->desc.draw_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+    if (current_scene->scene) {
+        if (fw64_frustum_intersects_box(&frustum, fw64_scene_get_initial_bounds(current_scene->scene))) {
+            fw64_scene_draw_all(current_scene->scene, renderer);
+
+            if (current_scene->desc.draw_func) {
+                current_scene->desc.draw_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+            }
         }
     }
         
     if (next_scene->scene) {
-        fw64_scene_draw_all(next_scene->scene, renderer);
+        if (fw64_frustum_intersects_box(&frustum, fw64_scene_get_initial_bounds(next_scene->scene))) {
+            fw64_scene_draw_all(next_scene->scene, renderer);
 
-        if (next_scene->desc.draw_func) {
-            next_scene->desc.draw_func(scene_manager->level_arg, next_scene->scene, next_scene->data);
+            if (next_scene->desc.draw_func) {
+                next_scene->desc.draw_func(scene_manager->level_arg, next_scene->scene, next_scene->data);
+            }
         }
     }
 }

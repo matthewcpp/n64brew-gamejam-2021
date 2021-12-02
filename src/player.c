@@ -1,15 +1,23 @@
 #include "player.h"
 
 #include "assets.h"
+#include "sound_bank_sound_effects.h"
+#include "catherine_animation.h"
 
 #include "layermap.h"
 
 #include "framework64/n64/controller_button.h"
+#include "framework64/matrix.h"
+
+
 
 #include <stdio.h>
+#include <string.h>
 
 static void process_input(Player* player);
 static void update_position(Player* player);
+
+static void player_tweak_root_animation_rotation(Player* player);
 
 void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->engine = engine;
@@ -30,29 +38,23 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->height = PLAYER_DEFAULT_HEIGHT;
     player->radius = PLAYER_DEFAULT_RADIUS;
 
-    player->double_jumps = 0;
-    player->dashes = 0;
-    player->is_dashing = 0;
-
-    player->is_rolling = 0;
-    player->roll_timer = 0.0f;
-    player->roll_timer_max = 1.0f;
+    player->roll_timer_max = PLAYER_DEFAULT_ROLL_TIME;
 
     player->mesh_index = 0;
-    player->meshes[0] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_penguin, NULL);
-    player->meshes[1] = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_toad, NULL);
 
     fw64_node_init(&player->node);
-    fw64_node_set_mesh(&player->node,  player->meshes[player->mesh_index]);
+    fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, NULL);
+    player->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine, NULL);
+    fw64_animation_controller_init(&player->animation_controller, player->animation_data, -1, NULL);
+    player_tweak_root_animation_rotation(player);
+    fw64_node_set_mesh(&player->node,  player_mesh);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
     player_reset(player);
 
-    player->roll_height = player->node.transform.position.y;
-
     sparkle_init(&player->sparkle, engine);
 
-    shadow_init(&player->shadow, engine);
+    shadow_init(&player->shadow, engine, NULL, &player->node.transform);
 }
 
 void player_reset(Player* player) {
@@ -61,9 +63,20 @@ void player_reset(Player* player) {
     player->state = PLAYER_STATE_ON_GROUND;
     player->air_velocity = 0.0f;
 
+    // reset player abilities
+    player->double_jumps = 0;
+    player->dashes = 0;
+    player->is_dashing = 0;
+    player->is_rolling = 0;
+    player->roll_timer = 0.0f;
+
     quat_ident(&player->node.transform.rotation);
 
     fw64_node_update(&player->node);
+
+    fw64_animation_controller_set_animation(&player->animation_controller, catherine_animation_Idle);
+    player->animation_controller.speed = 0.25f;
+    fw64_animation_controller_play(&player->animation_controller);
 }
 
 void player_reset_at_position(Player* player, Vec3* position) {
@@ -73,40 +86,29 @@ void player_reset_at_position(Player* player, Vec3* position) {
     player_reset(player);
 }
 
-void player_update(Player* player) {
-    if (player->process_input)
-        process_input(player);
+void player_set_scene(Player* player, fw64Scene* scene) {
+    player->scene = scene;
+    player->shadow.scene = scene;
+}
 
-    update_position(player);
+static void update_player_swap(Player* player) {
+    float switch_time = SPARKLE_DURATION / 2.0f;
 
-    player->sparkle.node.transform.position = player->node.transform.position;
-    sparkle_update(&player->sparkle);
-    
-    
-    //update shadow
-    Vec3 vec_down = { 0.0f, -1.0f, 0.0f };
-    fw64RaycastHit ray_hit;
-    float max_shadow_dist = 20.0f;
-    fw64_scene_raycast(player->scene, &player->node.transform.position, &vec_down, NODE_LAYER_GROUND, &ray_hit);
-    if(ray_hit.distance < max_shadow_dist) {
-        player->shadow.is_active = 1;
-        player->shadow.node.transform.position = player->node.transform.position;
-        player->shadow.node.transform.position.y -= ray_hit.distance;
-        player->shadow.node.transform.scale.x = 1.0f;
-        player->shadow.node.transform.scale.y = 1.0f;
-        player->shadow.node.transform.scale.z = 1.0f;
-        float shadow_scalar = (ray_hit.distance / max_shadow_dist);
-        shadow_scalar *= shadow_scalar;
-        shadow_scalar = 1.0f - shadow_scalar;
-        vec3_scale(&player->shadow.node.transform.scale, &player->shadow.node.transform.scale, shadow_scalar);
+    if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
+        player->mesh_index = player->mesh_index == 0 ? 1 : 0;
+
+        if(player->mesh_index == 0) {
+            player->dashes = 1;
+            player->double_jumps = 0;
+        }
+        else {
+            player->dashes = 0;
+            player->double_jumps = 1;
+        }
     }
-    else {
-        player->shadow.is_active = 0;
-    }
+}
 
-    //roll character model
-    if(player->is_rolling) {
-
+static void update_roll(Player* player) {
         Quat rotation;
         quat_from_euler(&rotation, player->engine->time->time_delta * (-360.0f / player->roll_timer_max), 0, 0);
 
@@ -128,33 +130,68 @@ void player_update(Player* player) {
         rw = aw * bw - ax * bx - ay * by - az * bz;
 
         quat_set(&player->node.transform.rotation, rx, ry, rz, rw);
+}
+
+static void update_animation(Player* player) {
+    if (player->speed == 0.0f) {
+        if (player->animation_controller.current_animation != fw64_animation_data_get_animation(player->animation_data, catherine_animation_Idle)) {
+            fw64_animation_controller_set_animation(&player->animation_controller, catherine_animation_Idle);
+            player->animation_controller.speed = 0.25f;
+        }
+    }
+    else {
+        if (player->animation_controller.current_animation != fw64_animation_data_get_animation(player->animation_data, catherine_animation_Run)) {
+            fw64_animation_controller_set_animation(&player->animation_controller, catherine_animation_Run);
+            player->animation_controller.speed = 1.0f;
+        }
+    }
         
+
+    fw64_animation_controller_update(&player->animation_controller, player->engine->time->time_delta);
+}
+
+void player_update(Player* player) {
+    if (player->process_input)
+        process_input(player);
+
+    update_position(player);
+
+    player->sparkle.node.transform.position = player->node.transform.position;
+    sparkle_update(&player->sparkle);
+    
+    shadow_update(&player->shadow);
+
+    if(player->is_rolling) {
+        update_roll(player);
     }    
     
-    //update player swap
     if (player->sparkle.is_active) {
-        float switch_time = SPARKLE_DURATION / 2.0f;
+        update_player_swap(player);
+    }
 
-        if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
-            player_switch_mesh(player);
+    update_animation(player);
+}
 
-            if(player->mesh_index == 0) {
-                player->dashes = 1;
-                player->double_jumps = 0;
-            }
-            else {
-                player->dashes = 0;
-                player->double_jumps = 1;
-            }
+static void player_update_stick(Player* player) {
+    Vec2 stick;
+    fw64_input_stick(player->engine->input, 0, &stick);
 
-        }
+    if (stick.y >= PLAYER_STICK_THRESHOLD || stick.y <= -PLAYER_STICK_THRESHOLD ||
+        stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick y axis, move forward/backward
+            player->rotation = atan2(stick.y, stick.x) * (180.0f / M_PI) - 90.0f;
+
+    quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
+
+        player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
+    }
+    else { //apply friction
+        float decel = player->deceleration * player->engine->time->time_delta;
+        if (player->speed > 0.0f)
+            player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
     }
 }
 
 void process_input(Player* player) {
-    Vec2 stick;
-    fw64_input_stick(player->engine->input, 0, &stick);
-
     if(player->is_dashing) //dashing mechanic
     {
         if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) {
@@ -185,32 +222,7 @@ void process_input(Player* player) {
     }
     else
     {
-        if (stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick x axis, rotate camera
-            float rotation_delta = PLAYER_DEFAULT_ROTATION_SPEED * player->engine->time->time_delta;
-
-            if (stick.x >= PLAYER_STICK_THRESHOLD) {
-                player->rotation -= rotation_delta;
-            }
-            else if (stick.x <= -PLAYER_STICK_THRESHOLD) {
-                player->rotation += rotation_delta;
-            }            
-        }
-
-        quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
-
-        if (stick.y >= PLAYER_STICK_THRESHOLD ) { //joystick y axis, move forward/backward
-            player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
-        }
-        else if (stick.y <= -PLAYER_STICK_THRESHOLD) {
-            player->speed = fminf(fmaxf(player->speed - player->acceleration * player->engine->time->time_delta, -player->max_speed), player->max_speed * -0.5f);
-        }
-        else { //apply friction
-            float decel = player->deceleration * player->engine->time->time_delta;
-            if (player->speed > 0.0f)
-                player->speed = fminf(fmaxf(player->speed - decel, 0.0f), player->max_speed * 0.5f);
-            else if (player->speed < 0.0f)
-                player->speed = fmaxf(fminf(player->speed + decel, 0.0f), player->max_speed * -0.5f);
-        }
+        player_update_stick(player);
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_A)) { //jump
             if (player->state == PLAYER_STATE_ON_GROUND) {
@@ -229,6 +241,7 @@ void process_input(Player* player) {
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) { //dash or roll
             if(player->dashes > 0) {
+                fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_dash);
                 player->speed = player->dash_speed;
                 player->is_dashing = 1;
                 player->air_velocity = 0;
@@ -240,21 +253,14 @@ void process_input(Player* player) {
                 player->roll_timer = player->roll_timer_max; //roll time in seconds
                 fw64_transform_forward(&player->node.transform, &player->roll_direction);
                 player->roll_direction.y = 0;
-                player->roll_height = player->node.transform.position.y;
             }
         }
 
         if (fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
+            fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_swap);
             sparkle_start(&player->sparkle);
         }
-
     }
-    
-    
-    
-
-
-        
 }
 
 static Vec3 calculate_movement_vector(Player* player) {
@@ -282,10 +288,6 @@ void update_position(Player* player) {
     player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
 
-    // if(player->is_rolling) {
-    //     position->y = player->roll_height;
-    // }
-
     Vec3 movement = calculate_movement_vector(player);
     vec3_add(position, position, &movement);
 
@@ -305,7 +307,7 @@ void update_position(Player* player) {
             vec3_subtract(&direction, &query_center, &hit->point);
             vec3_normalize(&direction);
             
-            int is_grounded = (hit->node->layer_mask & NODE_LAYER_GROUND) || direction.y > 0.9f;
+            int is_grounded = (direction.y > direction.x && direction.y > direction.z);
 
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
@@ -337,7 +339,7 @@ void update_position(Player* player) {
 }
 
 void player_draw(Player* player) {
-    fw64_renderer_draw_static_mesh(player->engine->renderer, &player->node.transform, player->node.mesh);
+    fw64_renderer_draw_animated_mesh(player->engine->renderer, player->node.mesh, &player->animation_controller, &player->node.transform);
     shadow_draw(&player->shadow);
     sparkle_draw(&player->sparkle);
 }
@@ -351,9 +353,23 @@ void player_calculate_size(Player* player) {
     vec3_set_all(&player->sparkle.node.transform.scale, 5);
 }
 
-void player_switch_mesh(Player* player) {
-    player->mesh_index = player->mesh_index == 0 ? 1 : 0;
-    fw64_node_set_mesh(&player->node, player->meshes[player->mesh_index]);
-    fw64_node_update(&player->node);
-    player_calculate_size(player);
+#ifdef PLATFORM_N64
+#include <nusys.h>
+#endif
+
+// This is not ideal, however the model as authored is oriented looking down +z, however in framework64 forward is -z
+// no luck fixing it in blender without messing up the rig so We apply a base rotation to the root of the joint hierarchy to fix this
+void player_tweak_root_animation_rotation(Player* player) {
+    float fix_matrix[16];
+    Quat q;
+    quat_set_axis_angle(&q, 0.0f, 1.0f, 0.0f, M_PI);
+    matrix_from_quat(&fix_matrix[0], &q);
+
+    fw64Matrix* root_matrix = player->animation_controller.matrices;
+
+    #ifdef PLATFORM_N64
+        guMtxF2L((float (*)[4])fix_matrix, root_matrix);
+    #else
+        memcpy(&root_matrix->m[0], fix_matrix, sizeof(float) * 16);
+    #endif
 }

@@ -1,12 +1,13 @@
 #pragma once
 
+#include "framework64/animation_controller.h"
+#include "framework64/animation_data.h"
 #include "framework64/engine.h"
 #include "framework64/node.h"
 #include "framework64/scene.h"
 
 #include "sparkle.h"
 #include "shadow.h"
-
 
 #define PLAYER_DEFAULT_ACCELERATION 50.0f
 #define PLAYER_DEFAULT_DECELERATION 50.0f
@@ -17,10 +18,12 @@
 #define PLAYER_DEFAULT_JUMP_VELOCITY 25.0f
 #define PLAYER_DEFAULT_GRAVITY (-50.0f)
 
-#define PLAYER_STICK_THRESHOLD 0.15f
+#define PLAYER_STICK_THRESHOLD 0.25f
 
 #define PLAYER_DEFAULT_HEIGHT 10.0f
 #define PLAYER_DEFAULT_RADIUS 3.0f;
+
+#define PLAYER_DEFAULT_ROLL_TIME 0.5f
 
 typedef enum {
     PLAYER_STATE_ON_GROUND,
@@ -33,8 +36,10 @@ typedef struct {
     fw64Engine* engine;
     fw64Scene* scene;
 
+    fw64AnimationData* animation_data;
+    fw64AnimationController animation_controller;
+
     int mesh_index;
-    fw64Mesh* meshes[2];
 
     Vec3 previous_position;
 
@@ -61,14 +66,12 @@ typedef struct {
     int is_rolling; //they hating
     float roll_timer, roll_timer_max;
     Vec3 roll_direction;
-    float roll_height;
     int process_input;
     int controller_num;
 
     Sparkle sparkle;
     Shadow shadow;
     fw64Node* ground_node;
-
 } Player;
 
 #ifdef __cplusplus
@@ -80,6 +83,7 @@ void player_update(Player* player);
 void player_draw(Player* player);
 
 void player_reset(Player* player);
+void player_set_scene(Player* player, fw64Scene* scene);
 void player_reset_at_position(Player* player, Vec3* position);
 void player_calculate_size(Player* player);
 void player_switch_mesh(Player* player);

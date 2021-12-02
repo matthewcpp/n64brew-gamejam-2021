@@ -9,8 +9,51 @@
             "src": "shadow.png",
             "hslices": 1,
             "vslices": 1
+        },
+        {
+            "name": "lava_sprite",
+            "frames": [
+                "lava/lava_02.png",
+                "lava/lava_03.png",
+                "lava/lava_04.png",
+                "lava/lava_05.png",
+                "lava/lava_06.png",
+                "lava/lava_07.png",
+                "lava/lava_08.png",
+                "lava/lava_09.png",
+                "lava/lava_10.png",
+                "lava/lava_11.png"
+            ],
+            "hslices": 10,
+            "vslices": 1,
+            "frameSize": "128x128",
+            "resize": "320x32"
+        },
+        {
+            "name": "fire_sprite",
+            "frames": [
+                "fire_sprite/fireB0001.png",
+                "fire_sprite/fireB0003.png",
+                "fire_sprite/fireB0005.png",
+                "fire_sprite/fireB0009.png",
+                "fire_sprite/fireB0011.png",
+                "fire_sprite/fireB0015.png",
+                "fire_sprite/fireB0017.png",
+                "fire_sprite/fireB0021.png",
+                "fire_sprite/fireB0023.png",
+                "fire_sprite/fireB0025.png"
+            ],
+            "hslices": 10,
+            "vslices": 1,
+            "frameSize": "128x128",
+            "resize": "320x32",
+            "format": "rgba32"
+        },
+        {
+            "src": "title_indicator.png",
+            "hslices": 2,
+            "vslices": 1
         }
-        
     ],
     "meshes": [
         {
@@ -30,16 +73,84 @@
         }
         
     ],
+    "skinnedMeshes": [
+        {
+            "src": "catherine/catherine.gltf",
+            "animations": [
+                "Idle",
+                "Run",
+                "Walk"
+            ]
+        }
+    ],
     "fonts": [
         {
             "src": "Consolas.ttf",
             "size": 12,
             "name": "Consolas12"
+        },
+        {
+            "image": {
+                "name": "title_font_image",
+                "frames": [
+                    "fire_font/let_sp.png",
+                    "fire_font/let_c.png",
+                    "fire_font/let_e.png",
+                    "fire_font/let_i.png",
+                    "fire_font/let_l.png",
+                    "fire_font/let_n.png",
+                    "fire_font/let_r.png",
+                    "fire_font/let_s.png",
+                    "fire_font/let_t.png"
+                ],
+                "frameSize": "32x32",
+                "hslices": 3,
+                "vslices": 3
+            },
+            "name": "title_font",
+            "sourceString": " ceilnrst"
+        },
+                {
+            "image": {
+                "name": "title_menu_font_image",
+                "frames": [
+                    "fire_font/let_sp.png",
+                    "fire_font/let_a.png",
+                    "fire_font/let_b.png",
+                    "fire_font/let_c.png",
+                    "fire_font/let_e.png",
+                    "fire_font/let_g.png",
+                    "fire_font/let_i.png",
+                    "fire_font/let_l.png",
+                    "fire_font/let_m.png",
+                    "fire_font/let_n.png",
+                    "fire_font/let_p.png",
+                    "fire_font/let_r.png",
+                    "fire_font/let_s.png",
+                    "fire_font/let_t.png",
+                    "fire_font/let_u.png",
+                    "fire_font/let_y.png"
+                ],
+                "frameSize": "32x32",
+                "resize": "64x64",
+                "hslices": 4,
+                "vslices": 4
+            },
+            "name": "title_menu_font",
+            "sourceString": " abcegilmnprstuy"
         }
     ],
     "soundBanks": [
+        {
+            "name": "sound_effects",
+            "dir": "sound_effects"
+        }
     ],
     "musicBanks": [
+        {
+            "name": "music",
+            "dir": "music"
+        }
     ],
     "levels": [
         {
@@ -62,7 +173,8 @@
             "platformtarget": 26,
             "nextscene": 100,
             "connector": 101,
-            "key": 200
+            "key": 200,
+            "fire": 300
         }
     ],
     "layerMaps": [
