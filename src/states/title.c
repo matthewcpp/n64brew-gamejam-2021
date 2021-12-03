@@ -35,7 +35,7 @@ void title_screen_update(TitleScreen* title_screen){
         title_screen->menu_selection = 0;
     }
 
-    if (ui_navigation_acceped(&title_screen->ui_navigation)) {
+    if (ui_navigation_accepted(&title_screen->ui_navigation)) {
         title_screen->game_state->transition_state = GAME_STATE_PLAYING;
         title_screen->game_state->transition_level = LEVEL_TUNNEL;
     }

@@ -6,29 +6,70 @@
 
 void ui_navigation_init(UiNavigation* ui, fw64Input* input) {
     ui->input = input;
-
-    fw64_input_stick(ui->input, 0, &ui->current_stick);
-    ui->previous_stick = ui->current_stick;
+    for(int i = 0; i < 4; i++) {
+        ui->connected_controllers[i] = fw64_input_controller_is_connected(ui->input, i);
+        if(ui->connected_controllers[i]) {
+            fw64_input_stick(ui->input, i, &ui->current_stick[i]);
+        }
+        else {
+            ui->current_stick[i].x = 0;
+            ui->current_stick[i].y = 0;
+        }
+        ui->previous_stick[i] = ui->current_stick[i];
+    }
 }
 
 void ui_navigation_update(UiNavigation* ui) {
-    ui->previous_stick = ui->current_stick;
-    fw64_input_stick(ui->input, 0, &ui->current_stick);
+    for(int i = 0; i < 4; i++) {
+        ui->previous_stick[i] = ui->current_stick[i];
+        ui->connected_controllers[i] = fw64_input_controller_is_connected(ui->input, i);
+        if(ui->connected_controllers[i]) {
+            fw64_input_stick(ui->input, i, &ui->current_stick[i]);            
+        }
+        else {
+            ui->current_stick[i].x = 0;
+            ui->current_stick[i].y = 0;
+        }
+    }
 }
 
 int ui_navigation_moved_up(UiNavigation* ui) {
-    return ui->previous_stick.y < STICK_THRESHOLD && ui->current_stick.y > STICK_THRESHOLD ||
-    fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_C_UP) || 
-    fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_DPAD_UP);
+
+    int moved_up = 0;
+
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            moved_up |= (ui->previous_stick[i].y < STICK_THRESHOLD && ui->current_stick[i].y > STICK_THRESHOLD ||
+                        fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_C_UP) || 
+                        fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_DPAD_UP));        
+        }
+    }
+    return moved_up;
 }
 
 int ui_navigation_moved_down(UiNavigation* ui) {
-    return ui->previous_stick.y > -STICK_THRESHOLD && ui->current_stick.y < -STICK_THRESHOLD ||
-    fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_C_DOWN) || 
-    fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_DPAD_DOWN);
+
+    int moved_down = 0;
+
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            moved_down |=   (ui->previous_stick[i].y > -STICK_THRESHOLD && ui->current_stick[i].y < -STICK_THRESHOLD ||
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_C_DOWN) || 
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_DPAD_DOWN));        
+        }
+    }
+    return moved_down;
 }
 
-int ui_navigation_acceped(UiNavigation* ui) {
-    return fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_A) || 
-    fw64_input_button_pressed(ui->input, 0, FW64_N64_CONTROLLER_BUTTON_START);
+int ui_navigation_accepted(UiNavigation* ui) {
+
+    int accepted = 0;
+
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            accepted |=     (fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_A) || 
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_START));        
+        }
+    }
+    return accepted;
 }
