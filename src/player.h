@@ -8,6 +8,7 @@
 
 #include "sparkle.h"
 #include "shadow.h"
+#include "game_settings.h"
 
 #define PLAYER_DEFAULT_ACCELERATION 50.0f
 #define PLAYER_DEFAULT_DECELERATION 50.0f
@@ -72,6 +73,7 @@ typedef struct {
     Sparkle sparkle;
     Shadow shadow;
     fw64Node* ground_node;
+    GameSettings* settings;
 } Player;
 
 #ifdef __cplusplus
@@ -87,6 +89,7 @@ void player_set_scene(Player* player, fw64Scene* scene);
 void player_reset_at_position(Player* player, Vec3* position);
 void player_calculate_size(Player* player);
 void player_switch_mesh(Player* player);
+void player_set_game_settings(Player* player, GameSettings* settings);
 
 #ifdef __cplusplus
 }

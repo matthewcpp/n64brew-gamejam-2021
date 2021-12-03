@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "game_settings.h"
 
 #include "hallway.h"
 #include "atrium.h"
@@ -21,6 +21,7 @@ typedef union {
 
 typedef struct {
     fw64Engine* engine;
+    GameSettings* game_settings;
     Player player;
     UI ui;
     ChaseCamera chase_cam;
@@ -41,6 +42,7 @@ void tunnel_level_uninit(TunnelLevel* level);
 void tunnel_level_update(TunnelLevel* level);
 void tunnel_level_draw(TunnelLevel* level);
 
+void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings);
 void tunnel_level_load_next(TunnelLevel* level);
 int tunnel_level_player_is_dying(TunnelLevel* level);
 void tunnel_level_kill_player(TunnelLevel* level);

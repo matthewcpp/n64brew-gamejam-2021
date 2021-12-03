@@ -14,7 +14,7 @@ typedef struct {
     fw64Font* menu_font;
     fw64Texture* indicator_texture;
     int menu_selection ;
-    IVec2 measurements[4];
+    IVec2 measurements[9];
 } TitleScreen;
 
 #ifdef __cplusplus

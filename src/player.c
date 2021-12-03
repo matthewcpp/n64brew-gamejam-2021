@@ -15,6 +15,7 @@
 #include <string.h>
 
 static void process_input(Player* player);
+static void update_controller_num(Player* player);
 static void update_position(Player* player);
 
 static void player_tweak_root_animation_rotation(Player* player);
@@ -22,6 +23,7 @@ static void player_tweak_root_animation_rotation(Player* player);
 void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->engine = engine;
     player->scene = scene;
+    player->settings = NULL;
 
     player->jump_impulse = PLAYER_DEFAULT_JUMP_VELOCITY;
     player->gravity = PLAYER_DEFAULT_GRAVITY;
@@ -174,7 +176,7 @@ void player_update(Player* player) {
 
 static void player_update_stick(Player* player) {
     Vec2 stick;
-    fw64_input_stick(player->engine->input, 0, &stick);
+    fw64_input_stick(player->engine->input, player->controller_num, &stick);
 
     if (stick.y >= PLAYER_STICK_THRESHOLD || stick.y <= -PLAYER_STICK_THRESHOLD ||
         stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick y axis, move forward/backward
@@ -191,7 +193,96 @@ static void player_update_stick(Player* player) {
     }
 }
 
+void update_controller_num(Player* player) {
+    if(player->settings == NULL) {
+        player->controller_num = 0; //no settings to go off of. use 0 as sane default
+        return;
+    }
+
+    switch(player->settings->control_mode)
+    {
+        case CONTROL_MODE_SINGLE: {
+            //single player mode. use the current controller if it's detected.
+            //if not, use the lowest detected controller number.
+            //if not controllers detected, default to 0.
+            if(fw64_input_controller_is_connected(player->engine->input, player->controller_num))
+                return;
+            for(int i = 0; i < 4; i++) {
+                if(fw64_input_controller_is_connected(player->engine->input, i)) {
+                    player->controller_num = i;
+                    return;
+                }
+            }
+            //todo: if we get to this, we don't have enough controllers plugged in.
+            //      should pause and say "controller disconnected" or something
+            player->controller_num = 0;
+            return;
+        }
+        case CONTROL_MODE_MULTI_TIMER: {
+            //multiplayer mode
+            //requires at least 2 controllers
+            //active controller changes on a fixed timer
+            static float dt = 0.0f;
+            dt += player->engine->time->time_delta;
+            if(dt >= player->settings->control_transfer_time)
+            {
+                dt -= player->settings->control_transfer_time;
+
+                for(int i = 1; i < 4; i++) {
+                    if(fw64_input_controller_is_connected(player->engine->input, ((player->controller_num + i) % 4))) {
+                        player->controller_num = (player->controller_num + i) % 4;
+                        return;
+                    }
+                }
+
+                //todo: if we get to this, we don't have enough controllers plugged in.
+                //      should pause and say "controller disconnected" or something
+                player->controller_num = (player->controller_num + 1) % 4;
+            }
+            return;
+        }
+        case CONTROL_MODE_MULTI_ONPRESS: {
+            //multiplayer mode
+            //requires at least 2 controllers
+            //active controller changes when Z is pressed
+
+            if(player->sparkle.is_active)
+                return;
+
+            //if Z pressed by active controller, move to next available controller
+            if(fw64_input_button_pressed(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_Z)) {
+                for(int i = 1; i < 4; i++) {
+                    if(fw64_input_controller_is_connected(player->engine->input, ((player->controller_num + i) % 4))) {
+                        player->controller_num = (player->controller_num + i) % 4;
+                        return;
+                    }
+                }
+            }
+            else { //else if any other controller presses Z, switch to THAT controller
+                for(int i = 1; i < 4; i++) {
+                    if(fw64_input_controller_is_connected(player->engine->input, ((player->controller_num + i) % 4))) {
+                        if(fw64_input_button_pressed(player->engine->input, ((player->controller_num + i) % 4), FW64_N64_CONTROLLER_BUTTON_Z)) {
+                            player->controller_num = (player->controller_num + i) % 4;
+                            return;
+                        }
+                    }
+                }
+            }
+
+            return;
+        }
+        default: { //something went very wrong. just default to 0
+            player->controller_num = 0;
+            return;
+        }
+    }
+}
+
 void process_input(Player* player) {
+
+    int prev_controller_num = player->controller_num;
+    update_controller_num(player);
+
     if(player->is_dashing) //dashing mechanic
     {
         if(fw64_input_button_released(player->engine->input, player->controller_num, FW64_N64_CONTROLLER_BUTTON_B)) {
@@ -260,6 +351,13 @@ void process_input(Player* player) {
             fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_swap);
             sparkle_start(&player->sparkle);
         }
+        if((prev_controller_num != player->controller_num) && player->settings->control_mode == CONTROL_MODE_MULTI_ONPRESS) {
+                if (fw64_input_button_pressed(player->engine->input, prev_controller_num, FW64_N64_CONTROLLER_BUTTON_Z) && !player->sparkle.is_active) { //swap character
+                fw64_audio_play_sound(player->engine->audio, sound_bank_sound_effects_swap);
+                sparkle_start(&player->sparkle);
+            }
+        }
+        
     }
 }
 
@@ -372,4 +470,8 @@ void player_tweak_root_animation_rotation(Player* player) {
     #else
         memcpy(&root_matrix->m[0], fix_matrix, sizeof(float) * 16);
     #endif
+}
+
+void player_set_game_settings(Player* player, GameSettings* settings) {
+    player->settings = settings;
 }

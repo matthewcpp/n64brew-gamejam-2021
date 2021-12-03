@@ -12,6 +12,8 @@ static void on_fade_effect_complete(FadeDirection direction, void* arg);
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
     level->engine = engine;
 
+    level->game_settings = NULL;
+
     player_init(&level->player, level->engine, NULL);
     vec3_set_all(&level->player.node.transform.scale, 0.02f);
     fw64_node_update(&level->player.node);
@@ -120,6 +122,11 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
 
 void tunnel_level_uninit(TunnelLevel* level) {
     fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
+}
+
+void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings) {
+    level->game_settings = settings;    
+    level->player.settings = settings;
 }
 
 void tunnel_level_load_next(TunnelLevel* level) {

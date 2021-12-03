@@ -21,6 +21,11 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
         title_screen->measurements[1] = fw64_font_measure_text(title_screen->title_font, "screen");
         title_screen->measurements[2] = fw64_font_measure_text(title_screen->menu_font, "single player");
         title_screen->measurements[3] = fw64_font_measure_text(title_screen->menu_font, "multiplayer");
+        title_screen->measurements[4] = fw64_font_measure_text(title_screen->menu_font, "controlled");
+        title_screen->measurements[5] = fw64_font_measure_text(title_screen->menu_font, "fixed");
+        title_screen->measurements[6] = fw64_font_measure_text(title_screen->menu_font, "fast");
+        title_screen->measurements[7] = fw64_font_measure_text(title_screen->menu_font, "med");
+        title_screen->measurements[8] = fw64_font_measure_text(title_screen->menu_font, "slow");
 
         title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, NULL), NULL);
 }
@@ -36,6 +41,7 @@ void title_screen_update(TitleScreen* title_screen){
     }
 
     if (ui_navigation_accepted(&title_screen->ui_navigation)) {
+        title_screen->game_state->settings.control_mode = title_screen->menu_selection;
         title_screen->game_state->transition_state = GAME_STATE_PLAYING;
         title_screen->game_state->transition_level = LEVEL_TUNNEL;
     }

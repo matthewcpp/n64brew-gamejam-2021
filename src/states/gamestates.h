@@ -1,5 +1,7 @@
 #pragma once
 
+#include "game_settings.h"
+
 typedef enum {
     GAME_STATE_NONE,
     GAME_STATE_TITLE,
@@ -17,6 +19,8 @@ typedef struct {
 
     /** set this to the level you want to load on the next update frame */
     LevelId transition_level;
+
+    GameSettings settings;
 } GameStateData;
 
 #ifdef __cplusplus
