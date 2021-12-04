@@ -134,8 +134,11 @@ static void read_next_character(DialogueWindow* window) {
         window->status = DIALOGUE_WINDOW_STATUS_WAITING;
         return;
     }
-
-    char ch = window->dialogue_data[window->current_data_index++];
+    char ch;
+    do {
+        ch = window->dialogue_data[window->current_data_index++];
+    } while (ch == '\r');
+     
 
     if (ch == '\n') {
         window->status = DIALOGUE_WINDOW_STATUS_WAITING;
