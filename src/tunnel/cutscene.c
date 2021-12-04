@@ -3,6 +3,8 @@
 #include "assets.h"
 #include "states/gamestates.h"
 
+#include "scene_atrium.h"
+
 
 void cutscene_init(Cutscene* cutscene, fw64Engine* engine, TunnelLevel* level, fw64Scene* scene) {
     cutscene->engine = engine;
@@ -25,15 +27,43 @@ static void fade_in_complete(FadeDirection direction, void* arg) {
     dialogue_window_start(&cutscene->dialogue);
 }
 
+static void set_cutscene_positions(Cutscene* cutscene) {
+        SceneRef* current_scene_ref = scene_manager_get_current(&cutscene->level->scene_manager);
+
+        fw64Node* girl = fw64_scene_get_node(current_scene_ref->scene, FW64_scene_atrium_node_Girl);
+        quat_from_euler(&girl->transform.rotation, 0.0f, 195.0f, 0.0);
+        fw64_node_update(girl);
+
+
+        Vec3 player_pos = {1.0f, 22.0f, -87.0f};
+        vec3_add(&player_pos, &player_pos, &current_scene_ref->offset);
+        cutscene->level->player.node.transform.position = player_pos;
+        quat_ident(&cutscene->level->player.node.transform.rotation);
+        fw64_node_update(&cutscene->level->player.node);
+
+        Vec3 camera_pos = {0.0f, 25.0f, -85.0f};
+        vec3_add(&camera_pos, &camera_pos, &current_scene_ref->offset);
+
+        Vec3 target = {0, 25.0, -86.0};
+        vec3_add(&target, &target, &current_scene_ref->offset);
+
+        Vec3 up = {0.0f, 1.0f, 0.0f};
+
+        cutscene->level->chase_cam.mode = CHASE_CAMERA_MANUAL;
+        cutscene->level->chase_cam.camera.transform.position = camera_pos;
+        fw64_transform_look_at(&cutscene->level->chase_cam.camera.transform, &target, &up);
+        fw64_camera_update_view_matrix(&cutscene->level->chase_cam.camera);
+}
+
 static void cutscene_update_blank(Cutscene* cutscene) {
     cutscene->current_state_time += cutscene->engine->time->time_delta;
 
     if (cutscene->current_state_time >= cutscene->total_state_time) {
+        set_cutscene_positions(cutscene);
+
         cutscene->state = CUTSCENE_FADING_IN;
         fade_effect_set_callback(&cutscene->level->fade_effect, fade_in_complete, cutscene);
         fade_effect_start(&cutscene->level->fade_effect, FADE_IN, 2.0f);
-
-        // TODO: set character positions and camera
     }
 }
 
@@ -94,6 +124,8 @@ static void initial_fade_out_complete(FadeDirection direction, void* arg) {
     cutscene->state = CUTSCENE_BLANK;
     cutscene->current_state_time = 0.0f;
     cutscene->total_state_time = 1.0f;
+
+    cutscene->level->player.process_input = 0;
 }
 
 void cutscene_start(Cutscene* cutscene) {
@@ -102,7 +134,7 @@ void cutscene_start(Cutscene* cutscene) {
     fw64ColorRGBA8 black = {0, 0, 0, 255};
     cutscene->level->fade_effect.color = black;
     fade_effect_set_callback(&cutscene->level->fade_effect, initial_fade_out_complete, cutscene);
-    fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 2.0f);
+    fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 1.0f);
 }
 
 int cutscene_is_active(Cutscene* cutscene) {

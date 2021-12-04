@@ -24,7 +24,7 @@ void playing_set_current_level(PlayingState* playing, LevelId level) {
     switch (playing->current_level)
     {
         case LEVEL_TUNNEL:
-            tunnel_level_init(&playing->levels.tunnel_level, playing->engine);
+            tunnel_level_init(&playing->levels.tunnel_level, playing->engine, playing->game_state);
             tunnel_level_set_game_settings(&playing->levels.tunnel_level, &playing->game_state->settings);
         break;
     }

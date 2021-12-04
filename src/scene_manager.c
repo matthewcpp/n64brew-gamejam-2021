@@ -126,7 +126,11 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
     scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_ref->desc.data_size);
 
     if (offset) {
+        scene_ref->offset = offset->position;
         apply_offset_to_scene(offset, scene_ref->scene);
+    }
+    else {
+        vec3_zero(&scene_ref->offset);
     }
 
     if (scene_ref->desc.init_func) {

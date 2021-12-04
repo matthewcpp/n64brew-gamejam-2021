@@ -21,6 +21,7 @@ typedef struct {
     fw64BumpAllocator allocator;
     fw64Scene* scene;
     void* data;
+    Vec3 offset; // TODO: this should probably be a matrix
 } SceneRef;
 
 typedef struct {

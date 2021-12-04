@@ -4,10 +4,17 @@
 #include "framework64/engine.h"
 #include "framework64/transform.h"
 
+typedef enum {
+    CHASE_CAMERA_MANUAL,
+    CHASE_CAMERA_HALLWAY
+} ChaseCameraMode;
+
 typedef struct {
     fw64Engine* engine;
     fw64Camera camera;
     fw64Transform* target;
+
+    ChaseCameraMode mode;
 
     float target_follow_dist;
     float target_follow_height;

@@ -7,6 +7,7 @@
 typedef struct {
     fw64Engine* engine;
     GameStateData* game_state;
+    fw64Camera camera;
 } EndScreen;
 
 #ifdef __cplusplus
