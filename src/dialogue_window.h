@@ -9,7 +9,7 @@ typedef enum {
     DIALOGUE_WINDOW_STATUS_DONE
 } DialogueWindowStatus;
 
-#define SPEECH_DIALOG_CHARACTER_WRITE_TIME (1.0f / 8.0f)
+#define SPEECH_DIALOG_CHARACTER_WRITE_TIME (1.0f / 12.0f)
 #define DIALOGUE_WINDOW_LINE_COUNT 2
 
 typedef struct {
@@ -25,6 +25,7 @@ typedef struct {
     DialogueWindowStatus status;
     uint32_t data_size;
     char* dialogue_data;
+    char* dialogue_data2;
 
     DialogueWindowLine lines[DIALOGUE_WINDOW_LINE_COUNT];
     int current_line_index;

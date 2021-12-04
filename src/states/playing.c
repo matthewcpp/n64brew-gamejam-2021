@@ -9,6 +9,7 @@ void playing_state_init(PlayingState* playing, fw64Engine* engine, GameStateData
     playing->current_level = LEVEL_NONE;
 
     playing_set_current_level(playing, game_state->transition_level);
+    game_state->transition_level = LEVEL_NONE;
 }
 
 void playing_set_current_level(PlayingState* playing, LevelId level) {

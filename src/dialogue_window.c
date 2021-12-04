@@ -15,26 +15,28 @@ static void read_next_character(DialogueWindow* window);
 void dialogue_window_init(DialogueWindow* window, fw64Engine* engine, int font_asset, int dialogue_asset, IVec2* position, IVec2* size, fw64Allocator* allocator) {
     if (!allocator) allocator = fw64_default_allocator();
 
-    fw64Font* font = fw64_font_load(engine->assets, font_asset, allocator);
-
     window->engine = engine;
-    window->font = font;
+    window->font = fw64_font_load(engine->assets, font_asset, allocator);
+
     window->background_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_overlay, allocator), allocator);
     window->next_indicator = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_dialogue_next, allocator), allocator);
 
+    dialogue_window_reset(window);
+
     int handle = fw64_filesystem_open(dialogue_asset);
     window->data_size = fw64_filesystem_size(handle);
-    window->dialogue_data = allocator->malloc(allocator, window->data_size);
+    window->dialogue_data2 = allocator->memalign(allocator, 8, window->data_size);
+    window->dialogue_data = window->dialogue_data2;
     fw64_filesystem_read(window->dialogue_data, 1, window->data_size, handle);
-    fw64_filesystem_close(dialogue_asset);
+    fw64_filesystem_close(handle);
+
+    return;
 
     window->status = DIALOGUE_WINDOW_STATUS_INACTIVE;
     window->character_write_time = SPEECH_DIALOG_CHARACTER_WRITE_TIME;
 
     window->position = *position;
     window->size = *size;
-
-    dialogue_window_reset(window);
 }
 
 void dialogue_window_uninit(DialogueWindow* window, fw64Allocator* allocator) {

@@ -114,16 +114,16 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
         if (scene_ref->desc.uninit_func) {
             scene_ref->desc.uninit_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
         }
-        
-        fw64_bump_allocator_reset(&scene_ref->allocator);
     }
+
+    fw64_bump_allocator_reset(&scene_ref->allocator);
 
     // set up the new scene
     memcpy(&scene_ref->desc, description, sizeof(SceneDescription));
 
 
     scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index, &scene_ref->allocator.interface);
-    scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_ref->desc.data_size);
+    scene_ref->data = scene_ref->allocator.interface.memalign(&scene_ref->allocator.interface, 8, scene_ref->desc.data_size);
 
     if (offset) {
         scene_ref->offset = offset->position;

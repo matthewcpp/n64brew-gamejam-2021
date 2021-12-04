@@ -35,7 +35,7 @@ void tunnel_atrium_uninit(void* level_arg, fw64Scene* scene, void* data_arg) {
     Atrium* atrium = (Atrium*)data_arg;
     fw64Allocator* allocator = fw64_scene_get_allocator(scene);
 
-    cutscene_uninit(&atrium->cutscene);
+    //cutscene_uninit(&atrium->cutscene);
     girl_uninit(&atrium->girl);
 }
 
@@ -45,6 +45,8 @@ void tunnel_atrium_update(void* level_arg, fw64Scene* scene, void* data_arg) {
     Atrium* atrium = (Atrium*)data_arg;
 
     girl_update(&atrium->girl);
+
+    return;
 
     if (cutscene_is_active(&atrium->cutscene)) {
         cutscene_update(&atrium->cutscene);
@@ -68,7 +70,7 @@ void tunnel_atrium_draw(void* level_arg, fw64Scene* scene, void* data_arg) {
 void tunnel_atrium_ui_draw(void* level_arg, fw64Scene* scene, void* data_arg) {
     Atrium* atrium = (Atrium*)data_arg;
 
-    if (cutscene_is_active(&atrium->cutscene)) {
-        cutscene_ui_draw(&atrium->cutscene);
-    }
+    //if (cutscene_is_active(&atrium->cutscene)) {
+    //    cutscene_ui_draw(&atrium->cutscene);
+    //}
 }
