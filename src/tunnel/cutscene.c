@@ -34,17 +34,17 @@ static void set_cutscene_positions(Cutscene* cutscene) {
         quat_from_euler(&girl->transform.rotation, 0.0f, 195.0f, 0.0);
         fw64_node_update(girl);
 
-
         Vec3 player_pos = {1.0f, 22.0f, -87.0f};
         vec3_add(&player_pos, &player_pos, &current_scene_ref->offset);
         cutscene->level->player.node.transform.position = player_pos;
         quat_ident(&cutscene->level->player.node.transform.rotation);
         fw64_node_update(&cutscene->level->player.node);
 
-        Vec3 camera_pos = {0.0f, 25.0f, -85.0f};
+        Vec3 camera_pos = {0.0f, 0.0f, -85.0f};
         vec3_add(&camera_pos, &camera_pos, &current_scene_ref->offset);
+        camera_pos.y = girl->transform.position.y + 3.5f;
 
-        Vec3 target = {0, 25.0, -86.0};
+        Vec3 target = {0, camera_pos.y, -86.0};
         vec3_add(&target, &target, &current_scene_ref->offset);
 
         Vec3 up = {0.0f, 1.0f, 0.0f};
@@ -130,7 +130,7 @@ static void initial_fade_out_complete(FadeDirection direction, void* arg) {
 
 void cutscene_start(Cutscene* cutscene) {
     cutscene->state = CUTSCENE_FADING_OUT;
-
+    cutscene->level->ui.active = 0;
     fw64ColorRGBA8 black = {0, 0, 0, 255};
     cutscene->level->fade_effect.color = black;
     fade_effect_set_callback(&cutscene->level->fade_effect, initial_fade_out_complete, cutscene);

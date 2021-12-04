@@ -25,7 +25,6 @@ typedef struct {
     DialogueWindowStatus status;
     uint32_t data_size;
     char* dialogue_data;
-    char* dialogue_data2;
 
     DialogueWindowLine lines[DIALOGUE_WINDOW_LINE_COUNT];
     int current_line_index;
