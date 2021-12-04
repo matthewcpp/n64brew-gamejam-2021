@@ -5,6 +5,16 @@
 
 #include "framework64/engine.h"
 
+typedef enum MenuChoices {
+    MENU_CHOICE_SINGLE_PLAYER,
+    MENU_CHOICE_MULTIPLAYER,
+    MENU_CHOICE_MULTI_CONTROLLED,
+    MENU_CHOICE_MULTI_FIXED,
+    MENU_CHOICE_MULTI_FIXED_FAST,
+    MENU_CHOICE_MULTI_FIXED_MED,
+    MENU_CHOICE_MULTI_FIXED_SLOW
+} MenuChoices;
+
 typedef struct {
     GameStateData* game_state;
     UiNavigation ui_navigation;

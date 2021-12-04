@@ -18,7 +18,10 @@ void ui_navigation_update(UiNavigation* ui);
 
 int ui_navigation_moved_up(UiNavigation* ui);
 int ui_navigation_moved_down(UiNavigation* ui);
+int ui_navigation_moved_right(UiNavigation* ui);
+int ui_navigation_moved_left(UiNavigation* ui);
 int ui_navigation_accepted(UiNavigation* ui);
+int ui_navigation_back(UiNavigation* ui);
 
 #ifdef __cplusplus
 }

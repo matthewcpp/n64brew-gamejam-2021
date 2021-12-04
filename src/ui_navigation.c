@@ -61,6 +61,31 @@ int ui_navigation_moved_down(UiNavigation* ui) {
     return moved_down;
 }
 
+int ui_navigation_moved_right(UiNavigation* ui) {
+    int moved_right = 0;
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            moved_right |=   (ui->previous_stick[i].x < STICK_THRESHOLD && ui->current_stick[i].x > STICK_THRESHOLD ||
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_C_RIGHT) || 
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_DPAD_RIGHT) ||
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_R));        
+        }
+    }
+    return moved_right;
+}
+int ui_navigation_moved_left(UiNavigation* ui) {
+    int moved_left = 0;
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            moved_left |=   (ui->previous_stick[i].x > -STICK_THRESHOLD && ui->current_stick[i].x < -STICK_THRESHOLD ||
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_C_LEFT) || 
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_DPAD_LEFT) ||
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_L));        
+        }
+    }
+    return moved_left;
+}
+
 int ui_navigation_accepted(UiNavigation* ui) {
 
     int accepted = 0;
@@ -72,4 +97,15 @@ int ui_navigation_accepted(UiNavigation* ui) {
         }
     }
     return accepted;
+}
+
+int ui_navigation_back(UiNavigation* ui) {
+    int back = 0;
+    for(int i = 0; i < 4; i++) {
+        if(ui->connected_controllers[i]) {
+            back |=     (fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_B) || 
+                            fw64_input_button_pressed(ui->input, i, FW64_N64_CONTROLLER_BUTTON_Z));        
+        }
+    }    
+    return back;
 }
