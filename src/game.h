@@ -5,11 +5,13 @@
 #include "states/gamestates.h"
 #include "states/playing.h"
 #include "states/title.h"
+#include "states/end.h"
 
 
 typedef union {
     TitleScreen title_screen;
     PlayingState playing;
+    EndScreen end_screen;
 } States;
 
 

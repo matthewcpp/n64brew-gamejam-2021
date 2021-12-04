@@ -13,7 +13,6 @@ typedef struct {
 extern "C" {
 #endif
 
-void tunnel_hallway_description(SceneDescription* desc);
 void tunnel_hallway_init(void* level_arg, fw64Scene* scene, void* data_arg);
 void tunnel_hallway_update(void* level_arg, fw64Scene* scene, void* data_arg);
 

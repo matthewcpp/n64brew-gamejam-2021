@@ -1,26 +1,16 @@
 #pragma once
 
-#include "game_settings.h"
-
-#include "hallway.h"
-#include "atrium.h"
-#include "lavapit.h"
-#include "firewall.h"
-
 #include "ui.h"
 #include "chase_camera.h"
 #include "scene_manager.h"
 #include "fade_effect.h"
+#include "trigger_box.h"
+#include "states/gamestates.h"
 
-typedef union {
-    Hallway hallway;
-    LavaPit lava_pit;
-    Atrium atrium;
-    Firewall firewall;
-} SceneData;
 
 typedef struct {
     fw64Engine* engine;
+    GameStateData* state_data;
     GameSettings* game_settings;
     Player player;
     UI ui;
@@ -37,7 +27,7 @@ typedef struct {
 extern "C" {
 #endif
 
-void tunnel_level_init(TunnelLevel* level, fw64Engine* engine);
+void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* state_data);
 void tunnel_level_uninit(TunnelLevel* level);
 void tunnel_level_update(TunnelLevel* level);
 void tunnel_level_draw(TunnelLevel* level);
@@ -46,6 +36,13 @@ void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings);
 void tunnel_level_load_next(TunnelLevel* level);
 int tunnel_level_player_is_dying(TunnelLevel* level);
 void tunnel_level_kill_player(TunnelLevel* level);
+
+// scene chunks
+void tunnel_hallway_description(SceneDescription* desc);
+void tunnel_lavapit_description(SceneDescription* desc);
+void tunnel_firewall_description(SceneDescription* desc);
+void tunnel_atrium_description(SceneDescription* desc);
+
 #ifdef __cplusplus
 }
 #endif

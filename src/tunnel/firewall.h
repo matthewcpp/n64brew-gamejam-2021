@@ -18,7 +18,6 @@ typedef struct {
 extern "C" {
 #endif
 
-void tunnel_firewall_description(SceneDescription* desc);
 void tunnel_firewall_init(void* level_arg, fw64Scene* scene, void* data_arg);
 void tunnel_firewall_update(void* level_arg, fw64Scene* scene, void* data_arg);
 void tunnel_firewall_draw(void* level_arg, fw64Scene* scene, void* data_arg);

@@ -18,10 +18,9 @@
 #define BUMP_ALLOCATOR_SIZE (64 * 1024)
 
 
-void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneFunc swap_func, fw64Transform* target) {
+void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, SceneFunc swap_func, fw64Transform* target) {
     scene_manager->engine = engine;
     scene_manager->level_arg = level_arg;
-    scene_manager->data_size = data_size;
     scene_manager->current_scene = 0;
     scene_manager->swap_func = swap_func;
     scene_manager->target = target;
@@ -124,7 +123,7 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
 
 
     scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index, &scene_ref->allocator.interface);
-    scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_manager->data_size);
+    scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_ref->desc.data_size);
 
     if (offset) {
         apply_offset_to_scene(offset, scene_ref->scene);

@@ -18,6 +18,7 @@ set(src_files
     states/playing.h states/playing.c
     states/title.h states/title.c
     states/gamestates.h states/gamestates.c
+    states/end.h states/end.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
     tunnel/girl.h tunnel/girl.c

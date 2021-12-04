@@ -42,19 +42,15 @@ void fade_effect_update(FadeEffect* fade, float time_delta) {
     }
 }
 
-#include <stdio.h>
-
 void fade_effect_draw(FadeEffect* fade, fw64Renderer* renderer) {
     if (fade->direction == FADE_NONE)
         return;
 
     float t = fade->current_time / fade->duration;
-    if (fade->direction == FADE_OUT)
+    if (fade->direction == FADE_IN)
         t = 1.0f - t;
 
     uint8_t alpha = (uint8_t)(t * 255.0f);
-
-    printf("%d\n", alpha);
 
     fw64_renderer_util_fullscreen_overlay(renderer, fade->color.r, fade->color.g, fade->color.b, alpha);
 }

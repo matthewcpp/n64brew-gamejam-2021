@@ -9,8 +9,9 @@
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 static void on_fade_effect_complete(FadeDirection direction, void* arg);
 
-void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
+void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* state_data) {
     level->engine = engine;
+    level->state_data = state_data;
 
     level->game_settings = NULL;
 
@@ -27,11 +28,10 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     ui_init(&level->ui, engine, &level->player);
 
-    scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
+    scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
     tunnel_atrium_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
-
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
 
@@ -168,7 +168,7 @@ void tunnel_level_load_next(TunnelLevel* level) {
 void on_fade_effect_complete(FadeDirection direction, void* arg) {
     TunnelLevel* level = (TunnelLevel*)arg;
 
-    if (direction == FADE_IN) {
+    if (direction == FADE_OUT) {
             SceneRef* current = scene_manager_get_current(&level->scene_manager);
             fw64Node* start_node;
 
@@ -176,10 +176,10 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
                 player_reset_at_position(&level->player, &start_node->transform.position);
             }
 
-            fade_effect_start(&level->fade_effect, FADE_OUT, 2.0f);
+            fade_effect_start(&level->fade_effect, FADE_IN, 2.0f);
             fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_respawn);
     }
-    if (direction == FADE_OUT) {
+    if (direction == FADE_IN) {
         level->player.process_input = 1;
         fade_effect_stop(&level->fade_effect);
     }
@@ -191,7 +191,7 @@ void tunnel_level_kill_player(TunnelLevel* level) {
     }
 
     level->player.process_input = 0;
-    fade_effect_start(&level->fade_effect, FADE_IN, 0.35f);
+    fade_effect_start(&level->fade_effect, FADE_OUT, 0.35f);
 }
 
 int tunnel_level_player_is_dying(TunnelLevel* level) {

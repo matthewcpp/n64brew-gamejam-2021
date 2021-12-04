@@ -4,11 +4,10 @@
 #include "states/gamestates.h"
 
 
-void cutscene_init(Cutscene* cutscene, fw64Engine* engine, FadeEffect* fade_effect, fw64Scene* scene, fw64Camera* camera) {
+void cutscene_init(Cutscene* cutscene, fw64Engine* engine, TunnelLevel* level, fw64Scene* scene) {
     cutscene->engine = engine;
-    cutscene->fade_effect = fade_effect;
+    cutscene->level = level;
     cutscene->scene = scene;
-    cutscene->camera = camera;
     cutscene->state = CUTSCENE_INACTIVE;
 
     IVec2 pos = {20, 181};
@@ -31,8 +30,8 @@ static void cutscene_update_blank(Cutscene* cutscene) {
 
     if (cutscene->current_state_time >= cutscene->total_state_time) {
         cutscene->state = CUTSCENE_FADING_IN;
-        fade_effect_set_callback(cutscene->fade_effect, fade_in_complete, cutscene);
-        fade_effect_start(cutscene->fade_effect, FADE_IN, 2.0f);
+        fade_effect_set_callback(&cutscene->level->fade_effect, fade_in_complete, cutscene);
+        fade_effect_start(&cutscene->level->fade_effect, FADE_IN, 2.0f);
 
         // TODO: set character positions and camera
     }
@@ -51,8 +50,8 @@ static void cutscene_update_dialogue(Cutscene* cutscene) {
 
     if (cutscene->dialogue.status == DIALOGUE_WINDOW_STATUS_DONE) {
         cutscene->state = CUTSCENE_DIALOGUE_COMPLETE;
-        fade_effect_set_callback(cutscene->fade_effect, cutscene_finishing_complete, cutscene);
-        fade_effect_start(cutscene->fade_effect, FADE_IN, 2.0f);
+        fade_effect_set_callback(&cutscene->level->fade_effect, cutscene_finishing_complete, cutscene);
+        fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 2.0f);
     }
 }
 
@@ -76,7 +75,7 @@ void cutscene_update(Cutscene* cutscene) {
     break;
 
     case CUTSCENE_WAITING:
-        cutscene_update_complete(cutscene);
+        cutscene_update_waiting(cutscene);
     break;
     
     default:
@@ -84,12 +83,8 @@ void cutscene_update(Cutscene* cutscene) {
     }
 }
 
-void cutscene_draw(Cutscene* cutscene) {
-
-}
-
-void cutscene_draw_ui(Cutscene* cutscene) {
-    if (cutscene->state) {
+void cutscene_ui_draw(Cutscene* cutscene) {
+    if (cutscene->state == CUTSCENE_DIALOGUE) {
         dialogue_window_draw(&cutscene->dialogue);
     }
 }
@@ -103,10 +98,13 @@ static void initial_fade_out_complete(FadeDirection direction, void* arg) {
 
 void cutscene_start(Cutscene* cutscene) {
     cutscene->state = CUTSCENE_FADING_OUT;
-    fade_effect_set_callback(cutscene->fade_effect, initial_fade_out_complete, cutscene);
-    fade_effect_start(&cutscene->fade_effect, FADE_IN, 2.0f);
+
+    fw64ColorRGBA8 black = {0, 0, 0, 255};
+    cutscene->level->fade_effect.color = black;
+    fade_effect_set_callback(&cutscene->level->fade_effect, initial_fade_out_complete, cutscene);
+    fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 2.0f);
 }
 
-void cutscene_is_active(Cutscene* cutscene) {
+int cutscene_is_active(Cutscene* cutscene) {
     return cutscene->state != CUTSCENE_INACTIVE;
 }

@@ -2,6 +2,7 @@
 
 #include "fade_effect.h"
 #include "dialogue_window.h"
+#include "tunnel_level.h"
 
 #include "framework64/engine.h"
 #include "framework64/scene.h"
@@ -20,9 +21,8 @@ typedef enum {
 
 typedef struct {
     fw64Engine* engine;
-    FadeEffect* fade_effect;
+    TunnelLevel* level;
     fw64Scene* scene;
-    fw64Camera* camera;
     DialogueWindow dialogue;
     CutsceneState state;
     float current_state_time;
@@ -33,14 +33,13 @@ typedef struct {
 extern "C" {
 #endif
 
-void cutscene_init(Cutscene* cutscene, fw64Engine* engine, FadeEffect* fade_effect, fw64Scene* scene, fw64Camera* camera);
+void cutscene_init(Cutscene* cutscene, fw64Engine* engine, TunnelLevel* level, fw64Scene* scene);
 void cutscene_uninit(Cutscene* cutscene);
 void cutscene_update(Cutscene* cutscene);
-void cutscene_draw(Cutscene* cutscene);
-void cutscene_draw_ui(Cutscene* cutscene);
+void cutscene_ui_draw(Cutscene* cutscene);
 
 void cutscene_start(Cutscene* cutscene);
-void cutscene_is_active(Cutscene* cutscene);
+int cutscene_is_active(Cutscene* cutscene);
 
 #ifdef __cplusplus
 }
