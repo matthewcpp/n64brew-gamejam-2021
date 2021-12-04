@@ -5,6 +5,8 @@ set(src_files
     fade_effect.h fade_effect.c
     game.h game.c
     moving_platform.h moving_platform.c
+
+    dialogue_window.h dialogue_window.c
     player.h player.c
     shadow.h shadow.c
     sparkle.h sparkle.c
@@ -24,6 +26,7 @@ set(src_files
     tunnel/firewall.h tunnel/firewall.c
     tunnel/fire_obstacle.h tunnel/fire_obstacle.c
     tunnel/atrium.h tunnel/atrium.c
+    tunnel/cutscene.h tunnel/cutscene.c
     )
 
 if (FW64_PLATFORM_N64)

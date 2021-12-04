@@ -86,6 +86,15 @@ void scene_manager_draw(SceneManager* scene_manager) {
     }
 }
 
+void scene_manager_ui_draw(SceneManager* scene_manager) {
+    fw64Renderer* renderer = scene_manager->engine->renderer;
+    SceneRef* current_scene = CURRENT_SCENE_REF(scene_manager);
+
+    if (current_scene->desc.ui_draw_func) {
+        current_scene->desc.ui_draw_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+    }
+}
+
 static void apply_offset_to_scene(fw64Transform* offset, fw64Scene* scene) {
     uint32_t node_count = fw64_scene_get_node_count(scene);
 

@@ -6,6 +6,12 @@
             "vslices": 4
         },
         {
+            "src": "overlay.png",
+            "hslices": 1,
+            "vslices": 1,
+            "format": "rgba32"
+        },
+        {
             "src": "shadow.png",
             "hslices": 1,
             "vslices": 1
@@ -53,6 +59,12 @@
             "src": "title_indicator.png",
             "hslices": 2,
             "vslices": 1
+        },
+        {
+            "src": "dialogue_next.png",
+            "hslices": 1,
+            "vslices": 1,
+            "format": "rgba32"
         }
     ],
     "meshes": [
@@ -79,6 +91,12 @@
             "src": "Consolas.ttf",
             "size": 12,
             "name": "Consolas12"
+        },
+        {
+            "src": "Consolas.ttf",
+            "size": 12,
+            "name": "Dialogue",
+            "sourceFile": "dialogue.txt"
         },
         {
             "image": {
@@ -161,6 +179,7 @@
         }
     ],
     "raw": [
+        "dialogue.txt"
     ],
     "typeMaps": [
         {

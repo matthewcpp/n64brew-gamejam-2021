@@ -35,7 +35,9 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
 
+    fw64ColorRGBA8 fade_color = {255, 255, 255, 255};
     fade_effect_init(&level->fade_effect);
+    level->fade_effect.color = fade_color;
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
 
     level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects);
@@ -98,6 +100,7 @@ void tunnel_level_draw(TunnelLevel* level) {
 
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
     ui_draw(&level->ui);
+    scene_manager_ui_draw(&level->scene_manager);
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_SWAP);
 }
 
@@ -178,6 +181,7 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
     }
     if (direction == FADE_OUT) {
         level->player.process_input = 1;
+        fade_effect_stop(&level->fade_effect);
     }
 }
 

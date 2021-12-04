@@ -11,6 +11,7 @@ typedef struct {
     SceneFunc init_func;
     SceneFunc update_func;
     SceneFunc draw_func;
+    SceneFunc ui_draw_func;
     SceneFunc uninit_func;
 } SceneDescription;
 
@@ -39,6 +40,7 @@ void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* l
 void scene_manager_uninit(SceneManager* scene_manager);
 void scene_manager_update(SceneManager* scene_manager);
 void scene_manager_draw(SceneManager* scene_manager);
+void scene_manager_ui_draw(SceneManager* scene_manager);
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description);
 void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset);
 
