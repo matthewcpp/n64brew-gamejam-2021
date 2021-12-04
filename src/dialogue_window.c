@@ -25,10 +25,7 @@ void dialogue_window_init(DialogueWindow* window, fw64Engine* engine, int font_a
 
     int handle = fw64_filesystem_open(dialogue_asset);
     window->data_size = fw64_filesystem_size(handle);
-    //window->dialogue_data = allocator->malloc(allocator, window->data_size);
-    //window->dialogue_data = "princess\ntunnel\n";
-    //strcpy(window->dialogue_data, "princess\ntunnel\n");
-    window->dialogue_data = fw64_memalign(8, window->data_size);
+    window->dialogue_data = allocator->malloc(allocator, window->data_size);
     fw64_filesystem_read(window->dialogue_data, 1, window->data_size, handle);
     fw64_filesystem_close(handle);
 
