@@ -50,10 +50,10 @@ void tunnel_atrium_update(void* level_arg, fw64Scene* scene, void* data_arg) {
     else {
         if (vec3_distance_squared(&level->player.node.transform.position, &atrium->girl.node->transform.position) <= 100.0f)
             cutscene_start(&atrium->cutscene); 
-
-        if (atrium->cutscene.state == CUTSCENE_COMPLETE)
-            level->state_data->transition_state = GAME_STATE_END;
     }
+
+    if (atrium->cutscene.state == CUTSCENE_COMPLETE)
+        level->state_data->transition_state = GAME_STATE_END;
 }
 
 void tunnel_atrium_draw(void* level_arg, fw64Scene* scene, void* data_arg) {

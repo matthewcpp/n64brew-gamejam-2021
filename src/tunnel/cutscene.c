@@ -80,8 +80,9 @@ static void cutscene_update_dialogue(Cutscene* cutscene) {
 
     if (cutscene->dialogue.status == DIALOGUE_WINDOW_STATUS_DONE) {
         cutscene->state = CUTSCENE_DIALOGUE_COMPLETE;
+        cutscene->current_state_time = 0.0f;
         fade_effect_set_callback(&cutscene->level->fade_effect, cutscene_finishing_complete, cutscene);
-        fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 2.0f);
+        fade_effect_start(&cutscene->level->fade_effect, FADE_OUT, 1.5f);
     }
 }
 
@@ -93,6 +94,12 @@ void cutscene_update_waiting(Cutscene* cutscene) {
     }
 }
 
+void update_dialogue_complete(Cutscene* cutscene) {
+    cutscene->current_state_time += cutscene->engine->time->time_delta;
+    float t = cutscene->current_state_time / cutscene->level->fade_effect.duration;
+    fw64_audio_set_music_volume(cutscene->engine->audio, 1.0f - t);
+}
+
 void cutscene_update(Cutscene* cutscene) {
     switch (cutscene->state)
     {
@@ -102,6 +109,10 @@ void cutscene_update(Cutscene* cutscene) {
 
     case CUTSCENE_DIALOGUE:
         cutscene_update_dialogue(cutscene);
+    break;
+
+    case CUTSCENE_DIALOGUE_COMPLETE: 
+        update_dialogue_complete(cutscene);
     break;
 
     case CUTSCENE_WAITING:

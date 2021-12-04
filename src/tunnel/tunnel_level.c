@@ -125,6 +125,9 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
 
 void tunnel_level_uninit(TunnelLevel* level) {
     fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
+    fw64_audio_stop_music(level->engine->audio);
+    
+    fw64_audio_set_music_volume(level->engine->audio, 1.0f);
 }
 
 void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings) {
