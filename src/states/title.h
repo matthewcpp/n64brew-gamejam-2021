@@ -5,6 +5,16 @@
 
 #include "framework64/engine.h"
 
+typedef enum MenuChoices {
+    MENU_CHOICE_SINGLE_PLAYER,
+    MENU_CHOICE_MULTIPLAYER,
+    MENU_CHOICE_MULTI_CONTROLLED,
+    MENU_CHOICE_MULTI_FIXED,
+    MENU_CHOICE_MULTI_FIXED_FAST,
+    MENU_CHOICE_MULTI_FIXED_MED,
+    MENU_CHOICE_MULTI_FIXED_SLOW
+} MenuChoices;
+
 typedef struct {
     GameStateData* game_state;
     UiNavigation ui_navigation;
@@ -14,7 +24,7 @@ typedef struct {
     fw64Font* menu_font;
     fw64Texture* indicator_texture;
     int menu_selection ;
-    IVec2 measurements[4];
+    IVec2 measurements[9];
 } TitleScreen;
 
 #ifdef __cplusplus
