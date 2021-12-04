@@ -44,8 +44,9 @@ static void set_cutscene_positions(Cutscene* cutscene) {
         vec3_add(&camera_pos, &camera_pos, &current_scene_ref->offset);
         camera_pos.y = girl->transform.position.y + 3.5f;
 
-        Vec3 target = {0, camera_pos.y, -86.0};
+        Vec3 target = {0.0f, 0.0f, -86.0};
         vec3_add(&target, &target, &current_scene_ref->offset);
+        target.y = camera_pos.y;
 
         Vec3 up = {0.0f, 1.0f, 0.0f};
 
