@@ -4,12 +4,16 @@
 
 #include <stdio.h>
 
-void ui_init(UI* ui, fw64Engine* engine, Player* player) {
+void ui_init(UI* ui, fw64Engine* engine, Player* player, fw64Allocator* allocator) {
     ui->engine = engine;
     ui->player = player;
     ui->active = 1;
 
-    ui->font = fw64_font_load(engine->assets, FW64_ASSET_font_Consolas12, NULL);
+    ui->font = fw64_font_load(engine->assets, FW64_ASSET_font_Consolas12, allocator);
+}
+
+void ui_uninit(UI* ui, fw64Allocator* allocator) {
+    fw64_font_delete(ui->engine->assets, ui->font, allocator);
 }
 
 void ui_update(UI* ui) {

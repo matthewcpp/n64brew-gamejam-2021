@@ -2,12 +2,17 @@
 
 #include "gamestates.h"
 
+#include "ui_navigation.h"
+
 #include "framework64/engine.h"
+#include "framework64/util/bump_allocator.h"
 
 typedef struct {
     fw64Engine* engine;
     GameStateData* game_state;
     fw64Camera camera;
+    UiNavigation ui_navigation;
+    fw64BumpAllocator allocator;
 } EndScreen;
 
 #ifdef __cplusplus

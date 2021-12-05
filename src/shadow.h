@@ -19,7 +19,8 @@ extern "C" {
 #endif
 
 
-void shadow_init(Shadow* shadow, fw64Engine* engine, fw64Scene* scene, fw64Transform* target);
+void shadow_init(Shadow* shadow, fw64Engine* engine, fw64Scene* scene, fw64Transform* target, fw64Allocator* allocator);
+void shadow_uninit(Shadow* shadow, fw64Allocator* allocator);
 void shadow_update(Shadow* shadow);
 void shadow_draw(Shadow* shadow);
 
