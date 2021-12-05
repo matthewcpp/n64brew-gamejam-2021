@@ -43,6 +43,8 @@ void tunnel_lavapit_description(SceneDescription* desc);
 void tunnel_firewall_description(SceneDescription* desc);
 void tunnel_atrium_description(SceneDescription* desc);
 
+void tunnel_level_set_camera_for_scene(TunnelLevel* level);
+
 #ifdef __cplusplus
 }
 #endif

@@ -21,11 +21,8 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     player_calculate_size(&level->player);
     
     chase_camera_init(&level->chase_cam, engine);
-    level->chase_cam.target = &level->player.node.transform;
-    level->chase_cam.target_follow_height = 14.5f;
-    level->chase_cam.target_forward_height = 5.0f;
-    level->chase_cam.target_follow_dist = 26.0f;
-
+    chase_camera_reset(&level->chase_cam, &level->player.node.transform);
+    
     ui_init(&level->ui, engine, &level->player);
 
     scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
@@ -86,6 +83,7 @@ void tunnel_level_update(TunnelLevel* level){
     }
 
     chase_camera_update(&level->chase_cam);
+    chase_camera_get_forward(&level->chase_cam, &level->player.camera_forward);
     fade_effect_update(&level->fade_effect, level->engine->time->time_delta);
     ui_update(&level->ui);
 }
@@ -117,6 +115,8 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
     }
     
     player_set_scene(&level->player, scene);
+    tunnel_level_set_camera_for_scene(level);
+    chase_camera_set_scene(&level->chase_cam, scene);
 
     search_node = NULL;
     fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
@@ -177,6 +177,7 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
 
             if (fw64_scene_find_nodes_with_type(current->scene, NODE_TYPE_START, &start_node, 1)) {
                 player_reset_at_position(&level->player, &start_node->transform.position);
+                chase_camera_reset(&level->chase_cam, &level->player.node.transform);
             }
 
             fade_effect_start(&level->fade_effect, FADE_IN, 2.0f);
@@ -199,4 +200,20 @@ void tunnel_level_kill_player(TunnelLevel* level) {
 
 int tunnel_level_player_is_dying(TunnelLevel* level) {
     return fade_effect_is_active(&level->fade_effect);
+}
+
+void tunnel_level_set_camera_for_scene(TunnelLevel* level) {
+    SceneRef* current_scene = scene_manager_get_current(&level->scene_manager);
+    switch (current_scene->desc.index)
+    {
+        case FW64_ASSET_scene_lavapit:
+            chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_SIDE, 30.0f, 15.0f);
+            break;
+        case FW64_ASSET_scene_hallway:  /* fall through */
+        case FW64_ASSET_scene_atrium:   /* fall through */   
+        case FW64_ASSET_scene_firewall: /* fall through */
+        default:
+            chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_CHASE, 30.0f, 12.0f);
+            break;
+    }
 }

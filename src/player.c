@@ -54,6 +54,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     fw64_node_set_mesh(&player->node,  player_mesh);
     fw64_node_set_box_collider(&player->node, &player->collider);
 
+    vec3_set(&player->camera_forward, 0.0f, 0.0f, -1.0f);
+
     player_reset(player);
 
     sparkle_init(&player->sparkle, engine);
@@ -152,7 +154,11 @@ static void update_animation(Player* player) {
     else {
         if (player->animation_controller.current_animation != fw64_animation_data_get_animation(player->animation_data, catherine_animation_Run)) {
             fw64_animation_controller_set_animation(&player->animation_controller, catherine_animation_Run);
-            player->animation_controller.speed = 1.0f;
+            //player->animation_controller.speed = 1.0f;
+
+        }
+        else {
+            player->animation_controller.speed = player->speed / player->max_speed;
         }
     }
         
@@ -188,11 +194,16 @@ static void player_update_stick(Player* player) {
 
     if (stick.y >= PLAYER_STICK_THRESHOLD || stick.y <= -PLAYER_STICK_THRESHOLD ||
         stick.x >= PLAYER_STICK_THRESHOLD || stick.x <= -PLAYER_STICK_THRESHOLD) { //joystick y axis, move forward/backward
-            player->rotation = atan2(stick.y, stick.x) * (180.0f / M_PI) - 90.0f;
+        
+        player->rotation  = atan2(-player->camera_forward.z, player->camera_forward.x) * (180.0f / M_PI) - 90.0f;
+        player->rotation += atan2(stick.y, stick.x) * (180.0f / M_PI) - 90.0f;
 
-    quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
-
-        player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
+        quat_set_axis_angle(&player->node.transform.rotation, 0, 1, 0, player->rotation * ((float)M_PI / 180.0f));
+        Vec3 vec_temp_zero, vec_temp_stick; 
+        vec3_set(&vec_temp_stick, stick.x, stick.y, 0.0f);
+        vec3_zero(&vec_temp_zero);
+        //player->speed = fmaxf(player->max_speed * 0.5f, fminf(player->speed + player->acceleration * player->engine->time->time_delta, player->max_speed));
+        player->speed = fminf(player->max_speed * vec3_distance(&vec_temp_zero, &vec_temp_stick), player->max_speed);
     }
     else { //apply friction
         float decel = player->deceleration * player->engine->time->time_delta;

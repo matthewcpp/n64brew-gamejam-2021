@@ -62,6 +62,8 @@ typedef struct {
 
     float rotation;
     float rotation_speed;
+    Vec3  camera_forward;
+
     PlayerState state;
 
     int double_jumps;
