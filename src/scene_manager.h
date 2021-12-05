@@ -8,9 +8,11 @@ typedef void(*SceneFunc)(void* level_arg, fw64Scene* scene, void* data_arg);
 
 typedef struct {
     uint32_t index;
+    uint32_t data_size;
     SceneFunc init_func;
     SceneFunc update_func;
     SceneFunc draw_func;
+    SceneFunc ui_draw_func;
     SceneFunc uninit_func;
 } SceneDescription;
 
@@ -19,6 +21,7 @@ typedef struct {
     fw64BumpAllocator allocator;
     fw64Scene* scene;
     void* data;
+    Vec3 offset; // TODO: this should probably be a matrix
 } SceneRef;
 
 typedef struct {
@@ -26,7 +29,6 @@ typedef struct {
     fw64Transform* target;
     void* level_arg;
     int current_scene;
-    int data_size;
     SceneFunc swap_func;
     SceneRef scene_refs[2]; 
 } SceneManager;
@@ -35,10 +37,11 @@ typedef struct {
 extern "C" {
 #endif
 
-void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneFunc swap_func, fw64Transform* target);
+void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, SceneFunc swap_func, fw64Transform* target);
 void scene_manager_uninit(SceneManager* scene_manager);
 void scene_manager_update(SceneManager* scene_manager);
 void scene_manager_draw(SceneManager* scene_manager);
+void scene_manager_ui_draw(SceneManager* scene_manager);
 void scene_manager_load_current_scene(SceneManager* scene_manager, SceneDescription* description);
 void scene_manager_load_next_scene(SceneManager* scene_manager, SceneDescription* description, fw64Transform* offset);
 

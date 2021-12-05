@@ -5,6 +5,8 @@ set(src_files
     fade_effect.h fade_effect.c
     game.h game.c
     moving_platform.h moving_platform.c
+
+    dialogue_window.h dialogue_window.c
     player.h player.c
     shadow.h shadow.c
     sparkle.h sparkle.c
@@ -16,14 +18,16 @@ set(src_files
     states/playing.h states/playing.c
     states/title.h states/title.c
     states/gamestates.h states/gamestates.c
+    states/end.h states/end.c
 
     tunnel/tunnel_level.h tunnel/tunnel_level.c
-    tunnel/key.h tunnel/key.c
+    tunnel/girl.h tunnel/girl.c
     tunnel/lavapit.h tunnel/lavapit.c
     tunnel/hallway.h tunnel/hallway.c
     tunnel/firewall.h tunnel/firewall.c
     tunnel/fire_obstacle.h tunnel/fire_obstacle.c
     tunnel/atrium.h tunnel/atrium.c
+    tunnel/cutscene.h tunnel/cutscene.c
     )
 
 if (FW64_PLATFORM_N64)

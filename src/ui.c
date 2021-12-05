@@ -7,11 +7,14 @@
 void ui_init(UI* ui, fw64Engine* engine, Player* player) {
     ui->engine = engine;
     ui->player = player;
+    ui->active = 1;
 
     ui->font = fw64_font_load(engine->assets, FW64_ASSET_font_Consolas12, NULL);
 }
 
 void ui_update(UI* ui) {
+    if (!ui->active)
+        return;
     Vec3* pos = &ui->player->node.transform.position;
     const char* status_text;
     const char* dashing_text;
@@ -40,5 +43,7 @@ void ui_update(UI* ui) {
 }
 
 void ui_draw(UI* ui) {
+    if (!ui->active)
+    return;
     fw64_renderer_draw_text(ui->engine->renderer, ui->font, 10,10, ui->status_text);
 }

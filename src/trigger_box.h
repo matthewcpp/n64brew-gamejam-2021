@@ -3,7 +3,8 @@
 #include "framework64/node.h"
 
 typedef struct {
-    fw64Collider* collider;
+    fw64Node* trigger_node;
+    fw64Collider* target_collider;
     Box bounding_box;
     uint16_t prev_state;
     uint16_t current_state;

@@ -9,6 +9,7 @@ void playing_state_init(PlayingState* playing, fw64Engine* engine, GameStateData
     playing->current_level = LEVEL_NONE;
 
     playing_set_current_level(playing, game_state->transition_level);
+    game_state->transition_level = LEVEL_NONE;
 }
 
 void playing_set_current_level(PlayingState* playing, LevelId level) {
@@ -24,7 +25,7 @@ void playing_set_current_level(PlayingState* playing, LevelId level) {
     switch (playing->current_level)
     {
         case LEVEL_TUNNEL:
-            tunnel_level_init(&playing->levels.tunnel_level, playing->engine);
+            tunnel_level_init(&playing->levels.tunnel_level, playing->engine, playing->game_state);
             tunnel_level_set_game_settings(&playing->levels.tunnel_level, &playing->game_state->settings);
         break;
     }

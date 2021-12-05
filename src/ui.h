@@ -9,6 +9,7 @@ typedef struct {
     fw64Font* font;
     Player* player;
     char status_text[64];
+    int active;
 } UI;
 
 #ifdef __cplusplus

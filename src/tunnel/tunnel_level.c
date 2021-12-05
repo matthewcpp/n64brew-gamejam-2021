@@ -9,8 +9,9 @@
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 static void on_fade_effect_complete(FadeDirection direction, void* arg);
 
-void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
+void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* state_data) {
     level->engine = engine;
+    level->state_data = state_data;
 
     level->game_settings = NULL;
 
@@ -27,15 +28,16 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine) {
 
     ui_init(&level->ui, engine, &level->player);
 
-    scene_manager_init(&level->scene_manager, engine, level, sizeof(SceneData), tunnel_level_scene_activated, &level->player.node.transform);
+    scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
     tunnel_hallway_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
 
-
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
 
+    fw64ColorRGBA8 fade_color = {255, 255, 255, 255};
     fade_effect_init(&level->fade_effect);
+    level->fade_effect.color = fade_color;
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
 
     level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects);
@@ -98,6 +100,7 @@ void tunnel_level_draw(TunnelLevel* level) {
 
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
     ui_draw(&level->ui);
+    scene_manager_ui_draw(&level->scene_manager);
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_SWAP);
 }
 
@@ -122,6 +125,9 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
 
 void tunnel_level_uninit(TunnelLevel* level) {
     fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
+    fw64_audio_stop_music(level->engine->audio);
+    
+    fw64_audio_set_music_volume(level->engine->audio, 1.0f);
 }
 
 void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings) {
@@ -165,7 +171,7 @@ void tunnel_level_load_next(TunnelLevel* level) {
 void on_fade_effect_complete(FadeDirection direction, void* arg) {
     TunnelLevel* level = (TunnelLevel*)arg;
 
-    if (direction == FADE_IN) {
+    if (direction == FADE_OUT) {
             SceneRef* current = scene_manager_get_current(&level->scene_manager);
             fw64Node* start_node;
 
@@ -173,11 +179,12 @@ void on_fade_effect_complete(FadeDirection direction, void* arg) {
                 player_reset_at_position(&level->player, &start_node->transform.position);
             }
 
-            fade_effect_start(&level->fade_effect, FADE_OUT, 2.0f);
+            fade_effect_start(&level->fade_effect, FADE_IN, 2.0f);
             fw64_audio_play_sound(level->engine->audio, sound_bank_sound_effects_respawn);
     }
-    if (direction == FADE_OUT) {
+    if (direction == FADE_IN) {
         level->player.process_input = 1;
+        fade_effect_stop(&level->fade_effect);
     }
 }
 
@@ -187,7 +194,7 @@ void tunnel_level_kill_player(TunnelLevel* level) {
     }
 
     level->player.process_input = 0;
-    fade_effect_start(&level->fade_effect, FADE_IN, 0.35f);
+    fade_effect_start(&level->fade_effect, FADE_OUT, 0.35f);
 }
 
 int tunnel_level_player_is_dying(TunnelLevel* level) {

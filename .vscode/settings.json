@@ -24,6 +24,8 @@
         "image.h": "c",
         "stdlib.h": "c",
         "scene_firewall.h": "c",
-        "box.h": "c"
+        "box.h": "c",
+        "atrium.h": "c",
+        "hallway.h": "c"
     }
 }
