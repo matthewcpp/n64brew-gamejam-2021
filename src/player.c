@@ -46,7 +46,9 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     fw64_node_init(&player->node);
     fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, NULL);
+    player_palette_init(&player->palette, engine, player_mesh, NULL);
     player->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine, NULL);
+    
     fw64_animation_controller_init(&player->animation_controller, player->animation_data, -1, NULL);
     player_tweak_root_animation_rotation(player);
     fw64_node_set_mesh(&player->node,  player_mesh);
@@ -98,6 +100,12 @@ static void update_player_swap(Player* player) {
 
     if (player->sparkle.prev_time < switch_time && player->sparkle.current_time >= switch_time){
         player->mesh_index = player->mesh_index == 0 ? 1 : 0;
+
+        if (player->mesh_index == 0) 
+            player_palette_activate_primary(&player->palette);
+        else 
+            player_palette_activate_secondary(&player->palette);
+
 
         if(player->mesh_index == 0) {
             player->dashes = 1;

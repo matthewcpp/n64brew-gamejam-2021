@@ -10,13 +10,12 @@ Textures
 25: back
 */
 
-#define HAIR_PRIMITVE_INDEX_COUNT 3
-#define SKIN_PRIMITIVE_INDEX_COUNT 5
+
 static int hair_primitive_indices[] = {1, 2, 3};
 static int skin_primitive_indices[] = {4, 5, 6, 7, 8};
 static int texture_indices[] = {0, 19, 24, 25};
-static fw64ColorRGBA8 primary_hair_color = {255,0,0, 255};
-static fw64ColorRGBA8 primary_skin_color = {255,0,0, 255};
+static fw64ColorRGBA8 primary_hair_color = {109, 6, 6, 255};
+static fw64ColorRGBA8 primary_skin_color = {242, 164, 122, 255};
 static fw64ColorRGBA8 secondary_hair_color = {52, 209, 237, 255};
 static fw64ColorRGBA8 secondary_skin_color = {133, 97, 69, 255};
 
@@ -28,6 +27,11 @@ void player_palette_init(PlayerPalette* palette, fw64Engine* engine, fw64Mesh* p
         palette->primary_textures[i] = fw64_material_get_texture(material); 
     }
 
+    fw64Material* material = fw64_mesh_get_material_for_primitive(player_mesh, skin_primitive_indices[0]);
+    fw64_material_get_color(material, &primary_skin_color);
+    material = fw64_mesh_get_material_for_primitive(player_mesh, hair_primitive_indices[0]);
+    fw64_material_get_color(material, &primary_hair_color);
+
     palette->secondary_textures[0] = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_AltFaceTex, allocator), allocator);
     palette->secondary_textures[1] = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_AltPantsTex, allocator), allocator);
     palette->secondary_textures[2] = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_AltChestTex, allocator), allocator);
@@ -36,9 +40,9 @@ void player_palette_init(PlayerPalette* palette, fw64Engine* engine, fw64Mesh* p
 
 void player_palette_uninit(PlayerPalette* palette, fw64Engine* engine, fw64Allocator* allocator) {
     for (int i = 0; i < PALETTE_TEXTURE_PRIMITIVE_INDEX_COUNT; i++) {
-        fw64Image* image = fw64_texture_get_image(&palette->secondary_textures[i]);
+        fw64Image* image = fw64_texture_get_image(palette->secondary_textures[i]);
         fw64_image_delete(engine->assets, image, allocator);
-        fw64_texture_delete(engine->assets, &palette->secondary_textures[i]);
+        fw64_texture_delete(palette->secondary_textures[i], allocator);
     }
 }
 

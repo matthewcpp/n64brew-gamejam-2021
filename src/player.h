@@ -9,6 +9,7 @@
 #include "sparkle.h"
 #include "shadow.h"
 #include "game_settings.h"
+#include "player_palette.h"
 
 #define PLAYER_DEFAULT_ACCELERATION 50.0f
 #define PLAYER_DEFAULT_DECELERATION 50.0f
@@ -39,6 +40,8 @@ typedef struct {
 
     fw64AnimationData* animation_data;
     fw64AnimationController animation_controller;
+
+    PlayerPalette palette;
 
     int mesh_index;
 

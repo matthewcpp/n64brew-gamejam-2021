@@ -5,6 +5,8 @@
 #include "framework64/mesh.h"
 
 #define PALETTE_TEXTURE_PRIMITIVE_INDEX_COUNT 4
+#define HAIR_PRIMITVE_INDEX_COUNT 3
+#define SKIN_PRIMITIVE_INDEX_COUNT 5
 
 typedef struct {
     fw64Mesh* player_mesh;
