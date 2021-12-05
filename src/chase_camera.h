@@ -26,7 +26,12 @@ typedef struct {
     float target_forward_height;
     float camera_adjust_speed;
     float collision_radius;
-    CameraMode mode;
+
+    CameraMode mode, last_mode;
+    int mode_changed, mode_transition; //flags indicating we need to lerp to new position
+    Vec3 previous_mode_position, new_mode_ideal_position;
+    float mode_transition_current_distance, mode_transition_total_distance;
+
 } ChaseCamera;
 
 #ifdef __cplusplus
@@ -36,6 +41,7 @@ extern "C" {
 void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine);
 void chase_camera_reset(ChaseCamera* chase_cam, fw64Transform* target);
 void chase_camera_update(ChaseCamera* chase_cam);
+void chase_camera_set_mode(ChaseCamera* chase_cam, CameraMode new_mode, float new_dist, float new_height);
 void chase_camera_set_scene(ChaseCamera* chase_cam, fw64Scene* scene);
 void chase_camera_get_forward(ChaseCamera* chase_cam, Vec3* out);
 

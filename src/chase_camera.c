@@ -8,9 +8,9 @@
 #define CAMERA_FOLLOW_HEIGHT 12.0f
 #define CAMERA_FORWARD_TARGET_DIST 0.0f
 #define CAMERA_FORWARD_TARGET_HEIGHT 0.0f
-#define CAMERA_ADJUST_SPEED 20.0f
+#define CAMERA_ADJUST_SPEED 40.0f
 #define CAMERA_COLLISION_RADIUS 1.0f
-#define CAMERA_PROJ_MULT_H 0.27614f //magic math
+#define CAMERA_PROJ_MULT_H 0.27614f //magic projection math (assumes 45 degree vert fov and 4:3 aspect ratio)
 #define CAMERA_PROJ_MULT_V 0.20711f //same
 
 void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
@@ -32,6 +32,9 @@ void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
     chase_cam->camera_adjust_speed = CAMERA_ADJUST_SPEED;
     chase_cam->collision_radius = CAMERA_COLLISION_RADIUS;
     chase_cam->mode = CAMERA_MODE_CHASE;
+    chase_cam->last_mode = CAMERA_MODE_CHASE;
+    chase_cam->mode_changed = 0;
+    chase_cam->mode_transition = 0;
 }
 
 static void chase_camera_update_position(ChaseCamera* chase_cam) {
@@ -154,13 +157,40 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
             *camera_target_up_down -= (*camera_target_up_down - y_val - up_down_bounding);
         }
     }
-
+    
     //offset camera from target
     *camera_offset_up   = chase_cam->target_follow_height;
     *camera_offset_back = chase_cam->target_follow_dist;
-    vec3_add(&camera_pos, &camera_target, &vec_camera_settings_offset);
 
-    //detect scene geomatry blocking line of sight and move forward if needed
+    if(chase_cam->mode_changed) {
+        chase_cam->mode_transition = 1;
+        chase_cam->mode_changed = 0;
+        chase_cam->previous_mode_position = chase_cam->camera.transform.position;
+        vec3_add(&chase_cam->new_mode_ideal_position, &camera_target, &vec_camera_settings_offset);
+        chase_cam->mode_transition_total_distance = vec3_distance(&chase_cam->previous_mode_position, &chase_cam->new_mode_ideal_position);
+        chase_cam->mode_transition_current_distance = 0.0f;
+    }
+    else if(chase_cam->mode_transition) {
+        vec3_add(&chase_cam->new_mode_ideal_position, &camera_target, &vec_camera_settings_offset);
+        chase_cam->mode_transition_total_distance = vec3_distance(&chase_cam->previous_mode_position, &chase_cam->new_mode_ideal_position);
+
+        chase_cam->mode_transition_current_distance += chase_cam->camera_adjust_speed * chase_cam->engine->time->time_delta;
+
+        if(chase_cam->mode_transition_current_distance >= chase_cam->mode_transition_total_distance) {
+            vec3_copy(&camera_pos, &chase_cam->new_mode_ideal_position);
+            chase_cam->mode_transition = 0;
+        }
+        else {
+            float t = chase_cam->mode_transition_current_distance / chase_cam->mode_transition_total_distance;
+            vec3_smoothstep(&camera_pos, &chase_cam->previous_mode_position, &chase_cam->new_mode_ideal_position, t);
+        }        
+    }
+    else {
+        vec3_add(&camera_pos, &camera_target, &vec_camera_settings_offset);
+    }
+    
+
+    //detect scene geometry blocking line of sight and move forward if needed
     fw64RaycastHit ray_hit;
     Vec3 ray_dir;
     float min_camera_dist = 1.0f;
@@ -242,4 +272,12 @@ void chase_camera_get_forward(ChaseCamera* chase_cam, Vec3* out) {
     fw64_transform_forward(&chase_cam->camera.transform, out);
     out->y = 0.0f;
     vec3_normalize(out);
+}
+
+void chase_camera_set_mode(ChaseCamera* chase_cam, CameraMode new_mode, float new_dist, float new_height) {
+    chase_cam->last_mode = chase_cam->mode;
+    chase_cam->mode = new_mode;
+    chase_cam->target_follow_dist = new_dist;
+    chase_cam->target_follow_height = new_height;
+    chase_cam->mode_changed = 1;
 }

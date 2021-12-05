@@ -117,7 +117,6 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
     player_set_scene(&level->player, scene);
     tunnel_level_set_camera_for_scene(level);
     chase_camera_set_scene(&level->chase_cam, scene);
-    chase_camera_reset(&level->chase_cam, &level->player.node.transform);
 
     search_node = NULL;
     fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
@@ -208,17 +207,13 @@ void tunnel_level_set_camera_for_scene(TunnelLevel* level) {
     switch (current_scene->desc.index)
     {
         case FW64_ASSET_scene_lavapit:
-            level->chase_cam.mode = CAMERA_MODE_SIDE;
-            level->chase_cam.target_follow_dist = 30.0f;
-            level->chase_cam.target_follow_height = 15.0f;
+            chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_SIDE, 30.0f, 15.0f);
             break;
         case FW64_ASSET_scene_hallway:  /* fall through */
         case FW64_ASSET_scene_atrium:   /* fall through */   
         case FW64_ASSET_scene_firewall: /* fall through */
         default:
-            level->chase_cam.mode = CAMERA_MODE_CHASE;
-            level->chase_cam.target_follow_dist = 30.0f;
-            level->chase_cam.target_follow_height = 12.0f;
+            chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_CHASE, 30.0f, 12.0f);
             break;
     }
 }
