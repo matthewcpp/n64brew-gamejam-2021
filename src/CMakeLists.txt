@@ -8,6 +8,7 @@ set(src_files
 
     dialogue_window.h dialogue_window.c
     player.h player.c
+    player_palette.h player_palette.c
     shadow.h shadow.c
     sparkle.h sparkle.c
     scene_manager.h scene_manager.c
