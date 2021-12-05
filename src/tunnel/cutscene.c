@@ -50,7 +50,7 @@ static void set_cutscene_positions(Cutscene* cutscene) {
 
         Vec3 up = {0.0f, 1.0f, 0.0f};
 
-        cutscene->level->chase_cam.mode = CHASE_CAMERA_MANUAL;
+        cutscene->level->chase_cam.mode = CAMERA_MODE_MANUAL;
         cutscene->level->chase_cam.camera.transform.position = camera_pos;
         fw64_transform_look_at(&cutscene->level->chase_cam.camera.transform, &target, &up);
         fw64_camera_update_view_matrix(&cutscene->level->chase_cam.camera);

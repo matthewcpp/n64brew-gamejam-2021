@@ -19,8 +19,6 @@ void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
     chase_cam->camera.far = 250.0f;
     fw64_camera_update_projection_matrix(&chase_cam->camera);
 
-    chase_cam->mode = CHASE_CAMERA_HALLWAY;
-
     chase_cam->engine = engine;
     chase_cam->target = NULL;
     chase_cam->scene  = NULL;
@@ -210,9 +208,6 @@ static void chase_camera_update_input(ChaseCamera* chase_cam) {
 }
 
 void chase_camera_update(ChaseCamera* chase_cam) {
-    if (chase_cam->mode == CHASE_CAMERA_MANUAL)
-        return;
-
     chase_camera_update_position(chase_cam);
     chase_camera_update_input(chase_cam);
 }
