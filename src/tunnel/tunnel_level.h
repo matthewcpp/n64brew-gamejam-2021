@@ -46,6 +46,7 @@ void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings);
 void tunnel_level_load_next(TunnelLevel* level);
 int tunnel_level_player_is_dying(TunnelLevel* level);
 void tunnel_level_kill_player(TunnelLevel* level);
+void tunnel_level_set_camera_for_scene(TunnelLevel* level);
 #ifdef __cplusplus
 }
 #endif
