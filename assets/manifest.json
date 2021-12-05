@@ -65,6 +65,26 @@
             "hslices": 1,
             "vslices": 1,
             "format": "rgba32"
+        },
+        {
+            "src": "AltBackTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltChestTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltFaceTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltPantsTex.png",
+            "hslices": 1,
+            "vslices": 1
         }
     ],
     "meshes": [
