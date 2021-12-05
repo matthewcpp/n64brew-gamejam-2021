@@ -30,7 +30,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
 
     scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
-    tunnel_atrium_description(&desc);
+    tunnel_hallway_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
