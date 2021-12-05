@@ -16,7 +16,7 @@ typedef struct {
 extern "C" {
 #endif
 
-void player_palette_init(PlayerPalette* palette, fw64Engine* engine, fw64Allocator* allocator);
+void player_palette_init(PlayerPalette* palette, fw64Engine* engine, fw64Mesh* player_mesh, fw64Allocator* allocator);
 void player_palette_uninit(PlayerPalette* palette, fw64Engine* engine, fw64Allocator* allocator);
 
 void player_palette_activate_primary(PlayerPalette* palette);
