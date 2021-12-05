@@ -429,8 +429,13 @@ void update_position(Player* player) {
             Vec3 direction;
             vec3_subtract(&direction, &query_center, &hit->point);
             vec3_normalize(&direction);
+
+            Vec3 abs_dir = direction;
+            abs_dir.x = fw64_fabsf(direction.x);
+            abs_dir.y = fw64_fabsf(direction.y);
+            abs_dir.z = fw64_fabsf(direction.z);
             
-            int is_grounded = (direction.y > direction.x && direction.y > direction.z);
+            int is_grounded = (abs_dir.y > abs_dir.x && abs_dir.y > abs_dir.z);
 
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
