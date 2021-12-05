@@ -19,6 +19,10 @@ void fade_effect_start(FadeEffect* fade, FadeDirection direction, float duration
     fade->direction = direction;
 }
 
+void fade_effect_stop(FadeEffect* fade) {
+    fade->direction = FADE_NONE;
+}
+
 int fade_effect_is_active(FadeEffect* fade) {
     return fade->direction != FADE_NONE && fade->current_time < fade->duration;
 }
@@ -43,10 +47,10 @@ void fade_effect_draw(FadeEffect* fade, fw64Renderer* renderer) {
         return;
 
     float t = fade->current_time / fade->duration;
-    if (fade->direction == FADE_OUT)
+    if (fade->direction == FADE_IN)
         t = 1.0f - t;
 
     uint8_t alpha = (uint8_t)(t * 255.0f);
 
-    fw64_renderer_util_fullscreen_overlay(renderer, 255, 255, 255, alpha);
+    fw64_renderer_util_fullscreen_overlay(renderer, fade->color.r, fade->color.g, fade->color.b, alpha);
 }

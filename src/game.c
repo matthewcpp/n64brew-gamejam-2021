@@ -25,6 +25,10 @@ void game_update(Game* game){
         case GAME_STATE_PLAYING:
             playing_state_update(&game->states.playing);
         break;
+
+        case GAME_STATE_END:
+            end_screen_update(&game->states.end_screen);
+        break;
     }
 }
 
@@ -33,8 +37,13 @@ void game_draw(Game* game) {
         case GAME_STATE_TITLE:
             title_screen_draw(&game->states.title_screen);
         break;
+
         case GAME_STATE_PLAYING:
             playing_state_draw(&game->states.playing);
+        break;
+
+        case GAME_STATE_END:
+            end_screen_draw(&game->states.end_screen);
         break;
     }
 }
@@ -48,6 +57,10 @@ void game_set_current_state(Game* game, GameState next_state) {
         case GAME_STATE_PLAYING:
             playing_state_uninit(&game->states.playing);
         break;
+
+        case GAME_STATE_END:
+            end_screen_uninit(&game->states.end_screen);
+        break;
     }
 
     game->current_state = next_state;
@@ -59,6 +72,10 @@ void game_set_current_state(Game* game, GameState next_state) {
 
         case GAME_STATE_PLAYING:
             playing_state_init(&game->states.playing, game->engine, &game->state_data);
+        break;
+
+        case GAME_STATE_END:
+            end_screen_init(&game->states.end_screen, game->engine, &game->state_data);
         break;
     }
 }

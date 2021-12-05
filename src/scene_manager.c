@@ -18,10 +18,9 @@
 #define BUMP_ALLOCATOR_SIZE (64 * 1024)
 
 
-void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, int data_size, SceneFunc swap_func, fw64Transform* target) {
+void scene_manager_init(SceneManager* scene_manager, fw64Engine* engine, void* level_arg, SceneFunc swap_func, fw64Transform* target) {
     scene_manager->engine = engine;
     scene_manager->level_arg = level_arg;
-    scene_manager->data_size = data_size;
     scene_manager->current_scene = 0;
     scene_manager->swap_func = swap_func;
     scene_manager->target = target;
@@ -86,6 +85,15 @@ void scene_manager_draw(SceneManager* scene_manager) {
     }
 }
 
+void scene_manager_ui_draw(SceneManager* scene_manager) {
+    fw64Renderer* renderer = scene_manager->engine->renderer;
+    SceneRef* current_scene = CURRENT_SCENE_REF(scene_manager);
+
+    if (current_scene->desc.ui_draw_func) {
+        current_scene->desc.ui_draw_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+    }
+}
+
 static void apply_offset_to_scene(fw64Transform* offset, fw64Scene* scene) {
     uint32_t node_count = fw64_scene_get_node_count(scene);
 
@@ -106,19 +114,23 @@ static void set_scene_ref(SceneManager* scene_manager, int ref_index, SceneDescr
         if (scene_ref->desc.uninit_func) {
             scene_ref->desc.uninit_func(scene_manager->level_arg, scene_ref->scene, scene_ref->data);
         }
-        
-        fw64_bump_allocator_reset(&scene_ref->allocator);
     }
+
+    fw64_bump_allocator_reset(&scene_ref->allocator);
 
     // set up the new scene
     memcpy(&scene_ref->desc, description, sizeof(SceneDescription));
 
 
     scene_ref->scene = fw64_scene_load(scene_manager->engine->assets, scene_ref->desc.index, &scene_ref->allocator.interface);
-    scene_ref->data = scene_ref->allocator.interface.malloc(&scene_ref->allocator.interface, scene_manager->data_size);
+    scene_ref->data = scene_ref->allocator.interface.memalign(&scene_ref->allocator.interface, 8, scene_ref->desc.data_size);
 
     if (offset) {
+        scene_ref->offset = offset->position;
         apply_offset_to_scene(offset, scene_ref->scene);
+    }
+    else {
+        vec3_zero(&scene_ref->offset);
     }
 
     if (scene_ref->desc.init_func) {

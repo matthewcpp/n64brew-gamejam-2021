@@ -6,6 +6,12 @@
             "vslices": 4
         },
         {
+            "src": "overlay.png",
+            "hslices": 1,
+            "vslices": 1,
+            "format": "rgba32"
+        },
+        {
             "src": "shadow.png",
             "hslices": 1,
             "vslices": 1
@@ -53,6 +59,32 @@
             "src": "title_indicator.png",
             "hslices": 2,
             "vslices": 1
+        },
+        {
+            "src": "dialogue_next.png",
+            "hslices": 1,
+            "vslices": 1,
+            "format": "rgba32"
+        },
+        {
+            "src": "AltBackTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltChestTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltFaceTex.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "AltPantsTex.png",
+            "hslices": 1,
+            "vslices": 1
         }
     ],
     "meshes": [
@@ -60,16 +92,7 @@
             "src": "n64_logo_model/n64_logo.gltf"
         },
         {
-            "src": "penguin/penguin.gltf"
-        },
-        {
-            "src": "toad/toad.gltf"
-        },
-        {
-            "src": "boo/boo.gltf"
-        },
-        {
-            "src": "jack_o_lantern/jack_o_lantern.gltf"
+            "src": "girl/girl.gltf"
         }
         
     ],
@@ -88,6 +111,12 @@
             "src": "Consolas.ttf",
             "size": 12,
             "name": "Consolas12"
+        },
+        {
+            "src": "Consolas.ttf",
+            "size": 12,
+            "name": "Dialogue",
+            "sourceFile": "dialogue.txt"
         },
         {
             "image": {
@@ -170,6 +199,7 @@
         }
     ],
     "raw": [
+        "dialogue.txt"
     ],
     "typeMaps": [
         {
@@ -179,7 +209,8 @@
             "nextscene": 100,
             "connector": 101,
             "key": 200,
-            "fire": 300
+            "fire": 300,
+            "girl": 400
         }
     ],
     "layerMaps": [

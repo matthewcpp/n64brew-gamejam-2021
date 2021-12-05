@@ -11,6 +11,7 @@ void tunnel_firewall_description(SceneDescription* desc) {
     memset(desc, 0, sizeof(SceneDescription));
 
     desc->index = FW64_ASSET_scene_firewall;
+    desc->data_size = sizeof(Firewall);
     desc->init_func = tunnel_firewall_init;
     desc->update_func = tunnel_firewall_update;
     desc->draw_func = tunnel_firewall_draw;
