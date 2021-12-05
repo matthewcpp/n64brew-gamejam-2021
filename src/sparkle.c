@@ -5,21 +5,26 @@
 
 static void sparkle_reset_time(Sparkle* sparkle);
 
-void sparkle_init(Sparkle* sparkle, fw64Engine* engine) {
+void sparkle_init(Sparkle* sparkle, fw64Engine* engine, fw64Allocator* allocator) {
     sparkle->engine = engine;
     fw64_node_init(&sparkle->node);
 
-    fw64Image* spritesheet = fw64_image_load_with_options(engine->assets, FW64_ASSET_image_sparkle, FW64_IMAGE_FLAG_DMA_MODE, NULL);
+    sparkle->image = fw64_image_load_with_options(engine->assets, FW64_ASSET_image_sparkle, FW64_IMAGE_FLAG_DMA_MODE, allocator);
     fw64TexturedQuadParams params;
 
     fw64_textured_quad_params_init(&params);
-    params.image = spritesheet;
+    params.image = sparkle->image; //note: image resource is not cleaned up when passed in via params
     params.is_animated = 1;
 
-    sparkle->quad = fw64_textured_quad_create_with_params(engine, &params, NULL);
+    sparkle->quad = fw64_textured_quad_create_with_params(engine, &params, allocator);
 
     sparkle_reset_time(sparkle);
     sparkle->is_active = 0;
+}
+
+void sparkle_uninit(Sparkle* sparkle, fw64Allocator* allocator) {
+    fw64_mesh_delete(sparkle->engine->assets, sparkle->quad, allocator);
+    fw64_image_delete(sparkle->engine->assets, sparkle->image, allocator);
 }
 
 void sparkle_update(Sparkle* sparkle) {

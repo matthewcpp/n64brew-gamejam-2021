@@ -15,6 +15,7 @@ typedef struct {
     float frame_time;
     int frame_index;
     fw64Engine* engine;
+    fw64Image* image;
     fw64Mesh* quad;
     fw64Node node;
 } Sparkle;
@@ -24,7 +25,8 @@ extern "C" {
 #endif
 
 
-void sparkle_init(Sparkle* sparkle, fw64Engine* engine);
+void sparkle_init(Sparkle* sparkle, fw64Engine* engine, fw64Allocator* allocator);
+void sparkle_uninit(Sparkle* sparkle, fw64Allocator* allocator);
 void sparkle_update(Sparkle* sparkle);
 void sparkle_draw(Sparkle* sparkle);
 void sparkle_start(Sparkle* sparkle);

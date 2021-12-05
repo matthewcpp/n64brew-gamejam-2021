@@ -1,12 +1,13 @@
 #pragma once
 
+#include "framework64/util/bump_allocator.h"
+
 #include "ui.h"
 #include "chase_camera.h"
 #include "scene_manager.h"
 #include "fade_effect.h"
 #include "trigger_box.h"
 #include "states/gamestates.h"
-
 
 typedef struct {
     fw64Engine* engine;
@@ -21,6 +22,7 @@ typedef struct {
     int debug;
     fw64SoundBank* sound_bank;
     fw64MusicBank* music_bank;
+    fw64BumpAllocator bump_allocator;
 } TunnelLevel;
 
 #ifdef __cplusplus

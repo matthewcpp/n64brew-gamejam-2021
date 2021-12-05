@@ -3,6 +3,7 @@
 #include "gamestates.h"
 #include "ui_navigation.h"
 
+#include "framework64/util/bump_allocator.h"
 #include "framework64/engine.h"
 
 typedef enum MenuChoices {
@@ -25,6 +26,7 @@ typedef struct {
     fw64Texture* indicator_texture;
     int menu_selection ;
     IVec2 measurements[9];
+    fw64BumpAllocator allocator;
 } TitleScreen;
 
 #ifdef __cplusplus
