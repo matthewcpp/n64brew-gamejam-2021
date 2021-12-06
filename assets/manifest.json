@@ -17,6 +17,21 @@
             "vslices": 1
         },
         {
+            "src": "ui_active.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "ui_inactive.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "ui_unplugged.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
             "name": "lava_sprite",
             "frames": [
                 "lava/lava_02.png",

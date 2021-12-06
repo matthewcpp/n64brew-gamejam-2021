@@ -22,6 +22,10 @@ typedef struct {
     UIMode mode;
     float timer;
     int timer_running;
+    unsigned char controller_state[4];
+    fw64Texture* ui_cont_active_texture;
+    fw64Texture* ui_cont_inactive_texture;
+    fw64Texture* ui_cont_unplugged_texture;
 } UI;
 
 #ifdef __cplusplus
@@ -29,6 +33,7 @@ extern "C" {
 #endif
 
 void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera);
+void ui_uninit(UI* ui);
 void ui_update(UI* ui);
 void ui_draw(UI* ui);
 void ui_set_mode(UI* ui, UIMode mode);
