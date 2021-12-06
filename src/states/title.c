@@ -1,10 +1,14 @@
 #include "title.h"
 
 #include "assets.h"
+#include "catherine_title_animation.h"
 
 #include "framework64/n64/controller_button.h"
 
-#define TITLE_SCREEN_ALLOCATOR_SIZE 64 * 1024
+#define TITLE_SCREEN_ALLOCATOR_SIZE 128 * 1024
+
+static void setup_camera(TitleScreen* title_screen);
+static void update_camera(TitleScreen* title_screen);
 
 void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateData* game_state){
         title_screen->engine = engine;
@@ -33,9 +37,16 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
         title_screen->measurements[8] = fw64_font_measure_text(title_screen->menu_font, "slow");
 
         title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, allocator), allocator);
+
+        title_animation_init(&title_screen->animation, engine, catherine_title_animation_Idle, allocator);
+        player_palette_init(&title_screen->palette, engine, title_screen->animation.mesh, allocator);
+        setup_camera(title_screen);
+        title_screen->rotation = 0.0f;
 }
 
 void title_screen_update(TitleScreen* title_screen){
+    update_camera(title_screen);
+    title_animation_update(&title_screen->animation);
     ui_navigation_update(&title_screen->ui_navigation);
 
     if (title_screen->menu_selection == MENU_CHOICE_SINGLE_PLAYER && ui_navigation_moved_down(&title_screen->ui_navigation)) {
@@ -160,9 +171,16 @@ void title_screen_update(TitleScreen* title_screen){
 void title_screen_draw(TitleScreen* title_screen){
     fw64Renderer* renderer = title_screen->engine->renderer;
     IVec2 screen_size;
-
     fw64_renderer_get_screen_size(renderer, &screen_size);
-    fw64_renderer_begin(renderer, &title_screen->camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_CLEAR);
+
+    fw64_renderer_begin(renderer, &title_screen->camera, FW64_RENDERER_MODE_TRIANGLES, FW64_RENDERER_FLAG_CLEAR);
+    player_palette_activate_primary(&title_screen->palette);
+    fw64_renderer_draw_animated_mesh(title_screen->engine->renderer, title_screen->animation.mesh, &title_screen->animation.animation_controller, &title_screen->animation.transforms[0]);
+    player_palette_activate_secondary(&title_screen->palette);
+    fw64_renderer_draw_animated_mesh(title_screen->engine->renderer, title_screen->animation.mesh, &title_screen->animation.animation_controller, &title_screen->animation.transforms[1]);
+    fw64_renderer_end(renderer, FW64_RENDERER_FLAG_NOSWAP);
+
+    fw64_renderer_begin(renderer, &title_screen->camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
 
     int x_pos = (screen_size.x / 2) - (title_screen->measurements[0].x / 2);
     fw64_renderer_draw_text(renderer, title_screen->title_font, x_pos,5, "title");
@@ -250,3 +268,36 @@ void title_screen_uninit(TitleScreen* title_screen) {
     fw64_bump_allocator_uninit(&title_screen->allocator);
 }
 
+void setup_camera(TitleScreen* end_screen) {
+    fw64_camera_init(&end_screen->camera);
+    end_screen->camera.near = 1;
+    end_screen->camera.far = 25.0f;
+    fw64_camera_update_projection_matrix(&end_screen->camera);
+
+    vec3_set(&end_screen->camera.transform.position, 0.0f, 3.0f, 5.0f);
+
+    Vec3 target = {0.0f, 4.0f, 0.0f};
+    Vec3 up = {0.0f, 1.0f, 0.0f};
+    fw64_transform_look_at(&end_screen->camera.transform, &target, &up);
+    fw64_camera_update_view_matrix(&end_screen->camera);
+
+}
+
+void update_camera(TitleScreen* title_screen) {
+    title_screen->rotation += 45.0f * title_screen->engine->time->time_delta;
+    Vec3 forward = {0.0f, 0.0f, 1.0f};
+    Quat orbit_quat;
+    quat_from_euler(&orbit_quat, 0.0f, title_screen->rotation, 0.0f);
+    Vec3 orbit_pos;
+    quat_transform_vec3(&orbit_pos, &orbit_quat, &forward);
+    vec3_scale(&orbit_pos, &orbit_pos, 6.5f);
+
+    title_screen->camera.transform.position.x = orbit_pos.x;
+    title_screen->camera.transform.position.y = 3.5;
+    title_screen->camera.transform.position.z = orbit_pos.z;
+
+    Vec3 target = {0.0f, 4.0f, 0.0f};
+    Vec3 up = {0.0f, 1.0f, 0.0f};
+    fw64_transform_look_at(&title_screen->camera.transform, &target, &up);
+    fw64_camera_update_view_matrix(&title_screen->camera);
+}

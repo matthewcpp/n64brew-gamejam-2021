@@ -28,5 +28,6 @@
         "atrium.h": "c",
         "hallway.h": "c",
         "assert.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": true
 }

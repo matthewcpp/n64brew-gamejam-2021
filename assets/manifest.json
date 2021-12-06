@@ -129,6 +129,13 @@
                 "Run",
                 "Walk"
             ]
+        },
+        {
+            "src": "catherine/catherine_title.gltf",
+            "animations": [
+                "Idle",
+                "Tired"
+            ]
         }
     ],
     "fonts": [

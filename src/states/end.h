@@ -3,6 +3,7 @@
 #include "gamestates.h"
 
 #include "ui_navigation.h"
+#include "title_animation.h"
 
 #include "framework64/engine.h"
 #include "framework64/util/bump_allocator.h"
@@ -12,6 +13,7 @@ typedef struct {
     GameStateData* game_state;
     fw64Camera camera;
     UiNavigation ui_navigation;
+    TitleAnimation animation;
     fw64BumpAllocator allocator;
 } EndScreen;
 
