@@ -32,6 +32,16 @@
             "vslices": 1
         },
         {
+            "src": "ui_clock.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
+            "src": "ui_skull.png",
+            "hslices": 1,
+            "vslices": 1
+        },
+        {
             "name": "lava_sprite",
             "frames": [
                 "lava/lava_02.png",

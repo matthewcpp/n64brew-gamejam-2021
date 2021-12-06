@@ -26,6 +26,8 @@ typedef struct {
     fw64Texture* ui_cont_active_texture;
     fw64Texture* ui_cont_inactive_texture;
     fw64Texture* ui_cont_unplugged_texture;
+    fw64Texture* ui_clock_texture;
+    fw64Texture* ui_skull_texture;
 } UI;
 
 #ifdef __cplusplus

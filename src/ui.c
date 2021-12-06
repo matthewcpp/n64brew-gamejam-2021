@@ -15,6 +15,8 @@ void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera) {
     ui->ui_cont_active_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_active, NULL), NULL);
     ui->ui_cont_inactive_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_inactive, NULL), NULL);
     ui->ui_cont_unplugged_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_unplugged, NULL), NULL);
+    ui->ui_clock_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_clock, NULL), NULL);
+    ui->ui_skull_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_skull, NULL), NULL);
 }
 
 void ui_uninit(UI* ui) {
@@ -29,6 +31,14 @@ void ui_uninit(UI* ui) {
     ui_image = fw64_texture_get_image(ui->ui_cont_unplugged_texture);
     fw64_image_delete(ui->engine->assets, ui_image, NULL);
     fw64_texture_delete(ui->ui_cont_unplugged_texture, NULL);
+
+    ui_image = fw64_texture_get_image(ui->ui_clock_texture);
+    fw64_image_delete(ui->engine->assets, ui_image, NULL);
+    fw64_texture_delete(ui->ui_clock_texture, NULL);
+
+    ui_image = fw64_texture_get_image(ui->ui_skull_texture);
+    fw64_image_delete(ui->engine->assets, ui_image, NULL);
+    fw64_texture_delete(ui->ui_skull_texture, NULL);
     
     fw64_font_delete(ui->engine->assets, ui->font, NULL);
 }
@@ -102,7 +112,13 @@ void normal_hud_update(UI* ui) {
         }
         ui->controller_state[i] = 0;
     }
-    sprintf(ui->status_text, "%.2f                               %d", ui->timer, ui->player->deaths);
+    int sec, min, hour;
+    sec = floor(ui->timer);
+    hour = sec / 3600;
+    min = (sec / 60) % 60;
+    sec = sec % 60;
+    sprintf(ui->status_text, "%01d:%02d:%02d", hour, min, sec);
+    sprintf(ui->camera_text, "%3d", ui->player->deaths);
     return;
 }
 
@@ -183,19 +199,25 @@ void debug_camera_update(UI* ui) {
 
 void normal_hud_draw(UI* ui) {
 
-    fw64_renderer_draw_text(ui->engine->renderer, ui->font, 16,16, ui->status_text);
+    fw64_renderer_draw_text(ui->engine->renderer, ui->font, 36,24, ui->status_text);
+    fw64_renderer_draw_sprite_slice(ui->engine->renderer, ui->ui_clock_texture, 0, 16, 16);
+
+    fw64_renderer_draw_text(ui->engine->renderer, ui->font, 260,24, ui->camera_text);
+    fw64_renderer_draw_sprite(ui->engine->renderer, ui->ui_skull_texture, 284, 20);
+    
+
     int startx = 90;
     int offsetx = 34;
     for(int i = 0; i < 4; i++)
     {
         if(ui->controller_state[i]) {
-            fw64_renderer_draw_sprite(ui->engine->renderer, ui->ui_cont_inactive_texture, startx + (offsetx * i), 16);
+            fw64_renderer_draw_sprite_slice(ui->engine->renderer, ui->ui_cont_inactive_texture, 0, startx + (offsetx * i), 16);
         }
         else {
-            fw64_renderer_draw_sprite(ui->engine->renderer, ui->ui_cont_unplugged_texture, startx + (offsetx * i), 16);
+            fw64_renderer_draw_sprite_slice(ui->engine->renderer, ui->ui_cont_unplugged_texture, 0, startx + (offsetx * i), 16);
         }
     }
-    fw64_renderer_draw_sprite(ui->engine->renderer, ui->ui_cont_active_texture, startx + (offsetx * ui->player->controller_num), 16);
+    fw64_renderer_draw_sprite_slice(ui->engine->renderer, ui->ui_cont_active_texture, 0, startx + (offsetx * ui->player->controller_num), 16);
     return;
 }
 
