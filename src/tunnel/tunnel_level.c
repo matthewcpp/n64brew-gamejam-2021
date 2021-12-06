@@ -62,6 +62,10 @@ void tunnel_level_update(TunnelLevel* level){
         return;
     }
 
+    if (fw64_audio_get_music_status(level->engine->audio) == FW64_AUDIO_STOPPED) {
+        fw64_audio_play_music(level->engine->audio, music_bank_music_runnyeye);
+    }
+
     trigger_box_update(&level->next_scene_trigger);
 
     if (trigger_box_was_triggered(&level->next_scene_trigger)) {
