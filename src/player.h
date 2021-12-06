@@ -79,6 +79,10 @@ typedef struct {
     Shadow shadow;
     fw64Node* ground_node;
     GameSettings* settings;
+
+    unsigned int deaths;
+
+
 } Player;
 
 #ifdef __cplusplus

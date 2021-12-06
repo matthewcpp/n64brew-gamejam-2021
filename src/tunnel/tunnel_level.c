@@ -29,7 +29,8 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     chase_camera_init(&level->chase_cam, engine);
     chase_camera_reset(&level->chase_cam, &level->player.node.transform);
     
-    ui_init(&level->ui, engine, &level->player, allocator);
+    ui_init(&level->ui, engine, &level->player, &level->chase_cam);
+    ui_set_mode(&level->ui, UI_MODE_NORMAL_HUD);
 
     scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
     SceneDescription desc;
@@ -42,7 +43,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     fade_effect_init(&level->fade_effect);
     level->fade_effect.color = fade_color;
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
-
+  
     level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects, allocator);
     level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music, allocator);
 
@@ -72,13 +73,11 @@ void tunnel_level_update(TunnelLevel* level){
     //this is just a little FOV trick to make dashing look "fast"
     //todo: this is hacky and should go somewhere else for better consistency
     //      but i couldn't figure out how to shove it into player update
-    if(level->player.is_dashing)
-    {
+    if(level->player.is_dashing && level->chase_cam.mode == CAMERA_MODE_CHASE) {
         level->chase_cam.camera.fovy = ((level->chase_cam.camera.fovy + (45.0f + (2.0f * (level->player.speed / level->player.max_speed)))) / 2.0f );
         fw64_camera_update_projection_matrix(&level->chase_cam.camera);
     }
-    else
-    {
+    else {
         level->chase_cam.camera.fovy = 45.0f;
         fw64_camera_update_projection_matrix(&level->chase_cam.camera);
     }
@@ -212,6 +211,7 @@ void tunnel_level_kill_player(TunnelLevel* level) {
     }
 
     level->player.process_input = 0;
+    level->player.deaths++;
     fade_effect_start(&level->fade_effect, FADE_OUT, 0.35f);
 }
 

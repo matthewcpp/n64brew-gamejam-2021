@@ -41,6 +41,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, fw64Alloc
     player->roll_timer_max = PLAYER_DEFAULT_ROLL_TIME;
 
     player->mesh_index = 0;
+    player->deaths = 0;
 
     fw64_node_init(&player->node);
     fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, allocator);
@@ -59,6 +60,7 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, fw64Alloc
     sparkle_init(&player->sparkle, engine, allocator);
     shadow_init(&player->shadow, engine, NULL, &player->node.transform, allocator);
 }
+
 
 void player_uninit(Player* player, fw64Allocator* allocator) {
     fw64_mesh_delete(player->engine->assets, player->node.mesh, allocator);

@@ -142,7 +142,7 @@ static void initial_fade_out_complete(FadeDirection direction, void* arg) {
 
 void cutscene_start(Cutscene* cutscene) {
     cutscene->state = CUTSCENE_FADING_OUT;
-    cutscene->level->ui.active = 0;
+    cutscene->level->ui.mode = UI_MODE_NONE;
     fw64ColorRGBA8 black = {0, 0, 0, 255};
     cutscene->level->fade_effect.color = black;
     fade_effect_set_callback(&cutscene->level->fade_effect, initial_fade_out_complete, cutscene);
