@@ -50,9 +50,12 @@ void scene_manager_update(SceneManager* scene_manager){
         }
     }
 
-    // we only update the current scene
     if (current_scene->scene && current_scene->desc.update_func) {
         current_scene->desc.update_func(scene_manager->level_arg, current_scene->scene, current_scene->data);
+    }
+
+    if (next_scene->scene && next_scene->desc.update_func) {
+        next_scene->desc.update_func(scene_manager->level_arg, next_scene->scene, next_scene->data);
     }
 }
 
