@@ -35,8 +35,8 @@ extern "C" {
 #endif
 
 
-void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera);
-void ui_uninit(UI* ui);
+void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera, fw64Allocator* allocator);
+void ui_uninit(UI* ui, fw64Allocator* allocator);
 
 void ui_update(UI* ui);
 void ui_draw(UI* ui);

@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera) {
+void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera, fw64Allocator* allocator) {
     ui->engine = engine;
     ui->player = player;
     ui->camera = camera;
@@ -12,35 +12,35 @@ void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera) {
     ui->font = fw64_font_load(engine->assets, FW64_ASSET_font_Consolas12, NULL);
     ui->timer = 0.0f;
     ui->timer_running = 1;
-    ui->ui_cont_active_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_active, NULL), NULL);
-    ui->ui_cont_inactive_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_inactive, NULL), NULL);
-    ui->ui_cont_unplugged_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_unplugged, NULL), NULL);
-    ui->ui_clock_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_clock, NULL), NULL);
-    ui->ui_skull_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_skull, NULL), NULL);
+    ui->ui_cont_active_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_active, allocator), allocator);
+    ui->ui_cont_inactive_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_inactive, allocator), allocator);
+    ui->ui_cont_unplugged_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_unplugged, allocator), allocator);
+    ui->ui_clock_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_clock, allocator), allocator);
+    ui->ui_skull_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_ui_skull, allocator), allocator);
 }
 
-void ui_uninit(UI* ui) {
+void ui_uninit(UI* ui, fw64Allocator* allocator) {
     fw64Image* ui_image = fw64_texture_get_image(ui->ui_cont_active_texture);
-    fw64_image_delete(ui->engine->assets, ui_image, NULL);
-    fw64_texture_delete(ui->ui_cont_active_texture, NULL);
+    fw64_image_delete(ui->engine->assets, ui_image, allocator);
+    fw64_texture_delete(ui->ui_cont_active_texture, allocator);
     
     ui_image = fw64_texture_get_image(ui->ui_cont_inactive_texture);
-    fw64_image_delete(ui->engine->assets, ui_image, NULL);
-    fw64_texture_delete(ui->ui_cont_inactive_texture, NULL);
+    fw64_image_delete(ui->engine->assets, ui_image, allocator);
+    fw64_texture_delete(ui->ui_cont_inactive_texture, allocator);
     
     ui_image = fw64_texture_get_image(ui->ui_cont_unplugged_texture);
-    fw64_image_delete(ui->engine->assets, ui_image, NULL);
-    fw64_texture_delete(ui->ui_cont_unplugged_texture, NULL);
+    fw64_image_delete(ui->engine->assets, ui_image, allocator);
+    fw64_texture_delete(ui->ui_cont_unplugged_texture, allocator);
 
     ui_image = fw64_texture_get_image(ui->ui_clock_texture);
-    fw64_image_delete(ui->engine->assets, ui_image, NULL);
-    fw64_texture_delete(ui->ui_clock_texture, NULL);
+    fw64_image_delete(ui->engine->assets, ui_image, allocator);
+    fw64_texture_delete(ui->ui_clock_texture, allocator);
 
     ui_image = fw64_texture_get_image(ui->ui_skull_texture);
-    fw64_image_delete(ui->engine->assets, ui_image, NULL);
-    fw64_texture_delete(ui->ui_skull_texture, NULL);
+    fw64_image_delete(ui->engine->assets, ui_image, allocator);
+    fw64_texture_delete(ui->ui_skull_texture, allocator);
     
-    fw64_font_delete(ui->engine->assets, ui->font, NULL);
+    fw64_font_delete(ui->engine->assets, ui->font, allocator);
 }
 
 static void normal_hud_update(UI* ui);

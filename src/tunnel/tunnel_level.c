@@ -29,7 +29,7 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     chase_camera_init(&level->chase_cam, engine);
     chase_camera_reset(&level->chase_cam, &level->player.node.transform);
     
-    ui_init(&level->ui, engine, &level->player, &level->chase_cam);
+    ui_init(&level->ui, engine, &level->player, &level->chase_cam, allocator);
     ui_set_mode(&level->ui, UI_MODE_NORMAL_HUD);
 
     scene_manager_init(&level->scene_manager, engine, level, tunnel_level_scene_activated, &level->player.node.transform);
