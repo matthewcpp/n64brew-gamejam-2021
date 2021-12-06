@@ -2,6 +2,7 @@
 
 #include "gamestates.h"
 #include "ui_navigation.h"
+#include "title_animation.h"
 
 #include "framework64/util/bump_allocator.h"
 #include "framework64/engine.h"
@@ -26,6 +27,9 @@ typedef struct {
     fw64Texture* indicator_texture;
     int menu_selection ;
     IVec2 measurements[9];
+    TitleAnimation animation;
+    PlayerPalette palette;
+    float rotation;
     fw64BumpAllocator allocator;
 } TitleScreen;
 
