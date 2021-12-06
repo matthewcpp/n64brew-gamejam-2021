@@ -228,6 +228,42 @@
             },
             "name": "end_font_title",
             "sourceString": " acelr"
+        },
+                {
+            "image": {
+                "name": "end_font_text_image",
+                "frames": [
+                    "fire_font/let_sp.png",
+                    "fire_font/quote_two.png",
+                    "fire_font/quote_one.png",
+                    "fire_font/num_0.png",
+                    "fire_font/num_1.png",
+                    "fire_font/num_2.png",
+                    "fire_font/num_3.png",
+
+                    "fire_font/num_4.png",
+                    "fire_font/num_5.png",
+                    "fire_font/num_6.png",
+                    "fire_font/num_7.png",
+                    "fire_font/num_8.png",
+                    "fire_font/num_9.png",
+                    "fire_font/let_a.png",
+
+                    "fire_font/let_d.png",
+                    "fire_font/let_e.png",
+                    "fire_font/let_h.png",
+                    "fire_font/let_i.png",
+                    "fire_font/let_m.png",
+                    "fire_font/let_s.png",
+                    "fire_font/let_t.png"
+                ],
+                "frameSize": "32x32",
+                "resize": "112x48",
+                "hslices": 7,
+                "vslices": 3
+            },
+            "name": "end_font_text",
+            "sourceString": " \"'0123456789adehimst"
         }
     ],
     "soundBanks": [

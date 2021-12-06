@@ -15,7 +15,10 @@ typedef struct {
     UiNavigation ui_navigation;
     TitleAnimation animation;
     fw64Font* title_font;
-    IVec2 measurements[2];
+    fw64Font* text_font;
+    IVec2 measurements[6];
+    char time_str[16];
+    char death_str[16];
     fw64BumpAllocator allocator;
 } EndScreen;
 

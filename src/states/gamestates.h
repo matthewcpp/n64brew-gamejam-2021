@@ -21,6 +21,9 @@ typedef struct {
     /** set this to the level you want to load on the next update frame */
     LevelId transition_level;
 
+    int death_count;
+    int seconds_count;
+
     GameSettings settings;
 } GameStateData;
 

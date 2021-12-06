@@ -52,8 +52,12 @@ void tunnel_atrium_update(void* level_arg, fw64Scene* scene, void* data_arg) {
             cutscene_start(&atrium->cutscene); 
     }
 
-    if (atrium->cutscene.state == CUTSCENE_COMPLETE)
+    if (atrium->cutscene.state == CUTSCENE_COMPLETE) {
+        level->state_data->death_count = level->player.deaths;
+        level->state_data->seconds_count = (int)level->ui.timer;
         level->state_data->transition_state = GAME_STATE_END;
+    }
+        
 }
 
 void tunnel_atrium_draw(void* level_arg, fw64Scene* scene, void* data_arg) {
