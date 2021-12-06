@@ -4,17 +4,21 @@
 #include "layermap.h"
 
 
-void shadow_init(Shadow* shadow, fw64Engine* engine, fw64Scene* scene, fw64Transform* target) {
+void shadow_init(Shadow* shadow, fw64Engine* engine, fw64Scene* scene, fw64Transform* target, fw64Allocator* allocator) {
     shadow->engine = engine;
     shadow->scene = scene;
     shadow->target = target;
     fw64_node_init(&shadow->node);
     
-    shadow->quad = fw64_textured_quad_create(engine, FW64_ASSET_image_shadow, NULL);
+    shadow->quad = fw64_textured_quad_create(engine, FW64_ASSET_image_shadow, allocator);
     fw64Material* material = fw64_mesh_get_material_for_primitive(shadow->quad, 0);
     fw64_material_set_shading_mode(material, FW64_SHADING_MODE_DECAL_TEXTURE);
     
     shadow->is_active = 1;
+}
+
+void shadow_uninit(Shadow* shadow, fw64Allocator* allocator) {
+    fw64_mesh_delete(shadow->engine->assets, shadow->quad, allocator);
 }
 
 void shadow_update(Shadow* shadow) {

@@ -34,14 +34,17 @@ typedef struct {
 extern "C" {
 #endif
 
+
 void ui_init(UI* ui, fw64Engine* engine, Player* player, ChaseCamera* camera);
 void ui_uninit(UI* ui);
+
 void ui_update(UI* ui);
 void ui_draw(UI* ui);
 void ui_set_mode(UI* ui, UIMode mode);
 void ui_start_timer(UI* ui);
 void ui_stop_timer(UI* ui);
 void ui_reset_timer(UI* ui);
+  
 #ifdef __cplusplus
 }
 #endif

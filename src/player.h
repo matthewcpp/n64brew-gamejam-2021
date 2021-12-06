@@ -89,7 +89,8 @@ typedef struct {
 extern "C" {
 #endif
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene);
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, fw64Allocator* allocator);
+void player_uninit(Player* player, fw64Allocator* allocator);
 void player_update(Player* player);
 void player_draw(Player* player);
 

@@ -6,6 +6,9 @@
 #include "scene_hallway.h"
 #include "typemap.h"
 
+// TODO: this can probably be tweaked...the current debug font is really big
+#define TUNNEL_ALLOCATOR_SIZE 200 * 1024
+
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 static void on_fade_effect_complete(FadeDirection direction, void* arg);
 
@@ -15,7 +18,10 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
 
     level->game_settings = NULL;
 
-    player_init(&level->player, level->engine, NULL);
+    fw64_bump_allocator_init(&level->bump_allocator, TUNNEL_ALLOCATOR_SIZE);
+    fw64Allocator* allocator = &level->bump_allocator.interface;
+
+    player_init(&level->player, level->engine, NULL, allocator);
     vec3_set_all(&level->player.node.transform.scale, 0.02f);
     fw64_node_update(&level->player.node);
     player_calculate_size(&level->player);
@@ -37,9 +43,9 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     fade_effect_init(&level->fade_effect);
     level->fade_effect.color = fade_color;
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
-
-    level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects, NULL);
-    level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music, NULL);
+  
+    level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects, allocator);
+    level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music, allocator);
 
     fw64_audio_set_sound_bank(engine->audio, level->sound_bank);
     fw64_audio_set_music_bank(engine->audio, level->music_bank);
@@ -127,6 +133,17 @@ void tunnel_level_uninit(TunnelLevel* level) {
     fw64_audio_stop_music(level->engine->audio);
     
     fw64_audio_set_music_volume(level->engine->audio, 1.0f);
+
+    fw64Allocator* allocator = &level->bump_allocator.interface;
+    player_uninit(&level->player, allocator);
+    fw64_sound_bank_delete(level->engine->assets, level->sound_bank, allocator);
+    fw64_music_bank_delete(level->engine->assets, level->music_bank, allocator);
+
+    scene_manager_uninit(&level->scene_manager);
+
+    ui_uninit(&level->ui, allocator);
+
+    fw64_bump_allocator_uninit(&level->bump_allocator);
 }
 
 void tunnel_level_set_game_settings(TunnelLevel* level, GameSettings* settings) {

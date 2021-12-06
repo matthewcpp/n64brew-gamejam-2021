@@ -4,14 +4,19 @@
 
 #include "framework64/n64/controller_button.h"
 
+#define TITLE_SCREEN_ALLOCATOR_SIZE 64 * 1024
+
 void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateData* game_state){
         title_screen->engine = engine;
         title_screen->game_state = game_state;
 
         ui_navigation_init(&title_screen->ui_navigation, engine->input);
 
-        title_screen->title_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_font, NULL);
-        title_screen->menu_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_menu_font, NULL);
+        fw64_bump_allocator_init(&title_screen->allocator, TITLE_SCREEN_ALLOCATOR_SIZE);
+        fw64Allocator* allocator = &title_screen->allocator.interface;
+
+        title_screen->title_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_font, allocator);
+        title_screen->menu_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_menu_font, allocator);
 
         title_screen->menu_selection = MENU_CHOICE_SINGLE_PLAYER;
 
@@ -27,7 +32,7 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
         title_screen->measurements[7] = fw64_font_measure_text(title_screen->menu_font, "med");
         title_screen->measurements[8] = fw64_font_measure_text(title_screen->menu_font, "slow");
 
-        title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, NULL), NULL);
+        title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, allocator), allocator);
 }
 
 void title_screen_update(TitleScreen* title_screen){
@@ -233,11 +238,15 @@ void title_screen_draw(TitleScreen* title_screen){
 }
 
 void title_screen_uninit(TitleScreen* title_screen) {
+    fw64Allocator* allocator = &title_screen->allocator.interface;
+
     fw64Image* indicators = fw64_texture_get_image(title_screen->indicator_texture);
 
-    fw64_font_delete(title_screen->engine->assets, title_screen->title_font, NULL);
-    fw64_font_delete(title_screen->engine->assets, title_screen->menu_font, NULL);
-    fw64_image_delete(title_screen->engine->assets, indicators, NULL);
-    fw64_texture_delete(title_screen->indicator_texture, NULL);
+    fw64_font_delete(title_screen->engine->assets, title_screen->title_font, allocator);
+    fw64_font_delete(title_screen->engine->assets, title_screen->menu_font, allocator);
+    fw64_image_delete(title_screen->engine->assets, indicators, allocator);
+    fw64_texture_delete(title_screen->indicator_texture, allocator);
+
+    fw64_bump_allocator_uninit(&title_screen->allocator);
 }
 

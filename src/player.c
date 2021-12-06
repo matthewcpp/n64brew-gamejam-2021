@@ -9,8 +9,6 @@
 #include "framework64/n64/controller_button.h"
 #include "framework64/matrix.h"
 
-
-
 #include <stdio.h>
 #include <string.h>
 
@@ -20,7 +18,7 @@ static void update_position(Player* player);
 
 static void player_tweak_root_animation_rotation(Player* player);
 
-void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
+void player_init(Player* player, fw64Engine* engine, fw64Scene* scene, fw64Allocator* allocator) {
     player->engine = engine;
     player->scene = scene;
     player->settings = NULL;
@@ -43,13 +41,14 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     player->roll_timer_max = PLAYER_DEFAULT_ROLL_TIME;
 
     player->mesh_index = 0;
+    player->deaths = 0;
 
     fw64_node_init(&player->node);
-    fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, NULL);
-    player_palette_init(&player->palette, engine, player_mesh, NULL);
-    player->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine, NULL);
+    fw64Mesh* player_mesh = fw64_mesh_load(engine->assets, FW64_ASSET_mesh_catherine, allocator);
+    player_palette_init(&player->palette, engine, player_mesh, allocator);
+    player->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine, allocator);
     
-    fw64_animation_controller_init(&player->animation_controller, player->animation_data, -1, NULL);
+    fw64_animation_controller_init(&player->animation_controller, player->animation_data, -1, allocator);
     player_tweak_root_animation_rotation(player);
     fw64_node_set_mesh(&player->node,  player_mesh);
     fw64_node_set_box_collider(&player->node, &player->collider);
@@ -58,11 +57,18 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
 
     player_reset(player);
 
-    sparkle_init(&player->sparkle, engine);
+    sparkle_init(&player->sparkle, engine, allocator);
+    shadow_init(&player->shadow, engine, NULL, &player->node.transform, allocator);
+}
 
-    shadow_init(&player->shadow, engine, NULL, &player->node.transform);
 
-    player->deaths = 0;
+void player_uninit(Player* player, fw64Allocator* allocator) {
+    fw64_mesh_delete(player->engine->assets, player->node.mesh, allocator);
+    fw64_animation_data_delete(player->animation_data, allocator);
+    fw64_animation_controller_uninit(&player->animation_controller, allocator);
+
+    shadow_uninit(&player->shadow, allocator);
+    sparkle_uninit(&player->sparkle, allocator);
 }
 
 void player_reset(Player* player) {
@@ -425,8 +431,13 @@ void update_position(Player* player) {
             Vec3 direction;
             vec3_subtract(&direction, &query_center, &hit->point);
             vec3_normalize(&direction);
+
+            Vec3 abs_dir = direction;
+            abs_dir.x = fw64_fabsf(direction.x);
+            abs_dir.y = fw64_fabsf(direction.y);
+            abs_dir.z = fw64_fabsf(direction.z);
             
-            int is_grounded = (direction.y > direction.x && direction.y > direction.z);
+            int is_grounded = (abs_dir.y > abs_dir.x && abs_dir.y > abs_dir.z);
 
             // ground
             if (is_grounded && player->air_velocity <= 0.0f) {
