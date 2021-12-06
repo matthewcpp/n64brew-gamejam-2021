@@ -155,23 +155,28 @@
                 "name": "title_font_image",
                 "frames": [
                     "fire_font/let_sp.png",
-                    "fire_font/let_c.png",
+                    "fire_font/let_a.png",
+                    "fire_font/let_b.png",
+                    "fire_font/let_d.png",
+
                     "fire_font/let_e.png",
-                    "fire_font/let_i.png",
                     "fire_font/let_l.png",
+                    "fire_font/let_m.png",
                     "fire_font/let_n.png",
+
+                    "fire_font/let_o.png",
                     "fire_font/let_r.png",
-                    "fire_font/let_s.png",
-                    "fire_font/let_t.png"
+                    "fire_font/let_t.png",
+                    "fire_font/let_u.png"
                 ],
                 "frameSize": "32x32",
-                "hslices": 3,
+                "hslices": 4,
                 "vslices": 3
             },
             "name": "title_font",
-            "sourceString": " ceilnrst"
+            "sourceString": " abdelmnortu"
         },
-                {
+        {
             "image": {
                 "name": "title_menu_font_image",
                 "frames": [
@@ -204,6 +209,25 @@
             },
             "name": "title_menu_font",
             "sourceString": " abcdefgilmnoprstuwxy"
+        },
+        {
+            "image": {
+                "name": "end_font_image",
+                "frames": [
+                    "fire_font/let_sp.png",
+                    "fire_font/let_a.png",
+                    "fire_font/let_c.png",
+
+                    "fire_font/let_e.png",
+                    "fire_font/let_l.png",
+                    "fire_font/let_r.png"
+                ],
+                "frameSize": "32x32",
+                "hslices": 2,
+                "vslices": 3
+            },
+            "name": "end_font_title",
+            "sourceString": " acelr"
         }
     ],
     "soundBanks": [

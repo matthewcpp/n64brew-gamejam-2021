@@ -14,6 +14,8 @@ typedef struct {
     fw64Camera camera;
     UiNavigation ui_navigation;
     TitleAnimation animation;
+    fw64Font* title_font;
+    IVec2 measurements[2];
     fw64BumpAllocator allocator;
 } EndScreen;
 

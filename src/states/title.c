@@ -26,8 +26,8 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
 
         fw64_camera_init(&title_screen->camera);
 
-        title_screen->measurements[0] = fw64_font_measure_text(title_screen->title_font, "title");
-        title_screen->measurements[1] = fw64_font_measure_text(title_screen->title_font, "screen");
+        title_screen->measurements[0] = fw64_font_measure_text(title_screen->title_font, "tandem");
+        title_screen->measurements[1] = fw64_font_measure_text(title_screen->title_font, "trouble");
         title_screen->measurements[2] = fw64_font_measure_text(title_screen->menu_font, "single player");
         title_screen->measurements[3] = fw64_font_measure_text(title_screen->menu_font, "multiplayer");
         title_screen->measurements[4] = fw64_font_measure_text(title_screen->menu_font, "controlled");
@@ -39,6 +39,8 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
         title_screen->indicator_texture = fw64_texture_create_from_image(fw64_image_load(engine->assets, FW64_ASSET_image_title_indicator, allocator), allocator);
 
         title_animation_init(&title_screen->animation, engine, catherine_title_animation_Idle, allocator);
+        title_screen->animation.animation_controller.speed = 0.2f;
+
         player_palette_init(&title_screen->palette, engine, title_screen->animation.mesh, allocator);
         setup_camera(title_screen);
         title_screen->rotation = 0.0f;
@@ -183,9 +185,9 @@ void title_screen_draw(TitleScreen* title_screen){
     fw64_renderer_begin(renderer, &title_screen->camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
 
     int x_pos = (screen_size.x / 2) - (title_screen->measurements[0].x / 2);
-    fw64_renderer_draw_text(renderer, title_screen->title_font, x_pos,5, "title");
+    fw64_renderer_draw_text(renderer, title_screen->title_font, x_pos, 25, "tandem");
     x_pos = (screen_size.x / 2) - (title_screen->measurements[1].x / 2);
-    fw64_renderer_draw_text(renderer, title_screen->title_font, x_pos, 42, "screen");
+    fw64_renderer_draw_text(renderer, title_screen->title_font, x_pos, 62, "trouble");
 
     x_pos = (screen_size.x / 2) - (title_screen->measurements[2].x / 2);
     fw64_renderer_draw_text(renderer, title_screen->menu_font, x_pos, 105, "single player");

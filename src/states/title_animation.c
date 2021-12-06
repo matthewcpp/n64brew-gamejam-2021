@@ -9,7 +9,6 @@ void title_animation_init(TitleAnimation* animation, fw64Engine* engine, int ini
     animation->animation_data = fw64_animation_data_load(engine->assets, FW64_ASSET_animation_data_catherine_title, allocator);
     fw64_animation_controller_init(&animation->animation_controller, animation->animation_data, inital_animation, allocator);
     fw64_animation_controller_play(&animation->animation_controller);
-    animation->animation_controller.speed = 0.1f;
 
     fw64_transform_init(&animation->transforms[0]);
     vec3_set(&animation->transforms[0].position, 0.0f, 0.0f, 1.5f);
