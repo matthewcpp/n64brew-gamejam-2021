@@ -61,6 +61,8 @@ void player_init(Player* player, fw64Engine* engine, fw64Scene* scene) {
     sparkle_init(&player->sparkle, engine);
 
     shadow_init(&player->shadow, engine, NULL, &player->node.transform);
+
+    player->deaths = 0;
 }
 
 void player_reset(Player* player) {
