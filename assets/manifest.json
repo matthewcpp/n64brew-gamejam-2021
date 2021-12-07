@@ -298,6 +298,7 @@
             "start": 0,
             "movingplatform": 25,
             "platformtarget": 26,
+            "prevscene": 99,
             "nextscene": 100,
             "connector": 101,
             "key": 200,

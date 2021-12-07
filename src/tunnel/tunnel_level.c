@@ -6,17 +6,30 @@
 #include "scene_hallway.h"
 #include "typemap.h"
 
+// 11th hour fix for moving backwards
+#define SCENE_COUNT 4
+int scene_handles[SCENE_COUNT] = {FW64_ASSET_scene_hallway, FW64_ASSET_scene_lavapit, FW64_ASSET_scene_firewall, FW64_ASSET_scene_atrium};
+
+static int find_scene_index(int handle) {
+    for (int i = 0; i < SCENE_COUNT; i++) {
+        if (scene_handles[i] == handle)
+            return i;
+    }
+}
+
 // TODO: this can probably be tweaked...the current debug font is really big
 #define TUNNEL_ALLOCATOR_SIZE 200 * 1024
 
 static void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data);
 static void on_fade_effect_complete(FadeDirection direction, void* arg);
+static void tunnel_level_load_prev(TunnelLevel* level);
 
 void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* state_data) {
     level->engine = engine;
     level->state_data = state_data;
 
     level->game_settings = NULL;
+    level->scene_index = 0;
 
     fw64_bump_allocator_init(&level->bump_allocator, TUNNEL_ALLOCATOR_SIZE);
     fw64Allocator* allocator = &level->bump_allocator.interface;
@@ -36,6 +49,8 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     SceneDescription desc;
     tunnel_hallway_description(&desc);
     scene_manager_load_current_scene(&level->scene_manager, &desc); // note this will activate the scene
+    int index = find_scene_index(desc.index);
+    vec3_zero(&level->scene_connectors[index]);
 
     fw64_renderer_set_light_enabled(engine->renderer, 1, 1);
 
@@ -67,9 +82,14 @@ void tunnel_level_update(TunnelLevel* level){
     }
 
     trigger_box_update(&level->next_scene_trigger);
+    trigger_box_update(&level->prev_scene_trigger);
 
     if (trigger_box_was_triggered(&level->next_scene_trigger)) {
         tunnel_level_load_next(level);
+    }
+
+    if (trigger_box_was_triggered(&level->prev_scene_trigger)) {
+        tunnel_level_load_prev(level);
     }
 
     scene_manager_update(&level->scene_manager);
@@ -135,6 +155,10 @@ void tunnel_level_scene_activated(void* level_arg, fw64Scene* scene, void* data)
     search_node = NULL;
     fw64_scene_find_nodes_with_type(scene, NODE_TYPE_NEXTSCENE, &search_node, 1);
     trigger_box_init(&level->next_scene_trigger, search_node, &level->player.collider);
+
+    search_node = NULL;
+    fw64_scene_find_nodes_with_type(scene, NODE_TYPE_PREVSCENE, &search_node, 1);
+    trigger_box_init(&level->prev_scene_trigger, search_node, &level->player.collider);
 }
 
 void tunnel_level_uninit(TunnelLevel* level) {
@@ -165,32 +189,60 @@ void tunnel_level_load_next(TunnelLevel* level) {
     fw64Node* connector = NULL;
     fw64_scene_find_nodes_with_type(current_scene->scene, NODE_TYPE_CONNECTOR, &connector, 1);
 
+    SceneDescription desc;
     switch (current_scene->desc.index)
     {
-        case FW64_ASSET_scene_hallway: {
-            SceneDescription desc;
+        case FW64_ASSET_scene_hallway:
             tunnel_lavapit_description(&desc);
-            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
-        }
         
-        case FW64_ASSET_scene_lavapit: {
-            SceneDescription desc;
+        case FW64_ASSET_scene_lavapit: 
             tunnel_firewall_description(&desc);
-            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
-        }
 
-        case FW64_ASSET_scene_firewall: {
-            SceneDescription desc;
+        case FW64_ASSET_scene_firewall: 
             tunnel_atrium_description(&desc);
-            scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
             break;
-        }
     
     default:
-        break;
+        return;
     }
+
+    
+    int index = find_scene_index(desc.index);
+    level->scene_connectors[index] = connector->transform.position;
+    scene_manager_load_next_scene(&level->scene_manager, &desc, &connector->transform);
+}
+
+void tunnel_level_load_prev(TunnelLevel* level) {
+    SceneRef* current_scene = scene_manager_get_current(&level->scene_manager);
+    
+    SceneDescription desc;
+
+    switch (current_scene->desc.index)
+    {        
+        case FW64_ASSET_scene_lavapit: 
+            tunnel_hallway_description(&desc);
+            break;
+        
+
+        case FW64_ASSET_scene_firewall: 
+            tunnel_lavapit_description(&desc);
+            break;
+
+        case FW64_ASSET_scene_atrium:
+            tunnel_firewall_description(&desc);
+            break;
+    
+    default:
+        return;
+    }
+
+    int index = find_scene_index(desc.index);
+    fw64Transform temp_transform;
+    fw64_transform_init(&temp_transform);
+    temp_transform.position = level->scene_connectors[index];
+    scene_manager_load_next_scene(&level->scene_manager, &desc, &temp_transform);
 }
 
 void on_fade_effect_complete(FadeDirection direction, void* arg) {

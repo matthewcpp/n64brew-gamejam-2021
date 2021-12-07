@@ -12,8 +12,8 @@
                 9,
                 23,
                 26,
-                45,
-                73
+                46,
+                75
             ]
         }
     ],
@@ -98,7 +98,7 @@
             "translation" : [
                 0,
                 10,
-                -60
+                -12
             ]
         },
         {
@@ -447,6 +447,22 @@
         },
         {
             "extras" : {
+                "type" : "prevscene"
+            },
+            "name" : "Lavapit LoadPrev",
+            "scale" : [
+                54.15729522705078,
+                59.34341812133789,
+                9.738883018493652
+            ],
+            "translation" : [
+                0,
+                22.999998092651367,
+                -17.00000762939453
+            ]
+        },
+        {
+            "extras" : {
                 "type" : "start"
             },
             "name" : "Lavapit Start",
@@ -610,14 +626,15 @@
                 40,
                 41,
                 42,
-                43
+                43,
+                44
             ],
             "name" : "Scene.002"
         },
         {
             "children" : [
                 28,
-                44
+                45
             ],
             "name" : "LavaPit",
             "translation" : [
@@ -847,6 +864,22 @@
         },
         {
             "extras" : {
+                "type" : "prevscene"
+            },
+            "name" : "Firewall Load Prev",
+            "scale" : [
+                18.707847595214844,
+                13.994331359863281,
+                5.049127101898193
+            ],
+            "translation" : [
+                0,
+                7,
+                -7
+            ]
+        },
+        {
+            "extras" : {
                 "type" : "start"
             },
             "name" : "Firewall Start",
@@ -1008,7 +1041,7 @@
             "translation" : [
                 0,
                 7,
-                -243
+                -149
             ]
         },
         {
@@ -1079,7 +1112,6 @@
         },
         {
             "children" : [
-                46,
                 47,
                 48,
                 49,
@@ -1104,13 +1136,15 @@
                 68,
                 69,
                 70,
-                71
+                71,
+                72,
+                73
             ],
             "name" : "Scene"
         },
         {
             "children" : [
-                72
+                74
             ],
             "name" : "Firewall",
             "translation" : [
