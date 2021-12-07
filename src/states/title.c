@@ -2,6 +2,7 @@
 
 #include "assets.h"
 #include "catherine_title_animation.h"
+#include "music_bank_music.h"
 
 #include "framework64/n64/controller_button.h"
 
@@ -21,6 +22,9 @@ void title_screen_init(TitleScreen* title_screen, fw64Engine* engine, GameStateD
 
         title_screen->title_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_font, allocator);
         title_screen->menu_font = fw64_font_load(engine->assets, FW64_ASSET_font_title_menu_font, allocator);
+
+        fw64_audio_set_music_volume(engine->audio, 0.75);
+        fw64_audio_play_music(engine->audio, music_bank_music_n64_main);
 
         title_screen->menu_selection = MENU_CHOICE_SINGLE_PLAYER;
 
@@ -50,6 +54,10 @@ void title_screen_update(TitleScreen* title_screen){
     update_camera(title_screen);
     title_animation_update(&title_screen->animation);
     ui_navigation_update(&title_screen->ui_navigation);
+
+    if (fw64_audio_get_music_status(title_screen->engine->audio) == FW64_AUDIO_STOPPED) {
+        fw64_audio_play_music(title_screen->engine->audio, music_bank_music_n64_main);
+    }
 
     if (title_screen->menu_selection == MENU_CHOICE_SINGLE_PLAYER && ui_navigation_moved_down(&title_screen->ui_navigation)) {
         title_screen->menu_selection = MENU_CHOICE_MULTIPLAYER;
@@ -260,6 +268,9 @@ void title_screen_draw(TitleScreen* title_screen){
 void title_screen_uninit(TitleScreen* title_screen) {
     fw64Allocator* allocator = &title_screen->allocator.interface;
 
+    fw64_audio_stop_music(title_screen->engine->audio);
+    fw64_audio_set_music_volume(title_screen->engine->audio, 1.0f);
+
     fw64Image* indicators = fw64_texture_get_image(title_screen->indicator_texture);
 
     fw64_font_delete(title_screen->engine->assets, title_screen->title_font, allocator);
@@ -270,18 +281,18 @@ void title_screen_uninit(TitleScreen* title_screen) {
     fw64_bump_allocator_uninit(&title_screen->allocator);
 }
 
-void setup_camera(TitleScreen* end_screen) {
-    fw64_camera_init(&end_screen->camera);
-    end_screen->camera.near = 1;
-    end_screen->camera.far = 25.0f;
-    fw64_camera_update_projection_matrix(&end_screen->camera);
+void setup_camera(TitleScreen* title_screen) {
+    fw64_camera_init(&title_screen->camera);
+    title_screen->camera.near = 1;
+    title_screen->camera.far = 25.0f;
+    fw64_camera_update_projection_matrix(&title_screen->camera);
 
-    vec3_set(&end_screen->camera.transform.position, 0.0f, 3.0f, 5.0f);
+    vec3_set(&title_screen->camera.transform.position, 0.0f, 3.0f, 5.0f);
 
     Vec3 target = {0.0f, 4.0f, 0.0f};
     Vec3 up = {0.0f, 1.0f, 0.0f};
-    fw64_transform_look_at(&end_screen->camera.transform, &target, &up);
-    fw64_camera_update_view_matrix(&end_screen->camera);
+    fw64_transform_look_at(&title_screen->camera.transform, &target, &up);
+    fw64_camera_update_view_matrix(&title_screen->camera);
 
 }
 

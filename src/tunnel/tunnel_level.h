@@ -18,10 +18,12 @@ typedef struct {
     ChaseCamera chase_cam;
     SceneManager scene_manager;
     TriggerBox next_scene_trigger;
+    TriggerBox prev_scene_trigger;
+    Vec3 scene_connectors[4];
+    int scene_index;
     FadeEffect fade_effect;
     int debug;
     fw64SoundBank* sound_bank;
-    fw64MusicBank* music_bank;
     fw64BumpAllocator bump_allocator;
 } TunnelLevel;
 

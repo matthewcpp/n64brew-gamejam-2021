@@ -409,12 +409,11 @@ static Vec3 calculate_movement_vector(Player* player) {
     return movement;
 }
 
-void update_position(Player* player) {
+static void update_position_step(Player* player, Vec3* movement) {
     player->previous_position = player->node.transform.position;
     Vec3* position = &player->node.transform.position;
 
-    Vec3 movement = calculate_movement_vector(player);
-    vec3_add(position, position, &movement);
+    vec3_add(position, position, movement);
 
     PlayerState new_state = PLAYER_STATE_FALLING;
     float height_radius = player->height / 2.0f;
@@ -464,6 +463,21 @@ void update_position(Player* player) {
     }
 
     player->state = new_state;
+}
+
+void update_position(Player* player) {
+    Vec3 movement = calculate_movement_vector(player);
+
+    if (player->is_dashing) {
+        vec3_scale(&movement, &movement, 1.0f / 3.0f);
+        for (int i = 0; i < 3; i++) {
+            update_position_step(player, &movement);
+        }
+    }
+    else  {
+        update_position_step(player, &movement);
+    }
+    
 
     fw64_node_update(&player->node);
 }
