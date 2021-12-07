@@ -23,7 +23,6 @@ typedef struct {
     int scene_index;
     FadeEffect fade_effect;
     int debug;
-    fw64SoundBank* sound_bank;
     fw64BumpAllocator bump_allocator;
 } TunnelLevel;
 
