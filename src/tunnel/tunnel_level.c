@@ -230,9 +230,11 @@ void tunnel_level_set_camera_for_scene(TunnelLevel* level) {
         case FW64_ASSET_scene_lavapit:
             chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_SIDE, 44.5f, 16.0f, -17.0f, 0.0f);
             break;
-        case FW64_ASSET_scene_hallway:  /* fall through */
         case FW64_ASSET_scene_atrium:   /* fall through */   
         case FW64_ASSET_scene_firewall: /* fall through */
+            chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_CHASE_GROUNDED, 20.0f, 7.0f, 0.0f, 4.0f);
+            break;
+        case FW64_ASSET_scene_hallway:  /* fall through */
         default:
             chase_camera_set_mode(&level->chase_cam, CAMERA_MODE_CHASE, 30.0f, 12.0f, 0.0f, 0.0f);
             break;
