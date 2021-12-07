@@ -35,19 +35,23 @@ void chase_camera_init(ChaseCamera* chase_cam, fw64Engine* engine) {
     chase_cam->last_mode = CAMERA_MODE_CHASE;
     chase_cam->mode_changed = 0;
     chase_cam->mode_transition = 0;
+    chase_cam->target_transition = 0;
+    chase_cam->current_collision_distance_adjustment = 0.0f;
 }
 
-static void chase_camera_update_position(ChaseCamera* chase_cam) {
+static void chase_camera_update_position(ChaseCamera* chase_cam) {   
     //only update in the right camera mode with good data
     if (!chase_cam->target) return;
     if (!chase_cam->scene)  return;
     if (chase_cam->mode == CAMERA_MODE_MANUAL) return;
 
+    fw64_transform_forward(chase_cam->target, &chase_cam->player_forward_dir);
+
     //setup basic variables
     Vec3 vec_up = {0.0f, 1.0f, 0.0f};
     Vec3 camera_pos, camera_target;
     Vec3 vec_camera_settings_offset;
-    vec3_zero(&vec_camera_settings_offset); //chase_cam->target_follow_height, chase_cam->target_follow_dist       
+    vec3_zero(&vec_camera_settings_offset);     
     vec3_copy(&camera_pos, &chase_cam->camera.transform.position);
     vec3_copy(&camera_target, &chase_cam->last_target_position);
 
@@ -55,9 +59,9 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
     float* camera_target_forward_back;
     float* camera_target_up_down;
 
-    float* player_left_right;
-    float* player_forward_back;
-    float* player_up_down;
+    float player_left_right;
+    float player_forward_back;
+    float player_up_down;
 
     float  left_right_bounding;
     float  forward_back_bounding;
@@ -66,87 +70,96 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
     float* camera_offset_back;
     float* camera_offset_up;
 
+    //add target position offset
+    
+    if(chase_cam->mode == CAMERA_MODE_SIDE && !(chase_cam->mode_transition || chase_cam->mode_changed)) {
+        if(fabs(chase_cam->target_forward_dist - chase_cam->player_forward_dir.z) > fabs(chase_cam->target_forward_dist) + 0.75f) {
+            chase_cam->target_forward_dist *= -1.0f;
+            chase_cam->target_transition = 1;
+        }
+    }
+
     //this is really dumb, but it sets the axes correctly for the 3 different camera orientations
     //then we use the same conditions to translate the camera correctly for all orientations
     //todo: use actual math to just make everything relative to the camera plane
     switch(chase_cam->mode) {
         case(CAMERA_MODE_TOP):
+            camera_offset_back         = &vec_camera_settings_offset.y;
+            camera_offset_up           = &vec_camera_settings_offset.z;
+
             camera_target_left_right   = &camera_target.x;
-            player_left_right          = &chase_cam->target->position.x;
+            player_left_right          =  chase_cam->target->position.x;
             left_right_bounding        =  chase_cam->target_bounding_radius;
 
             camera_target_forward_back = &camera_target.y;
-            player_forward_back        = &chase_cam->target->position.y;
+            player_forward_back        =  chase_cam->target->position.y + chase_cam->target_forward_dist;
             forward_back_bounding      =  chase_cam->target_bounding_height;
 
             camera_target_up_down      = &camera_target.z;
-            player_up_down             = &chase_cam->target->position.z;
+            player_up_down             =  chase_cam->target->position.z + chase_cam->target_forward_height;
             up_down_bounding           =  chase_cam->target_bounding_height;
-
-            camera_offset_back         = &vec_camera_settings_offset.y;
-            camera_offset_up           = &vec_camera_settings_offset.z;
             break;
         case(CAMERA_MODE_SIDE):
+            camera_offset_back         = &vec_camera_settings_offset.x;
+            camera_offset_up           = &vec_camera_settings_offset.y;
+
             camera_target_left_right   = &camera_target.z;
-            player_left_right          = &chase_cam->target->position.z;
+            player_left_right          =  chase_cam->target->position.z + (chase_cam->target_forward_dist * CAMERA_PROJ_MULT_H * (1.0f - (chase_cam->current_collision_distance_adjustment / chase_cam->target_follow_dist)));
             left_right_bounding        =  chase_cam->target_bounding_height;
 
             camera_target_forward_back = &camera_target.x;
-            player_forward_back        = &chase_cam->target->position.x;
+            player_forward_back        =  chase_cam->target->position.x;
             forward_back_bounding      =  chase_cam->target_bounding_radius;
 
             camera_target_up_down      = &camera_target.y;
-            player_up_down             = &chase_cam->target->position.y;
+            player_up_down             =  chase_cam->target->position.y + chase_cam->target_forward_height;
             up_down_bounding           =  chase_cam->target_bounding_height;
-
-            camera_offset_back         = &vec_camera_settings_offset.x;
-            camera_offset_up           = &vec_camera_settings_offset.y;
             break;
         case(CAMERA_MODE_CHASE): /* fall through */
         default:
+            camera_offset_back         = &vec_camera_settings_offset.z;
+            camera_offset_up           = &vec_camera_settings_offset.y;
+
             camera_target_left_right   = &camera_target.x;
-            player_left_right          = &chase_cam->target->position.x;
+            player_left_right          =  chase_cam->target->position.x;
             left_right_bounding        =  chase_cam->target_bounding_radius;
 
             camera_target_forward_back = &camera_target.z;
-            player_forward_back        = &chase_cam->target->position.z;
+            player_forward_back        =  chase_cam->target->position.z + chase_cam->target_forward_dist;
             forward_back_bounding      =  chase_cam->target_bounding_height;
 
             camera_target_up_down      = &camera_target.y;
-            player_up_down             = &chase_cam->target->position.y;
+            player_up_down             =  chase_cam->target->position.y + chase_cam->target_forward_height;
             up_down_bounding           =  chase_cam->target_bounding_height;
-
-            camera_offset_back         = &vec_camera_settings_offset.z;
-            camera_offset_up           = &vec_camera_settings_offset.y;
             break;
     }
 
     //translate left or right
-    if(*camera_target_left_right < *player_left_right) {
-        if(*player_left_right - *camera_target_left_right > left_right_bounding) {
-            *camera_target_left_right += (*player_left_right - *camera_target_left_right - left_right_bounding);
+    if(*camera_target_left_right < player_left_right) {
+        if(player_left_right - *camera_target_left_right > left_right_bounding) {
+            *camera_target_left_right += (player_left_right - *camera_target_left_right - left_right_bounding);
         }
     }
     else {
-        if(*camera_target_left_right - *player_left_right > left_right_bounding) {
-            *camera_target_left_right -= (*camera_target_left_right - *player_left_right - left_right_bounding);
+        if(*camera_target_left_right - player_left_right > left_right_bounding) {
+            *camera_target_left_right -= (*camera_target_left_right - player_left_right - left_right_bounding);
         }
     }
 
     //translate forward or backward
-    if(*camera_target_forward_back < *player_forward_back) {
-        if(*player_forward_back - *camera_target_forward_back > forward_back_bounding) {
-            *camera_target_forward_back += (*player_forward_back - *camera_target_forward_back - forward_back_bounding);
+    if(*camera_target_forward_back < player_forward_back) {
+        if(player_forward_back - *camera_target_forward_back > forward_back_bounding) {
+            *camera_target_forward_back += (player_forward_back - *camera_target_forward_back - forward_back_bounding);
         }
     }
     else {
-        if(*camera_target_forward_back - *player_forward_back > forward_back_bounding) {
-            *camera_target_forward_back -= (*camera_target_forward_back - *player_forward_back - forward_back_bounding);
+        if(*camera_target_forward_back - player_forward_back > forward_back_bounding) {
+            *camera_target_forward_back -= (*camera_target_forward_back - player_forward_back - forward_back_bounding);
         }
     }
 
     //translate up or down
-    float y_val = (up_down_bounding / 2) + *player_up_down;
+    float y_val = (up_down_bounding / 2) + player_up_down;
     if(*camera_target_up_down < y_val) {
         if(y_val - *camera_target_up_down > up_down_bounding) {
             *camera_target_up_down += (y_val - *camera_target_up_down - up_down_bounding);
@@ -157,8 +170,25 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
             *camera_target_up_down -= (*camera_target_up_down - y_val - up_down_bounding);
         }
     }
+
+    if(chase_cam->target_transition) {
+        float target_pos_error_dist = vec3_distance(&camera_target, &chase_cam->last_target_position);
+        float adj_speed = chase_cam->camera_adjust_speed * chase_cam->engine->time->time_delta;
+        if(target_pos_error_dist < adj_speed) {
+            chase_cam->target_transition = 0;
+        }
+        else {
+            Vec3 ideal_target_position, target_pos_error_vec;
+            vec3_copy(&ideal_target_position, &camera_target);
+            vec3_subtract(&target_pos_error_vec, &ideal_target_position, &chase_cam->last_target_position);
+            vec3_normalize(&target_pos_error_vec);
+            vec3_scale(&target_pos_error_vec, &target_pos_error_vec, adj_speed);
+            vec3_add(&camera_target, &chase_cam->last_target_position, &target_pos_error_vec);
+        }
+    }
     
     //offset camera from target
+    vec3_zero(&vec_camera_settings_offset);
     *camera_offset_up   = chase_cam->target_follow_height;
     *camera_offset_back = chase_cam->target_follow_dist;
 
@@ -188,7 +218,6 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
     else {
         vec3_add(&camera_pos, &camera_target, &vec_camera_settings_offset);
     }
-    
 
     //detect scene geometry blocking line of sight and move forward if needed
     fw64RaycastHit ray_hit;
@@ -198,6 +227,7 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
     vec3_normalize(&ray_dir);
     fw64_scene_raycast(chase_cam->scene, &camera_target, &ray_dir, ~(NODE_LAYER_GROUND), &ray_hit);
     float camera_total_dist = vec3_distance(&camera_target, &camera_pos);
+    float camera_ideal_distance = camera_total_dist;
     if(ray_hit.distance < camera_total_dist) {
         vec3_subtract(&ray_dir, &ray_hit.point, &camera_pos);
         vec3_normalize(&ray_dir);
@@ -211,6 +241,7 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
 
     //update screen space player boundaries
     camera_total_dist = vec3_distance(&chase_cam->last_target_position, &chase_cam->camera.transform.position);
+    chase_cam->current_collision_distance_adjustment = camera_ideal_distance - camera_total_dist;
     chase_cam->target_bounding_height = camera_total_dist * CAMERA_PROJ_MULT_V;
     chase_cam->target_bounding_radius = camera_total_dist * CAMERA_PROJ_MULT_H;
 
@@ -274,10 +305,12 @@ void chase_camera_get_forward(ChaseCamera* chase_cam, Vec3* out) {
     vec3_normalize(out);
 }
 
-void chase_camera_set_mode(ChaseCamera* chase_cam, CameraMode new_mode, float new_dist, float new_height) {
+void chase_camera_set_mode(ChaseCamera* chase_cam, CameraMode new_mode, float new_follow_dist, float new_follow_height, float new_forward_dist, float new_forward_height) {
     chase_cam->last_mode = chase_cam->mode;
     chase_cam->mode = new_mode;
-    chase_cam->target_follow_dist = new_dist;
-    chase_cam->target_follow_height = new_height;
+    chase_cam->target_follow_dist = new_follow_dist;
+    chase_cam->target_follow_height = new_follow_height;
+    chase_cam->target_forward_dist = new_forward_dist;
+    chase_cam->target_forward_height = new_forward_height;
     chase_cam->mode_changed = 1;
 }
