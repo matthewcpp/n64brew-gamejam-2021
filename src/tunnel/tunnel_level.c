@@ -99,11 +99,16 @@ void tunnel_level_update(TunnelLevel* level){
 
 void tunnel_level_draw(TunnelLevel* level) {
     fw64Renderer* renderer = level->engine->renderer;
+
+    fw64_renderer_set_anti_aliasing_enabled(renderer, 1);
+
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_TRIANGLES, FW64_RENDERER_FLAG_CLEAR);
     scene_manager_draw(&level->scene_manager);
     player_draw(&level->player); // player is drawn last due to sparkle effect ignoring depth buffer
     fade_effect_draw(&level->fade_effect, level->engine->renderer);
     fw64_renderer_end(renderer, FW64_RENDERER_FLAG_NOSWAP);
+
+    fw64_renderer_set_anti_aliasing_enabled(renderer, 0);
 
     fw64_renderer_begin(renderer, &level->chase_cam.camera, FW64_RENDERER_MODE_ORTHO2D, FW64_RENDERER_FLAG_NOCLEAR);
     ui_draw(&level->ui);
