@@ -104,7 +104,7 @@ static void chase_camera_update_position(ChaseCamera* chase_cam) {
             camera_offset_up           = &vec_camera_settings_offset.y;
 
             camera_target_left_right   = &camera_target.z;
-            player_left_right          =  chase_cam->target->position.z + (chase_cam->target_forward_dist * CAMERA_PROJ_MULT_H * (1.0f - (chase_cam->current_collision_distance_adjustment / chase_cam->target_follow_dist)));
+            player_left_right          =  chase_cam->target->position.z + (chase_cam->target_forward_dist * (1.0f - (chase_cam->current_collision_distance_adjustment / chase_cam->target_follow_dist)));
             left_right_bounding        =  chase_cam->target_bounding_height;
 
             camera_target_forward_back = &camera_target.x;
