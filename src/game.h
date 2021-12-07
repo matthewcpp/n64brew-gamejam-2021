@@ -20,6 +20,7 @@ typedef struct {
     GameState current_state;
     States states;
     fw64MusicBank* music_bank;
+    fw64SoundBank* sound_bank;
     GameStateData state_data;
 } Game;
 
