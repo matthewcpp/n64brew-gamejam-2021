@@ -19,6 +19,7 @@ typedef struct {
     fw64Engine* engine;
     GameState current_state;
     States states;
+    fw64MusicBank* music_bank;
     GameStateData state_data;
 } Game;
 

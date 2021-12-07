@@ -7,6 +7,8 @@ void game_init(Game* game, fw64Engine* engine) {
     game->current_state = GAME_STATE_NONE;
 
     game_state_data_init(&game->state_data);
+    game->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music, NULL);
+    fw64_audio_set_music_bank(engine->audio, game->music_bank);
 
     game_set_current_state(game, GAME_STATE_TITLE);
 }
