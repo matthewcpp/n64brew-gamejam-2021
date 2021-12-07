@@ -114,9 +114,6 @@
     ],
     "meshes": [
         {
-            "src": "n64_logo_model/n64_logo.gltf"
-        },
-        {
             "src": "girl/girl.gltf"
         }
         
@@ -279,11 +276,6 @@
         }
     ],
     "levels": [
-        {
-            "src": "simple_scene/simple_scene.gltf",
-            "typeMap": 0,
-            "layerMap": 0
-        },
         {
             "src": "haunted_tunnel/haunted_tunnel.gltf",
             "typeMap": 0,

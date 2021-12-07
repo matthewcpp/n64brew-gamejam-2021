@@ -1,7 +1,6 @@
 set(src_files
     animated_material_texture.h animated_material_texture.c
     chase_camera.h chase_camera.c
-    enemy.h enemy.c
     fade_effect.h fade_effect.c
     game.h game.c
     moving_platform.h moving_platform.c
