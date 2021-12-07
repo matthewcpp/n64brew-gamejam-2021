@@ -60,10 +60,8 @@ void tunnel_level_init(TunnelLevel* level, fw64Engine* engine, GameStateData* st
     fade_effect_set_callback(&level->fade_effect, on_fade_effect_complete, level);
   
     level->sound_bank = fw64_sound_bank_load(engine->assets, FW64_ASSET_soundbank_sound_effects, allocator);
-    level->music_bank = fw64_music_bank_load(engine->assets, FW64_ASSET_musicbank_music, allocator);
 
     fw64_audio_set_sound_bank(engine->audio, level->sound_bank);
-    fw64_audio_set_music_bank(engine->audio, level->music_bank);
 
     fw64_audio_play_music(engine->audio, music_bank_music_runnyeye);
 
@@ -165,12 +163,9 @@ void tunnel_level_uninit(TunnelLevel* level) {
     fw64_renderer_set_light_enabled(level->engine->renderer, 1, 0);
     fw64_audio_stop_music(level->engine->audio);
     
-    fw64_audio_set_music_volume(level->engine->audio, 1.0f);
-
     fw64Allocator* allocator = &level->bump_allocator.interface;
     player_uninit(&level->player, allocator);
     fw64_sound_bank_delete(level->engine->assets, level->sound_bank, allocator);
-    fw64_music_bank_delete(level->engine->assets, level->music_bank, allocator);
 
     scene_manager_uninit(&level->scene_manager);
 
