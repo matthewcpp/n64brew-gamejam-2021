@@ -1,33 +1,8 @@
 {
-    "cmake.buildDirectory": "${workspaceFolder}/build_desktop",
-    "cmake.generator": "CodeBlocks - NMake Makefiles",
-    "cmake.configureSettings": {
-        "CMAKE_TOOLCHAIN_FILE": "${env:VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_MANIFEST_DIR": "${workspaceFolder}/lib/framework64"
-    },
-    "cmake.debugConfig": {
-        "externalConsole": true
-    },
+    "cmake.buildDirectory": "${workspaceFolder}/build_${variant:platform}",
+    "cmake.configureOnOpen": false,
     "files.associations": {
-        "level1.h": "c",
-        "player.h": "c",
-        "assets.h": "c",
-        "trigger_box.h": "c",
-        "scene_hallway.h": "c",
-        "scene_atrium.h": "c",
-        "tunnel_level.h": "c",
-        "algorithm": "c",
-        "scene_lavapit.h": "c",
-        "vec3.h": "c",
-        "scene_manager.h": "c",
-        "shadow.h": "c",
-        "image.h": "c",
-        "stdlib.h": "c",
-        "scene_firewall.h": "c",
-        "box.h": "c",
-        "atrium.h": "c",
-        "hallway.h": "c",
-        "assert.h": "c"
-    },
-    "cmake.configureOnOpen": true
+        "music_bank_music.h": "c",
+        "title.h": "c"
+    }
 }
