@@ -15,6 +15,8 @@ static int find_scene_index(int handle) {
         if (scene_handles[i] == handle)
             return i;
     }
+
+    return -1;
 }
 
 // TODO: this can probably be tweaked...the current debug font is really big

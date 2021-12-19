@@ -3,6 +3,7 @@
 #include "assets.h"
 #include "catherine_title_animation.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #define END_SCREEN_ALLOCATOR_SIZE 128 * 1024
